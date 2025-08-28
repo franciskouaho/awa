@@ -1,0 +1,37 @@
+// Règles Firestore pour la production
+// À déployer via la console Firebase ou Firebase CLI
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Règles pour la collection users
+    match /users/{userId} {
+      // L'utilisateur peut lire et modifier ses propres données
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Permettre la création d'un nouvel utilisateur
+      allow create: if request.auth != null;
+    }
+    
+    // Règles pour d'autres collections (à adapter selon vos besoins)
+    match /prayers/{prayerId} {
+      // Lecture publique, écriture pour les utilisateurs authentifiés
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Par défaut, refuser tout accès
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+// Règles pour Firebase Storage (si nécessaire)
+// service firebase.storage {
+//   match /b/{bucket}/o {
+//     match /{allPaths=**} {
+//       allow read, write: if request.auth != null;
+//     }
+//   }
+// }

@@ -1,6 +1,12 @@
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { usePrayers } from '@/hooks/usePrayers';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import {
   Alert,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -8,9 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors } from '@/constants/Colors';
 
 interface AddDrawerContentProps {
   onClose: () => void;
@@ -35,6 +38,7 @@ interface FormErrors {
 
 export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
   const colorScheme = useColorScheme();
+  const { addPrayer } = usePrayers();
   const [currentView, setCurrentView] = useState<'menu' | 'prayer-form'>('menu');
 
   const [formData, setFormData] = useState<FormData>({
@@ -46,6 +50,8 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleAddOption = (optionId: string) => {
     console.log(`Add option pressed: ${optionId}`);
@@ -57,6 +63,13 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
       console.log('Redirection vers formulaire complet - à implémenter');
     }
     // Ici vous pouvez ajouter d'autres options d'ajout
+  };
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setFormData(prev => ({ ...prev, deathDate: selectedDate }));
+    }
   };
 
   const validateForm = (): boolean => {
@@ -82,27 +95,51 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
-      // Simulation de sauvegarde
-      Alert.alert('Succès', `${formData.name} a été ajouté(e) à vos prières.`, [
-        {
-          text: 'OK',
-          onPress: () => {
-            // Reset form
-            setFormData({
-              name: '',
-              age: '',
-              deathDate: new Date(),
-              location: '',
-              personalMessage: '',
-            });
-            setErrors({});
-            setCurrentView('menu');
-            onClose();
-          },
-        },
-      ]);
+      setIsLoading(true);
+      try {
+        // Préparer les données pour Firebase
+        const prayerData = {
+          name: formData.name.trim(),
+          age: parseInt(formData.age),
+          deathDate: formData.deathDate,
+          location: formData.location.trim(),
+          personalMessage: formData.personalMessage.trim(),
+          prayerCount: 0, // Commence à 0
+        };
+
+        // Sauvegarder dans Firebase
+        const result = await addPrayer(prayerData);
+
+        if (result.success) {
+          Alert.alert('Succès', `${formData.name} a été ajouté(e) à vos prières.`, [
+            {
+              text: 'OK',
+              onPress: () => {
+                // Reset form
+                setFormData({
+                  name: '',
+                  age: '',
+                  deathDate: new Date(),
+                  location: '',
+                  personalMessage: '',
+                });
+                setErrors({});
+                setCurrentView('menu');
+                onClose();
+              },
+            },
+          ]);
+        } else {
+          Alert.alert('Erreur', `Impossible de sauvegarder: ${result.error}`);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde:', error);
+        Alert.alert('Erreur', 'Une erreur inattendue s\'est produite lors de la sauvegarde.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -199,6 +236,41 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
               )}
             </View>
 
+            {/* Date de décès */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: Colors[colorScheme ?? 'light'].text }]}>
+                Date de décès
+              </Text>
+              <TouchableOpacity
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: Colors[colorScheme ?? 'light'].surface,
+                    borderColor: Colors[colorScheme ?? 'light'].border,
+                    justifyContent: 'center',
+                  },
+                ]}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text style={[{ color: Colors[colorScheme ?? 'light'].text }, styles.dateText]}>
+                  {formData.deathDate.toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </Text>
+              </TouchableOpacity>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={formData.deathDate}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  onChange={handleDateChange}
+                  maximumDate={new Date()}
+                />
+              )}
+            </View>
+
             {/* Lieu */}
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: Colors[colorScheme ?? 'light'].text }]}>
@@ -262,10 +334,15 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
             <TouchableOpacity
               style={[
                 styles.submitButton,
-                { backgroundColor: Colors[colorScheme ?? 'light'].primary },
+                { 
+                  backgroundColor: isLoading 
+                    ? Colors[colorScheme ?? 'light'].textSecondary 
+                    : Colors[colorScheme ?? 'light'].primary 
+                },
               ]}
               onPress={handleSubmit}
               activeOpacity={0.8}
+              disabled={isLoading}
             >
               <Text
                 style={[
@@ -273,7 +350,7 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
                   { color: Colors[colorScheme ?? 'light'].textOnPrimary },
                 ]}
               >
-                Ajouter cette personne
+                {isLoading ? 'Sauvegarde en cours...' : 'Ajouter cette personne'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -490,5 +567,8 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  dateText: {
+    fontSize: 16,
   },
 });

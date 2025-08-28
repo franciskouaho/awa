@@ -20,68 +20,68 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
 
   const categoryItems = [
     {
-      id: 'basics',
-      title: 'The basics',
-      icon: '🎯',
+      id: 'prayers',
+      title: 'Prières',
+      icon: '🤲',
       color: '#4A90E2',
       isSelected: true,
       isUnlocked: true,
     },
     {
-      id: 'unfiltered',
-      title: 'Unfiltered Raw',
-      icon: '🔫',
+      id: 'quran',
+      title: 'Coran',
+      icon: '📖',
+      color: '#00C851',
+      isSelected: false,
+      isUnlocked: true,
+    },
+    {
+      id: 'dhikr',
+      title: 'Dhikr',
+      icon: '📿',
+      color: '#FF8800',
+      isSelected: false,
+      isUnlocked: true,
+    },
+    {
+      id: 'qibla',
+      title: 'Qibla',
+      icon: '🧭',
       color: '#E94B4B',
       isSelected: false,
       isUnlocked: true,
     },
     {
-      id: 'mental-peace',
-      title: 'Mental Peace',
-      icon: '🔒',
-      color: '#B8B8B8',
+      id: 'calendar',
+      title: 'Calendrier',
+      icon: '📅',
+      color: '#9C27B0',
       isSelected: false,
-      isUnlocked: false,
+      isUnlocked: true,
     },
     {
-      id: 'abundance',
-      title: 'Abundance & Wealth',
-      icon: '🔒',
-      color: '#B8B8B8',
-      isSelected: false,
-      isUnlocked: false,
-    },
-    {
-      id: 'confidence',
-      title: 'Confidence Boost',
-      icon: '🔒',
-      color: '#B8B8B8',
-      isSelected: false,
-      isUnlocked: false,
-    },
-    {
-      id: 'morning-fire',
-      title: 'Morning Fire',
-      icon: '☀️',
+      id: 'names',
+      title: '99 Noms',
+      icon: '✨',
       color: '#F5A623',
       isSelected: false,
       isUnlocked: true,
     },
     {
-      id: 'favorites',
-      title: 'My favorites',
-      icon: '🧺',
+      id: 'duas',
+      title: 'Duas',
+      icon: '🤲',
       color: '#7ED321',
       isSelected: false,
       isUnlocked: true,
     },
     {
-      id: 'anti-depression',
-      title: 'Anti-depression',
-      icon: '🔒',
-      color: '#B8B8B8',
+      id: 'hijri',
+      title: 'Hijri',
+      icon: '🌙',
+      color: '#607D8B',
       isSelected: false,
-      isUnlocked: false,
+      isUnlocked: true,
     },
   ];
 
@@ -108,15 +108,13 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
           </Text>
         </TouchableOpacity>
 
-        <Text style={[styles.title, { color: Colors[colorScheme ?? 'light'].text }]}>
-          The Basics
-        </Text>
+        <Text style={[styles.title, { color: Colors[colorScheme ?? 'light'].text }]}>Bases</Text>
       </View>
 
       {/* Main Content avec background coloré */}
       <View style={styles.mainContent}>
         <Text style={[styles.mainTitle, { color: Colors[colorScheme ?? 'light'].text }]}>
-          What are you looking for?
+          Que cherchez-vous ?
         </Text>
 
         {/* Search Bar */}
@@ -147,7 +145,7 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
           <Text
             style={[styles.makeOwnMixText, { color: Colors[colorScheme ?? 'light'].textOnPrimary }]}
           >
-            Make my own mix
+            Créer ma sélection
           </Text>
         </TouchableOpacity>
 

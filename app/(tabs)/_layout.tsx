@@ -34,7 +34,7 @@ export default function TabLayout() {
             activeOpacity={0.8}
           >
             <IconSymbol size={24} name="square.grid.2x2" color="white" />
-            <Text style={styles.mainButtonText}>The basics</Text>
+            <Text style={styles.mainButtonText}>Bases</Text>
           </TouchableOpacity>
 
           {/* Bouton Add */}

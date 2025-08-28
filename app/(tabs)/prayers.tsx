@@ -36,6 +36,18 @@ export default function PrayersScreen() {
     )
   );
   const [prayedPrayers, setPrayedPrayers] = useState<Set<string>>(new Set());
+  const [likedPrayers, setLikedPrayers] = useState<Set<string>>(new Set());
+
+  // Mémoriser les formules pour éviter qu'elles changent à chaque re-render
+  const [prayerFormulas] = useState<{ [key: string]: any }>(() =>
+    mockPrayers.reduce(
+      (acc, prayer) => ({
+        ...acc,
+        [prayer.id]: getRandomFormula(),
+      }),
+      {}
+    )
+  );
 
   const handlePray = async (prayerId: string) => {
     try {
@@ -55,6 +67,18 @@ export default function PrayersScreen() {
     }
   };
 
+  const handleLike = (prayerId: string) => {
+    setLikedPrayers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(prayerId)) {
+        newSet.delete(prayerId);
+      } else {
+        newSet.add(prayerId);
+      }
+      return newSet;
+    });
+  };
+
   const handleScrollEnd = (event: any) => {
     const index = Math.round(event.nativeEvent.contentOffset.y / cardHeight);
     setCurrentIndex(index);
@@ -72,7 +96,7 @@ export default function PrayersScreen() {
   };
 
   const renderPrayerCard = (prayer: Prayer, index: number) => {
-    const formula = getRandomFormula();
+    const formula = prayerFormulas[prayer.id];
 
     return (
       <View key={prayer.id} style={styles.card}>
@@ -91,6 +115,18 @@ export default function PrayersScreen() {
                   ? Colors[colorScheme ?? 'light'].primary
                   : Colors[colorScheme ?? 'light'].text
               }
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleLike(prayer.id)}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name={likedPrayers.has(prayer.id) ? 'heart' : 'heart-outline'}
+              size={36}
+              color={likedPrayers.has(prayer.id) ? '#FF0000' : Colors[colorScheme ?? 'light'].text}
             />
           </TouchableOpacity>
 
@@ -392,7 +428,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 140, // Position en bas au lieu d'en haut
     left: '50%',
-    transform: [{ translateX: -56 }], // Centrer horizontalement (largeur totale des 2 boutons + espacement)
+    transform: [{ translateX: -88 }], // Centrer horizontalement pour 3 boutons (largeur totale des 3 boutons + espacement)
     flexDirection: 'row', // Alignement horizontal
     alignItems: 'center',
   },

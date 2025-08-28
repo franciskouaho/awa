@@ -20,7 +20,11 @@
       },
       "edgeToEdgeEnabled": true,
       "googleServicesFile": "./google-services.json",
-      "package": "com.emplica.awa"
+      "package": "com.emplica.awa",
+      "permissions": [
+        "INTERNET",
+        "NOTIFICATIONS"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -38,7 +42,19 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "@react-native-firebase/app"
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          },
+          "android": {
+            "permissions": [
+              "com.android.vending.BILLING"
+            ]
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
