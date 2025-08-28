@@ -1,7 +1,7 @@
-import React from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import React from 'react';
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface CategorySelectionModalProps {
   isVisible: boolean;
@@ -20,16 +20,16 @@ export default function CategorySelectionModal({
   const colors = Colors[colorScheme ?? 'light'];
 
   const categories = [
-    { id: 'current-feed', name: 'Current feed', unlocked: true },
-    { id: 'the-basics', name: 'The basics', unlocked: true },
-    { id: 'unfiltered-raw', name: 'Unfiltered Raw', unlocked: true },
-    { id: 'mental-peace', name: 'Mental Peace', unlocked: false },
-    { id: 'abundance-wealth', name: 'Abundance & Wealth', unlocked: false },
-    { id: 'confidence-boost', name: 'Confidence Boost', unlocked: false },
-    { id: 'morning-fire', name: 'Morning Fire', unlocked: true },
-    { id: 'my-favorites', name: 'My favorites', unlocked: true },
-    { id: 'anti-depression', name: 'Anti-depression', unlocked: false },
-    { id: 'nurture-faith', name: 'Nurture your faith', unlocked: false },
+    { id: 'current-feed', name: 'Feed actuel', unlocked: true },
+    { id: 'the-basics', name: 'Les bases', unlocked: true },
+    { id: 'unfiltered-raw', name: 'Brut et sans filtre', unlocked: true },
+    { id: 'mental-peace', name: 'Paix mentale', unlocked: false },
+    { id: 'abundance-wealth', name: 'Abondance et richesse', unlocked: false },
+    { id: 'confidence-boost', name: 'Boost de confiance', unlocked: false },
+    { id: 'morning-fire', name: 'Feu matinal', unlocked: true },
+    { id: 'my-favorites', name: 'Mes favoris', unlocked: true },
+    { id: 'anti-depression', name: 'Anti-dépression', unlocked: false },
+    { id: 'nurture-faith', name: 'Nourrir votre foi', unlocked: false },
   ];
 
   if (!isVisible) return null;
@@ -122,9 +122,9 @@ export default function CategorySelectionModal({
         <TouchableOpacity style={{ flex: 1 }} onPress={onClose} activeOpacity={1} />
         <View style={styles.modalContent}>
           <View style={styles.header}>
-            <Text style={styles.title}>Select a category</Text>
+            <Text style={styles.title}>Sélectionner une catégorie</Text>
             <TouchableOpacity style={styles.doneButton} onPress={onClose}>
-              <Text style={styles.doneText}>Done</Text>
+              <Text style={styles.doneText}>Terminé</Text>
             </TouchableOpacity>
           </View>
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>

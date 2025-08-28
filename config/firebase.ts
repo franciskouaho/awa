@@ -23,6 +23,7 @@ if (getApps().length === 0) {
 // Initialize Firestore
 export const db = getFirestore(app);
 
-// Initialize Auth - Pour Expo managed workflow, le warning AsyncStorage est normal
-// Firebase utilisera automatiquement AsyncStorage quand disponible
+// Initialize Auth
+// Note: Le warning AsyncStorage est normal avec Expo Go
+// En mode développement ou avec un build standalone, Firebase utilisera automatiquement AsyncStorage
 export const auth = getAuth(app);

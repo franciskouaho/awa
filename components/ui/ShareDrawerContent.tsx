@@ -42,7 +42,7 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
     loadFormula();
   }, [getRandomPrayerFormula]);
 
-  const shareText = `Prière pour le défunt\n\n${prayer.personalMessage}\n\n${prayer.name}\n${prayer.age} ans • ${formatDate(prayer.deathDate)}\n${prayer.location}`;
+  const shareText = `Prière pour le défunt\n\n${prayer.name}\n${prayer.age} ans • ${formatDate(prayer.deathDate)}\n${prayer.location}`;
 
   const handleNativeShare = async () => {
     try {
@@ -133,17 +133,6 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
           styles.prayerCard,
           { backgroundColor: Colors[colorScheme ?? 'light'].primary }
         ]}>
-          {/* Message personnel */}
-          <Text style={[
-            styles.personalMessage,
-            { color: 'white' }
-          ]}>
-            {prayer.personalMessage}
-          </Text>
-
-          {/* Séparateur */}
-          <View style={styles.separator} />
-
           {/* Informations du défunt */}
           <View style={styles.deceasedInfo}>
             <Text style={[

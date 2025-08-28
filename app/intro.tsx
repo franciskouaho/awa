@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -44,6 +45,11 @@ export default function IntroScreen() {
 
   const handleContinue = () => {
     router.push('/onboarding/email');
+  };
+
+  const handleDevBypass = async () => {
+    await AsyncStorage.setItem('devBypass', 'true');
+    router.replace('/(tabs)/prayers');
   };
 
   return (
@@ -198,6 +204,17 @@ export default function IntroScreen() {
                 Commencer
               </Text>
             </TouchableOpacity>
+
+            {/* Bouton de bypass pour le développement */}
+            <TouchableOpacity
+              style={[styles.devButton]}
+              onPress={handleDevBypass}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.devButtonText}>
+                🔧 Bypass Dev → Prayers
+              </Text>
+            </TouchableOpacity>
           </Animated.View>
         )}
       </SafeAreaView>
@@ -326,5 +343,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     letterSpacing: 0.5,
+  },
+  devButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  devButtonText: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+    textAlign: 'center',
   },
 });

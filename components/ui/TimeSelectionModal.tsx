@@ -1,7 +1,7 @@
-import React from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import React from 'react';
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface TimeSelectionModalProps {
   isVisible: boolean;
@@ -124,9 +124,9 @@ export default function TimeSelectionModal({
         <TouchableOpacity style={{ flex: 1 }} onPress={onClose} activeOpacity={1} />
         <View style={styles.modalContent}>
           <View style={styles.header}>
-            <Text style={styles.title}>To</Text>
+            <Text style={styles.title}>Jusqu'à</Text>
             <TouchableOpacity style={styles.doneButton} onPress={onClose}>
-              <Text style={styles.doneText}>Done</Text>
+              <Text style={styles.doneText}>Terminé</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.content}>

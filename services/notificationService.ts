@@ -296,20 +296,40 @@ class NotificationService {
    */
   private getPrayerReminderMessage(feedName: string): string {
     const messages: { [key: string]: string[] } = {
+      'Feed actuel': [
+        'Il est temps de vous connecter avec votre spiritualité.',
+        'Prenez un moment pour la prière et la réflexion.',
+        'Votre moment de paix spirituelle vous attend.',
+      ],
       'Current feed': [
         'Il est temps de vous connecter avec votre spiritualité.',
         'Prenez un moment pour la prière et la réflexion.',
         'Votre moment de paix spirituelle vous attend.',
+      ],
+      'Les bases': [
+        'Retournez aux fondements de votre foi.',
+        'Cultivez les bases de votre spiritualité.',
+        'Un moment pour revenir à l\'essentiel.',
       ],
       'The basics': [
         'Retournez aux fondements de votre foi.',
         'Cultivez les bases de votre spiritualité.',
         'Un moment pour revenir à l\'essentiel.',
       ],
+      'Paix mentale': [
+        'Trouvez la paix intérieure par la prière.',
+        'Accordez-vous un moment de sérénité mentale.',
+        'Laissez la tranquillité envahir votre esprit.',
+      ],
       'Mental Peace': [
         'Trouvez la paix intérieure par la prière.',
         'Accordez-vous un moment de sérénité mentale.',
         'Laissez la tranquillité envahir votre esprit.',
+      ],
+      'Feu matinal': [
+        'Allumez le feu de votre spiritualité !',
+        'Démarrez avec énergie et détermination.',
+        'Votre flamme spirituelle brille en vous.',
       ],
       'Morning Fire': [
         'Allumez le feu de votre spiritualité !',
@@ -318,7 +338,7 @@ class NotificationService {
       ],
     };
 
-    const feedMessages = messages[feedName] || messages['Current feed'];
+    const feedMessages = messages[feedName] || messages['Feed actuel'];
     const randomIndex = Math.floor(Math.random() * feedMessages.length);
     return feedMessages[randomIndex];
   }

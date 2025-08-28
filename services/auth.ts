@@ -15,6 +15,7 @@ import {
     setDoc,
     where
 } from 'firebase/firestore';
+import { userService } from './userService';
 
 export interface UserProfile {
   uid: string;
@@ -56,6 +57,9 @@ class AuthService {
       };
 
       await setDoc(doc(db, 'users', user.uid), userProfile);
+      
+      // Initialiser les paramètres généraux avec le nom fourni
+      await userService.initializeGeneralSettings(name);
       
       // Sauvegarder localement
       await AsyncStorage.setItem('user', JSON.stringify(userProfile));
@@ -108,6 +112,9 @@ class AuthService {
       // Sauvegarder le profil localement
       await AsyncStorage.setItem('user', JSON.stringify(userProfile));
       await AsyncStorage.setItem('userEmail', email);
+      
+      // Initialiser les paramètres généraux si ce n'est pas déjà fait
+      await userService.initializeGeneralSettings(userProfile.name);
       
       return userProfile;
     } catch (error: any) {
@@ -200,6 +207,7 @@ class AuthService {
   async signOut(): Promise<void> {
     try {
       await firebaseSignOut(auth);
+      await userService.clearCache(); // Nettoyer le cache des paramètres utilisateur
       await AsyncStorage.multiRemove(['user', 'onboardingCompleted', 'userName', 'userEmail']);
     } catch (error) {
       console.error('Error signing out:', error);

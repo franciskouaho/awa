@@ -13,17 +13,17 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Dimensions,
-    Platform,
-    RefreshControl,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -81,30 +81,42 @@ export default function PrayersScreen() {
 
   // Charger les prières et formules au montage du composant
   useEffect(() => {
+    console.log('🚀 PrayersScreen - Démarrage du chargement des données');
     const loadData = async () => {
-      await Promise.all([
-        loadPrayers(),
-        loadPrayerFormulas(),
-      ]);
+      try {
+        console.log('📡 Chargement des prières...');
+        await loadPrayers();
+        console.log('📝 Chargement des formules...');
+        await loadPrayerFormulas();
+        console.log('✅ Chargement terminé');
+      } catch (error) {
+        console.error('❌ Erreur lors du chargement:', error);
+      }
     };
     loadData();
   }, [loadPrayers, loadPrayerFormulas]);
 
   // Assigner des formules aléatoires aux prières
   useEffect(() => {
+    console.log('🎲 Assignation des formules - prayers:', prayers.length, 'formulas:', prayerFormulas.length);
     const assignFormulas = async () => {
       const newAssignedFormulas: { [key: string]: PrayerFormula } = { ...assignedFormulas };
       
       for (const prayer of prayers) {
         if (prayer.id && !newAssignedFormulas[prayer.id]) {
+          console.log(`🔄 Assignation formule pour prière ${prayer.id}`);
           const result = await getRandomPrayerFormula();
           if (result.success && result.data) {
             newAssignedFormulas[prayer.id] = result.data;
+            console.log(`✅ Formule assignée pour ${prayer.id}`);
+          } else {
+            console.log(`❌ Échec assignation pour ${prayer.id}:`, result.error);
           }
         }
       }
       
       setAssignedFormulas(newAssignedFormulas);
+      console.log('📋 Formules assignées:', Object.keys(newAssignedFormulas).length);
     };
 
     if (prayers.length > 0 && prayerFormulas.length > 0) {
@@ -259,20 +271,6 @@ export default function PrayersScreen() {
 
         {/* Contenu principal centré */}
         <View style={styles.cardContent}>
-          {/* Message personnel en haut */}
-          <View style={styles.messageSection}>
-            <Text
-              style={[
-                styles.messageText,
-                {
-                  color: Colors[colorScheme ?? 'light'].text,
-                },
-              ]}
-            >
-              {prayer.personalMessage}
-            </Text>
-          </View>
-
           {/* Formule de prière */}
           <View style={[styles.formulaSection]}>
             <View style={styles.formulaHeader}>
@@ -388,69 +386,79 @@ export default function PrayersScreen() {
     >
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
-      <ScrollView
-        ref={scrollViewRef}
-        pagingEnabled
-        showsVerticalScrollIndicator={false}
-        onMomentumScrollEnd={handleScrollEnd}
-        style={[
-          styles.scrollView,
-          { backgroundColor: Colors[colorScheme ?? 'light'].drawer.backgroundColor },
-        ]}
-        decelerationRate="fast"
-        snapToInterval={cardHeight}
-        snapToAlignment="start"
-        contentInsetAdjustmentBehavior="never"
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            tintColor={Colors[colorScheme ?? 'light'].primary}
+      {/* Fallback simple pour éviter l'écran blanc */}
+      {loading && prayers.length === 0 && prayerFormulasLoading ? (
+        <View style={[styles.card, styles.loadingContainer]}>
+          <ActivityIndicator size="large" color={Colors[colorScheme ?? 'light'].primary} />
+          <Text style={[styles.loadingText, { color: Colors[colorScheme ?? 'light'].text }]}>
+            Chargement des prières...
+          </Text>
+          <Text style={[styles.debugText, { color: Colors[colorScheme ?? 'light'].text }]}>
+            Debug: Prayers: {prayers.length}, Formulas: {prayerFormulas.length}
+          </Text>
+        </View>
+      ) : (error || prayerFormulasError) ? (
+        <View style={[styles.card, styles.errorContainer]}>
+          <Ionicons 
+            name="alert-circle-outline" 
+            size={64} 
+            color={Colors[colorScheme ?? 'light'].text} 
           />
-        }
-      >
-        {(loading || prayerFormulasLoading) && prayers.length === 0 ? (
-          <View style={[styles.card, styles.loadingContainer]}>
-            <ActivityIndicator size="large" color={Colors[colorScheme ?? 'light'].primary} />
-            <Text style={[styles.loadingText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Chargement des prières...
-            </Text>
-          </View>
-        ) : (error || prayerFormulasError) ? (
-          <View style={[styles.card, styles.errorContainer]}>
-            <Ionicons 
-              name="alert-circle-outline" 
-              size={64} 
-              color={Colors[colorScheme ?? 'light'].text} 
+          <Text style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].text }]}>
+            {error || prayerFormulasError}
+          </Text>
+          <TouchableOpacity 
+            style={[styles.retryButton, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}
+            onPress={handleRefresh}
+          >
+            <Text style={styles.retryButtonText}>Réessayer</Text>
+          </TouchableOpacity>
+        </View>
+      ) : prayers.length === 0 ? (
+        <View style={[styles.card, styles.emptyContainer]}>
+          <Ionicons 
+            name="heart-outline" 
+            size={64} 
+            color={Colors[colorScheme ?? 'light'].text} 
+          />
+          <Text style={[styles.emptyText, { color: Colors[colorScheme ?? 'light'].text }]}>
+            Aucune prière disponible
+          </Text>
+          <Text style={[styles.emptySubtext, { color: Colors[colorScheme ?? 'light'].text }]}>
+            Tirez vers le bas pour actualiser
+          </Text>
+          <TouchableOpacity 
+            style={[styles.retryButton, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}
+            onPress={handleRefresh}
+          >
+            <Text style={styles.retryButtonText}>Recharger</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <ScrollView
+          ref={scrollViewRef}
+          pagingEnabled
+          showsVerticalScrollIndicator={false}
+          onMomentumScrollEnd={handleScrollEnd}
+          style={[
+            styles.scrollView,
+            { backgroundColor: Colors[colorScheme ?? 'light'].drawer.backgroundColor },
+          ]}
+          decelerationRate="fast"
+          snapToInterval={cardHeight}
+          snapToAlignment="start"
+          contentInsetAdjustmentBehavior="never"
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor={Colors[colorScheme ?? 'light'].primary}
             />
-            <Text style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              {error || prayerFormulasError}
-            </Text>
-            <TouchableOpacity 
-              style={[styles.retryButton, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}
-              onPress={handleRefresh}
-            >
-              <Text style={styles.retryButtonText}>Réessayer</Text>
-            </TouchableOpacity>
-          </View>
-        ) : prayers.length === 0 ? (
-          <View style={[styles.card, styles.emptyContainer]}>
-            <Ionicons 
-              name="heart-outline" 
-              size={64} 
-              color={Colors[colorScheme ?? 'light'].text} 
-            />
-            <Text style={[styles.emptyText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Aucune prière disponible
-            </Text>
-            <Text style={[styles.emptySubtext, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Tirez vers le bas pour actualiser
-            </Text>
-          </View>
-        ) : (
-          prayers.map((prayer, index) => renderPrayerCard(prayer, index))
-        )}
-      </ScrollView>
+          }
+        >
+          {prayers.map((prayer, index) => renderPrayerCard(prayer, index))}
+        </ScrollView>
+      )}
 
       {/* Share Drawer */}
       <BottomDrawer
@@ -459,7 +467,7 @@ export default function PrayersScreen() {
           setShareDrawerVisible(false);
           setSelectedPrayerForShare(null);
         }}
-        height={Dimensions.get('window').height * 0.95}
+        height={Dimensions.get('window').height * 0.85}
       >
         {selectedPrayerForShare && (
           <ShareDrawerContent
@@ -692,5 +700,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
     opacity: 0.7,
+  },
+  debugText: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 8,
+    opacity: 0.5,
   },
 });

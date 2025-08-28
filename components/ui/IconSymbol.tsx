@@ -30,13 +30,14 @@ const MAPPING = {
   'lock.fill': 'lock',
   'info.circle.fill': 'info',
   // Icônes simples sans couleurs pour le drawer
-  settings: 'settings',
-  bell: 'notifications',
-  widget: 'widgets',
+  settings: 'tune',
+  bell: 'notifications-none',
+  widget: 'crop-free',
   leaf: 'eco',
   clock: 'schedule',
   heart: 'favorite-border',
   globe: 'language',
+  checkmark: 'check',
 } as IconMapping;
 
 /**

@@ -1,3 +1,4 @@
+import { StreakService } from '@/services/streakService';
 import { UserPrayerService } from '@/services/userPrayerService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Application from 'expo-application';
@@ -104,6 +105,11 @@ export function useUserPrayers(): UseUserPrayersResult {
           const newSet = new Set(current);
           if (result.isCompleted) {
             newSet.add(prayerId);
+            
+            // Enregistrer la prière dans le service de streak seulement si elle est complétée
+            StreakService.recordPrayerSession(userId, deviceId).catch(error => {
+              console.warn('Erreur lors de l\'enregistrement du streak:', error);
+            });
           } else {
             newSet.delete(prayerId);
           }

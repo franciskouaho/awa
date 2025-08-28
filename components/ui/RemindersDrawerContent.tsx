@@ -26,7 +26,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
   const [dailyCount, setDailyCount] = useState(3);
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('22:00');
-  const [selectedFeed, setSelectedFeed] = useState('Current feed');
+  const [selectedFeed, setSelectedFeed] = useState('Feed actuel');
   const [selectedDays, setSelectedDays] = useState([true, true, true, true, true, true, true]);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -35,7 +35,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
   const [timeModalVisible, setTimeModalVisible] = useState(false);
   const [timeModalType, setTimeModalType] = useState<'start' | 'end'>('start');
 
-  const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const days = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
 
   // Vérifier les permissions au chargement
   useEffect(() => {
@@ -205,15 +205,25 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
   const getFeedDisplayName = (feedName: string) => {
     const feedTranslations: { [key: string]: string } = {
       'Current feed': 'Feed actuel',
-      'The basics': 'The basics',
-      'Unfiltered Raw': 'Unfiltered Raw',
-      'Mental Peace': 'Mental Peace',
-      'Abundance & Wealth': 'Abundance & Wealth',
-      'Confidence Boost': 'Confidence Boost',
-      'Morning Fire': 'Morning Fire',
-      'My favorites': 'My favorites',
-      'Anti-depression': 'Anti-depression',
-      'Nurture your faith': 'Nurture your faith',
+      'Feed actuel': 'Feed actuel',
+      'The basics': 'Les bases',
+      'Les bases': 'Les bases',
+      'Unfiltered Raw': 'Brut et sans filtre',
+      'Brut et sans filtre': 'Brut et sans filtre',
+      'Mental Peace': 'Paix mentale',
+      'Paix mentale': 'Paix mentale',
+      'Abundance & Wealth': 'Abondance et richesse',
+      'Abondance et richesse': 'Abondance et richesse',
+      'Confidence Boost': 'Boost de confiance',
+      'Boost de confiance': 'Boost de confiance',
+      'Morning Fire': 'Feu matinal',
+      'Feu matinal': 'Feu matinal',
+      'My favorites': 'Mes favoris',
+      'Mes favoris': 'Mes favoris',
+      'Anti-depression': 'Anti-dépression',
+      'Anti-dépression': 'Anti-dépression',
+      'Nurture your faith': 'Nourrir votre foi',
+      'Nourrir votre foi': 'Nourrir votre foi',
     };
     return feedTranslations[feedName] || feedName;
   };
@@ -429,14 +439,14 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
         </TouchableOpacity>
         <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={isSaving}>
           <Text style={[styles.saveText, isSaving && { opacity: 0.5 }]}>
-            {isSaving ? 'Saving...' : 'Save'}
+            {isSaving ? 'Enregistrement...' : 'Enregistrer'}
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* Title */}
       <View>
-        <Text style={styles.title}>Reminders</Text>
+        <Text style={styles.title}>Rappels</Text>
       </View>
 
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
@@ -444,7 +454,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
         <View style={styles.card}>
           {/* Enable Reminders */}
           <View style={styles.row}>
-            <Text style={styles.label}>Enable reminders</Text>
+            <Text style={styles.label}>Activer les rappels</Text>
             <Switch
               style={styles.switch}
               value={enableReminders}
@@ -457,7 +467,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
 
           {/* Selection */}
           <View style={styles.row}>
-            <Text style={styles.label}>Selection</Text>
+            <Text style={styles.label}>Sélection</Text>
             <TouchableOpacity
               style={styles.selectionButton}
               onPress={() => setCategoryModalVisible(true)}
@@ -469,7 +479,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
 
           {/* How many per day */}
           <View style={styles.row}>
-            <Text style={styles.label}>How many per day</Text>
+            <Text style={styles.label}>Combien par jour</Text>
             <View style={styles.counterContainer}>
               <TouchableOpacity style={styles.counterButton} onPress={() => adjustCounter(false)}>
                 <Text style={styles.counterButtonText}>−</Text>
@@ -483,7 +493,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
 
           {/* Hours */}
           <View style={styles.row}>
-            <Text style={styles.label}>Hours</Text>
+            <Text style={styles.label}>Heures</Text>
             <View style={styles.timeContainer}>
               <TouchableOpacity style={styles.timeButton} onPress={() => openTimeModal('start')}>
                 <Text style={styles.timeText}>{startTime}</Text>
@@ -499,7 +509,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
 
           {/* Sound */}
           <View style={[styles.row, styles.lastRow]}>
-            <Text style={styles.label}>Sound</Text>
+            <Text style={styles.label}>Son</Text>
             <Switch
               style={styles.switch}
               value={sound}
@@ -511,7 +521,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
 
           {/* Days of the week */}
           <View style={{ marginTop: 16 }}>
-            <Text style={styles.sectionTitle}>Days of the week</Text>
+            <Text style={styles.sectionTitle}>Jours de la semaine</Text>
             <View style={styles.daysContainer}>
               {days.map((day, index) => (
                 <TouchableOpacity
@@ -563,10 +573,10 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
 
         {/* Daily Streak Reminders Card */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Daily streak reminders</Text>
+          <Text style={styles.sectionTitle}>Rappels de série quotidienne</Text>
 
           <View style={styles.row}>
-            <Text style={styles.label}>Morning reminder</Text>
+            <Text style={styles.label}>Rappel matinal</Text>
             <Switch
               style={styles.switch}
               value={morningReminder}
@@ -577,7 +587,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
           </View>
 
           <View style={[styles.row, styles.lastRow]}>
-            <Text style={styles.label}>Evening reminder</Text>
+            <Text style={styles.label}>Rappel du soir</Text>
             <Switch
               style={styles.switch}
               value={eveningReminder}

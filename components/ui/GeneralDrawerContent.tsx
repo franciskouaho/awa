@@ -1,8 +1,9 @@
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { useUserSettings } from '@/hooks/useUserSettings';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors } from '@/constants/Colors';
 
 interface GeneralDrawerContentProps {
   onClose: () => void;
@@ -11,7 +12,6 @@ interface GeneralDrawerContentProps {
     firstName: string;
     gender: string;
     language: string;
-    premium: string;
   };
 }
 
@@ -22,12 +22,12 @@ export default function GeneralDrawerContent({
 }: GeneralDrawerContentProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+  const { settings, loading } = useUserSettings();
 
-  // Utiliser les valeurs passées en props ou des valeurs par défaut
-  const firstName = currentValues?.firstName || 'Vfhbd';
-  const gender = currentValues?.gender || 'Autre';
-  const language = currentValues?.language || 'Français';
-  const premium = currentValues?.premium || 'Non';
+  // Utiliser les données de Firebase en priorité, puis les valeurs passées en props ou des valeurs par défaut
+  const firstName = settings?.firstName || currentValues?.firstName || 'Utilisateur';
+  const gender = settings?.gender || currentValues?.gender || 'Autre';
+  const language = settings?.language || currentValues?.language || 'Français';
 
   const handleItemPress = (itemId: string) => {
     console.log(`Pressed ${itemId}`);
@@ -121,6 +121,15 @@ export default function GeneralDrawerContent({
       fontSize: 16,
       color: colors.textSecondary,
     },
+    loadingContainer: {
+      padding: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    loadingText: {
+      fontSize: 16,
+      textAlign: 'center',
+    },
   });
 
   return (
@@ -136,9 +145,17 @@ export default function GeneralDrawerContent({
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* PERSONAL INFORMATION Section */}
-        <Text style={styles.sectionTitle}>INFORMATIONS PERSONNELLES</Text>
-        <View style={styles.card}>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+              Chargement des paramètres...
+            </Text>
+          </View>
+        ) : (
+          <>
+            {/* PERSONAL INFORMATION Section */}
+            <Text style={styles.sectionTitle}>INFORMATIONS PERSONNELLES</Text>
+            <View style={styles.card}>
           <TouchableOpacity
             style={styles.menuItem}
             onPress={() => handleItemPress('firstName')}
@@ -181,21 +198,6 @@ export default function GeneralDrawerContent({
             <Text style={styles.menuItemValue}>{language}</Text>
             <Text style={styles.chevron}>›</Text>
           </TouchableOpacity>
-
-          <View style={styles.separator} />
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => handleItemPress('premium')}
-            activeOpacity={0.7}
-          >
-            <View style={styles.iconContainer}>
-              <IconSymbol name="star.fill" size={20} color={colors.text} />
-            </View>
-            <Text style={styles.menuItemText}>Premium</Text>
-            <Text style={styles.menuItemValue}>{premium}</Text>
-            <Text style={styles.chevron}>›</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Legal Section */}
@@ -213,6 +215,8 @@ export default function GeneralDrawerContent({
             <Text style={styles.chevron}>›</Text>
           </TouchableOpacity>
         </View>
+        </>
+        )}
       </ScrollView>
     </View>
   );

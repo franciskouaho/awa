@@ -5,14 +5,14 @@ import { usePrayers } from '@/hooks/usePrayers';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import {
-  Alert,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 interface AddDrawerContentProps {
@@ -368,7 +368,7 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
             ✕
           </Text>
           <Text style={[styles.backText, { color: Colors[colorScheme ?? 'light'].text }]}>
-            Back
+            Retour
           </Text>
         </TouchableOpacity>
 

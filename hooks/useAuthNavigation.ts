@@ -20,6 +20,18 @@ export function useAuthNavigation() {
     }
 
     try {
+      // 🚀 BYPASS TEMPORAIRE POUR LE DÉVELOPPEMENT
+      // Vérifie s'il faut bypass l'intro pour les tests
+      const devBypass = await AsyncStorage.getItem('devBypass');
+      if (devBypass === 'true') {
+        console.log('🔧 Dev bypass activé - accès direct à l\'app');
+        setShouldShowIntro(false);
+        setShouldShowOnboarding(false);
+        setShouldShowApp(true);
+        setNavigationReady(true);
+        return;
+      }
+
       // Vérifier si l'intro a déjà été vue
       const introSeen = await AsyncStorage.getItem('introSeen');
       

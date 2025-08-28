@@ -1,9 +1,12 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useNotificationPermissions } from '@/hooks/useNotificationPermissions';
+import { NotificationSettings, useNotifications } from '@/services/notificationService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
+  Alert,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -14,8 +17,13 @@ export default function NotificationScreen() {
   const [frequency, setFrequency] = useState(3);
   const [fromTime, setFromTime] = useState('09:00');
   const [toTime, setToTime] = useState('22:00');
+  const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
   const colorScheme = useColorScheme();
+
+  // Services et hooks
+  const { scheduleReminders, cancelAllReminders } = useNotifications();
+  const { permissions, requestPermission, isLoading } = useNotificationPermissions();
 
   const adjustFrequency = (delta: number) => {
     setFrequency(Math.max(1, Math.min(10, frequency + delta)));
@@ -37,30 +45,86 @@ export default function NotificationScreen() {
   };
 
   const handleEnableNotifications = async () => {
+    setIsProcessing(true);
+    
     try {
-      await AsyncStorage.setItem('notificationSettings', JSON.stringify({
-        enabled: true,
-        frequency,
-        fromTime,
-        toTime,
-      }));
-      router.push('./calculating');
+      // Demander les permissions d'abord
+      const granted = await requestPermission();
+      
+      if (!granted) {
+        Alert.alert(
+          'Permissions refusées',
+          'Les notifications sont nécessaires pour recevoir des rappels spirituels. Vous pouvez les activer plus tard dans les paramètres.',
+          [
+            { text: 'Continuer sans notifications', onPress: () => proceedToNext(false) },
+            { text: 'Réessayer', onPress: handleEnableNotifications }
+          ]
+        );
+        setIsProcessing(false);
+        return;
+      }
+
+      // Créer les paramètres de notification
+      const settings: NotificationSettings = {
+        enableReminders: true,
+        sound: true,
+        morningReminder: true,
+        eveningReminder: true,
+        dailyCount: frequency,
+        startTime: fromTime,
+        endTime: toTime,
+        selectedFeed: 'Current feed',
+        selectedDays: [true, true, true, true, true, true, true], // Tous les jours
+      };
+
+      // Programmer les rappels
+      await scheduleReminders(settings);
+
+      // Sauvegarder dans AsyncStorage
+      await AsyncStorage.setItem('notificationSettings', JSON.stringify(settings));
+
+      Alert.alert(
+        'Notifications activées !',
+        `Vous recevrez ${frequency} rappels spirituels par jour entre ${fromTime} et ${toTime}.`,
+        [{ text: 'Parfait !', onPress: () => proceedToNext(true) }]
+      );
+
     } catch (error) {
-      console.error('Error saving notification settings:', error);
+      console.error('Erreur lors de l\'activation des notifications:', error);
+      Alert.alert(
+        'Erreur',
+        'Une erreur s\'est produite lors de la configuration des notifications. Vous pourrez les activer plus tard dans les paramètres.',
+        [{ text: 'Continuer', onPress: () => proceedToNext(false) }]
+      );
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleNotNow = async () => {
+    setIsProcessing(true);
     try {
-      await AsyncStorage.setItem('notificationSettings', JSON.stringify({
-        enabled: false,
+      await proceedToNext(false);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const proceedToNext = async (enabled: boolean) => {
+    try {
+      // Sauvegarder l'état même si désactivé
+      const settings = {
+        enabled,
         frequency,
         fromTime,
         toTime,
-      }));
+      };
+      
+      await AsyncStorage.setItem('onboardingNotificationSettings', JSON.stringify(settings));
       router.push('./calculating');
     } catch (error) {
-      console.error('Error saving notification settings:', error);
+      console.error('Error saving settings:', error);
+      router.push('./calculating');
     }
   };
 
@@ -154,18 +218,31 @@ export default function NotificationScreen() {
         {/* Buttons */}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
-            style={styles.enableButton}
+            style={[styles.enableButton, (isProcessing || isLoading) && styles.disabledButton]}
             onPress={handleEnableNotifications}
+            disabled={isProcessing || isLoading}
           >
-            <Text style={styles.enableButtonText}>Activer les notifications</Text>
+            <Text style={styles.enableButtonText}>
+              {isProcessing ? 'Configuration...' : 'Activer les notifications'}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.notNowButton}
+            style={[styles.notNowButton, (isProcessing || isLoading) && styles.disabledButton]}
             onPress={handleNotNow}
+            disabled={isProcessing || isLoading}
           >
             <Text style={styles.notNowButtonText}>Pas maintenant</Text>
           </TouchableOpacity>
+
+          {/* Status des permissions */}
+          {permissions && !permissions.granted && (
+            <View style={styles.permissionStatus}>
+              <Text style={styles.permissionText}>
+                💡 Les notifications permettent de recevoir des rappels spirituels tout au long de la journée
+              </Text>
+            </View>
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -358,5 +435,20 @@ const styles = StyleSheet.create({
     color: '#718096',
     fontSize: 18,
     fontWeight: '600',
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  permissionStatus: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 12,
+  },
+  permissionText: {
+    fontSize: 14,
+    color: '#4A5568',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });

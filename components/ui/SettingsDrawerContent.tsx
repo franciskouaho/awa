@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors } from '@/constants/Colors';
 import BottomDrawer from '@/components/ui/BottomDrawer';
-import RemindersDrawerContent from '@/components/ui/RemindersDrawerContent';
-import GeneralDrawerContent from '@/components/ui/GeneralDrawerContent';
 import FirstNameScreen from '@/components/ui/FirstNameScreen';
 import GenderScreen from '@/components/ui/GenderScreen';
+import GeneralDrawerContent from '@/components/ui/GeneralDrawerContent';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 import LanguageScreen from '@/components/ui/LanguageScreen';
-import PremiumScreen from '@/components/ui/PremiumScreen';
+import RemindersDrawerContent from '@/components/ui/RemindersDrawerContent';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { useStreak } from '@/hooks/useStreak';
+import { useUserSettings } from '@/hooks/useUserSettings';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface SettingsDrawerContentProps {
   onClose: () => void;
@@ -17,15 +18,14 @@ interface SettingsDrawerContentProps {
 
 export default function SettingsDrawerContent({ onClose }: SettingsDrawerContentProps) {
   const colorScheme = useColorScheme();
+  const { streakData, getWeeklyProgress } = useStreak();
+  const { settings, saveSetting, loading, error } = useUserSettings();
   const [remindersDrawerVisible, setRemindersDrawerVisible] = useState(false);
   const [generalDrawerVisible, setGeneralDrawerVisible] = useState(false);
   const [currentSubScreen, setCurrentSubScreen] = useState<string | null>(null);
 
-  // États pour les données utilisateur
-  const [firstName, setFirstName] = useState('Vfhbd');
-  const [gender, setGender] = useState('Autre');
-  const [language, setLanguage] = useState('Français');
-  const [premium, setPremium] = useState('Non');
+  // Obtenir les données de progression de la semaine
+  const weeklyProgress = getWeeklyProgress();
 
   const handleItemPress = (itemId: string) => {
     console.log(`Pressed ${itemId}`);
@@ -48,29 +48,23 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
     setCurrentSubScreen(null);
   };
 
-  const handleSaveValue = (key: string, value: string) => {
-    switch (key) {
-      case 'firstName':
-        setFirstName(value);
-        break;
-      case 'gender':
-        setGender(value);
-        break;
-      case 'language':
-        setLanguage(value);
-        break;
-      case 'premium':
-        setPremium(value);
-        break;
+  const handleSaveValue = async (key: string, value: string) => {
+    try {
+      const success = await saveSetting(key as keyof typeof settings, value);
+      if (!success && error) {
+        console.error('Failed to save setting:', error);
+        // Ici vous pourriez afficher une notification d'erreur à l'utilisateur
+      }
+    } catch (err) {
+      console.error('Error saving setting:', err);
     }
   };
 
   // Fonction pour obtenir les valeurs actuelles
   const getCurrentValues = () => ({
-    firstName,
-    gender,
-    language,
-    premium,
+    firstName: settings?.firstName || 'Utilisateur',
+    gender: settings?.gender || 'Autre',
+    language: settings?.language || 'Français',
   });
 
   return (
@@ -82,7 +76,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
             ✕
           </Text>
           <Text style={[styles.backText, { color: Colors[colorScheme ?? 'light'].text }]}>
-            Back
+            Retour
           </Text>
         </TouchableOpacity>
 
@@ -95,27 +89,45 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
           style={[styles.streakCard, { backgroundColor: Colors[colorScheme ?? 'light'].surface }]}
         >
           <View style={styles.streakLeft}>
-            <Text style={[styles.streakNumber, { color: Colors[colorScheme ?? 'light'].text }]}>
-              0
-            </Text>
+            <View style={styles.streakNumberContainer}>
+              <Text style={[styles.streakNumber, { color: Colors[colorScheme ?? 'light'].text }]}>
+                {streakData?.currentStreak ?? 0}
+              </Text>
+              {(streakData?.currentStreak ?? 0) > 0 && (
+                <Text style={styles.fireEmoji}>🔥</Text>
+              )}
+            </View>
             <Text style={[styles.streakLabel, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Streak
+              Série
             </Text>
           </View>
           <View style={styles.streakDays}>
-            {['Fr', 'Sa', 'Su', 'Mo', 'Tu', 'We', 'Th'].map((day, index) => (
+            {weeklyProgress.map((day, index) => (
               <View key={index} style={styles.dayColumn}>
                 <Text
                   style={[styles.dayText, { color: Colors[colorScheme ?? 'light'].textSecondary }]}
                 >
-                  {day}
+                  {day.dayName}
                 </Text>
                 <View
                   style={[
                     styles.dayCircle,
-                    { backgroundColor: Colors[colorScheme ?? 'light'].border },
+                    { 
+                      backgroundColor: day.completed 
+                        ? Colors[colorScheme ?? 'light'].tint 
+                        : Colors[colorScheme ?? 'light'].border 
+                    },
                   ]}
-                />
+                >
+                  {day.completed && (
+                    <IconSymbol 
+                      name="checkmark" 
+                      size={12} 
+                      color="white" 
+                      style={styles.checkmark}
+                    />
+                  )}
+                </View>
               </View>
             ))}
           </View>
@@ -125,7 +137,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
         <Text
           style={[styles.sectionTitle, { color: Colors[colorScheme ?? 'light'].textSecondary }]}
         >
-          SETTINGS
+          PARAMÈTRES
         </Text>
         <View
           style={[styles.menuSection, { backgroundColor: Colors[colorScheme ?? 'light'].surface }]}
@@ -137,7 +149,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
           >
             <IconSymbol name="settings" size={20} color={Colors[colorScheme ?? 'light'].text} />
             <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              General
+              Général
             </Text>
             <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
               ›
@@ -155,7 +167,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
           >
             <IconSymbol name="bell" size={20} color={Colors[colorScheme ?? 'light'].text} />
             <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Reminders
+              Rappels
             </Text>
             <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
               ›
@@ -185,7 +197,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
         <Text
           style={[styles.sectionTitle, { color: Colors[colorScheme ?? 'light'].textSecondary }]}
         >
-          JUST FOR YOU
+          JUSTE POUR VOUS
         </Text>
         <View
           style={[styles.menuSection, { backgroundColor: Colors[colorScheme ?? 'light'].surface }]}
@@ -201,7 +213,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
           >
             <IconSymbol name="clock" size={20} color={Colors[colorScheme ?? 'light'].text} />
             <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              History
+              Historique
             </Text>
             <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
               ›
@@ -219,7 +231,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
           >
             <IconSymbol name="heart" size={20} color={Colors[colorScheme ?? 'light'].text} />
             <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Favorite punchlines
+              Punchlines favorites
             </Text>
             <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
               ›
@@ -231,7 +243,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
         <Text
           style={[styles.sectionTitle, { color: Colors[colorScheme ?? 'light'].textSecondary }]}
         >
-          FEEDBACK
+          COMMENTAIRES
         </Text>
         <View
           style={[styles.menuSection, { backgroundColor: Colors[colorScheme ?? 'light'].surface }]}
@@ -243,7 +255,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
           >
             <IconSymbol name="globe" size={20} color={Colors[colorScheme ?? 'light'].text} />
             <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Contact Us
+              Nous contacter
             </Text>
             <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
               ›
@@ -268,29 +280,22 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
             {currentSubScreen === 'firstName' && (
               <FirstNameScreen
                 onBack={handleBackFromSubScreen}
-                initialValue={firstName}
+                initialValue={settings?.firstName || 'Utilisateur'}
                 onSave={value => handleSaveValue('firstName', value)}
               />
             )}
             {currentSubScreen === 'gender' && (
               <GenderScreen
                 onBack={handleBackFromSubScreen}
-                initialValue={gender}
+                initialValue={settings?.gender || 'Autre'}
                 onSave={value => handleSaveValue('gender', value)}
               />
             )}
             {currentSubScreen === 'language' && (
               <LanguageScreen
                 onBack={handleBackFromSubScreen}
-                initialValue={language}
+                initialValue={settings?.language || 'Français'}
                 onSave={value => handleSaveValue('language', value)}
-              />
-            )}
-            {currentSubScreen === 'premium' && (
-              <PremiumScreen
-                onBack={handleBackFromSubScreen}
-                initialValue={premium}
-                onSave={value => handleSaveValue('premium', value)}
               />
             )}
           </>
@@ -349,9 +354,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 20,
   },
+  streakNumberContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   streakNumber: {
     fontSize: 32,
     fontWeight: 'bold',
+  },
+  fireEmoji: {
+    fontSize: 20,
+    marginLeft: 4,
   },
   streakLabel: {
     fontSize: 16,
@@ -373,6 +387,11 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkmark: {
+    textAlign: 'center',
   },
   sectionTitle: {
     fontSize: 13,

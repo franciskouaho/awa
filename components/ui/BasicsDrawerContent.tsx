@@ -104,7 +104,7 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
             ✕
           </Text>
           <Text style={[styles.backText, { color: Colors[colorScheme ?? 'light'].text }]}>
-            Back
+            Retour
           </Text>
         </TouchableOpacity>
 
