@@ -5,14 +5,8 @@ import { NotificationSettings, useNotifications } from '@/services/notificationS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import {
-  Alert,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
 export default function NotificationScreen() {
   const [frequency, setFrequency] = useState(3);
   const [fromTime, setFromTime] = useState('09:00');
@@ -32,11 +26,11 @@ export default function NotificationScreen() {
   const adjustTime = (type: 'from' | 'to', delta: number) => {
     const currentTime = type === 'from' ? fromTime : toTime;
     const [hours, minutes] = currentTime.split(':').map(Number);
-    const totalMinutes = hours * 60 + minutes + (delta * 60);
+    const totalMinutes = hours * 60 + minutes + delta * 60;
     const newHours = Math.floor(totalMinutes / 60) % 24;
     const newMinutes = totalMinutes % 60;
     const newTime = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
-    
+
     if (type === 'from') {
       setFromTime(newTime);
     } else {
@@ -46,18 +40,18 @@ export default function NotificationScreen() {
 
   const handleEnableNotifications = async () => {
     setIsProcessing(true);
-    
+
     try {
       // Demander les permissions d'abord
       const granted = await requestPermission();
-      
+
       if (!granted) {
         Alert.alert(
           'Permissions refusées',
           'Les notifications sont nécessaires pour recevoir des rappels spirituels. Vous pouvez les activer plus tard dans les paramètres.',
           [
             { text: 'Continuer sans notifications', onPress: () => proceedToNext(false) },
-            { text: 'Réessayer', onPress: handleEnableNotifications }
+            { text: 'Réessayer', onPress: handleEnableNotifications },
           ]
         );
         setIsProcessing(false);
@@ -88,12 +82,11 @@ export default function NotificationScreen() {
         `Vous recevrez ${frequency} rappels spirituels par jour entre ${fromTime} et ${toTime}.`,
         [{ text: 'Parfait !', onPress: () => proceedToNext(true) }]
       );
-
     } catch (error) {
-      console.error('Erreur lors de l\'activation des notifications:', error);
+      console.error("Erreur lors de l'activation des notifications:", error);
       Alert.alert(
         'Erreur',
-        'Une erreur s\'est produite lors de la configuration des notifications. Vous pourrez les activer plus tard dans les paramètres.',
+        "Une erreur s'est produite lors de la configuration des notifications. Vous pourrez les activer plus tard dans les paramètres.",
         [{ text: 'Continuer', onPress: () => proceedToNext(false) }]
       );
     } finally {
@@ -119,7 +112,7 @@ export default function NotificationScreen() {
         fromTime,
         toTime,
       };
-      
+
       await AsyncStorage.setItem('onboardingNotificationSettings', JSON.stringify(settings));
       router.push('./calculating');
     } catch (error) {
@@ -129,12 +122,15 @@ export default function NotificationScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: Colors[colorScheme ?? 'light'].onboarding.backgroundColor }]}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        { backgroundColor: Colors[colorScheme ?? 'light'].onboarding.backgroundColor },
+      ]}
+    >
       <View style={styles.content}>
         {/* Title */}
-        <Text style={styles.title}>
-          Recevez des rappels spirituels tout au long de la journée
-        </Text>
+        <Text style={styles.title}>Recevez des rappels spirituels tout au long de la journée</Text>
 
         {/* Quote Card */}
         <View style={styles.quoteCard}>
@@ -155,17 +151,11 @@ export default function NotificationScreen() {
           <View style={styles.settingRow}>
             <Text style={styles.settingLabel}>Combien par jour ?</Text>
             <View style={styles.counterContainer}>
-              <TouchableOpacity
-                style={styles.counterButton}
-                onPress={() => adjustFrequency(-1)}
-              >
+              <TouchableOpacity style={styles.counterButton} onPress={() => adjustFrequency(-1)}>
                 <Text style={styles.counterButtonText}>−</Text>
               </TouchableOpacity>
               <Text style={styles.counterValue}>{frequency}x</Text>
-              <TouchableOpacity
-                style={styles.counterButton}
-                onPress={() => adjustFrequency(1)}
-              >
+              <TouchableOpacity style={styles.counterButton} onPress={() => adjustFrequency(1)}>
                 <Text style={styles.counterButtonText}>+</Text>
               </TouchableOpacity>
             </View>
@@ -176,17 +166,11 @@ export default function NotificationScreen() {
             <View style={styles.timeRow}>
               <Text style={styles.timeLabel}>De</Text>
               <View style={styles.timeSelector}>
-                <TouchableOpacity
-                  style={styles.timeButton}
-                  onPress={() => adjustTime('from', -1)}
-                >
+                <TouchableOpacity style={styles.timeButton} onPress={() => adjustTime('from', -1)}>
                   <Text style={styles.timeButtonText}>−</Text>
                 </TouchableOpacity>
                 <Text style={styles.timeValue}>{fromTime}</Text>
-                <TouchableOpacity
-                  style={styles.timeButton}
-                  onPress={() => adjustTime('from', 1)}
-                >
+                <TouchableOpacity style={styles.timeButton} onPress={() => adjustTime('from', 1)}>
                   <Text style={styles.timeButtonText}>+</Text>
                 </TouchableOpacity>
               </View>
@@ -197,17 +181,11 @@ export default function NotificationScreen() {
             <View style={styles.timeRow}>
               <Text style={styles.timeLabel}>À</Text>
               <View style={styles.timeSelector}>
-                <TouchableOpacity
-                  style={styles.timeButton}
-                  onPress={() => adjustTime('to', -1)}
-                >
+                <TouchableOpacity style={styles.timeButton} onPress={() => adjustTime('to', -1)}>
                   <Text style={styles.timeButtonText}>−</Text>
                 </TouchableOpacity>
                 <Text style={styles.timeValue}>{toTime}</Text>
-                <TouchableOpacity
-                  style={styles.timeButton}
-                  onPress={() => adjustTime('to', 1)}
-                >
+                <TouchableOpacity style={styles.timeButton} onPress={() => adjustTime('to', 1)}>
                   <Text style={styles.timeButtonText}>+</Text>
                 </TouchableOpacity>
               </View>
@@ -239,7 +217,8 @@ export default function NotificationScreen() {
           {permissions && !permissions.granted && (
             <View style={styles.permissionStatus}>
               <Text style={styles.permissionText}>
-                💡 Les notifications permettent de recevoir des rappels spirituels tout au long de la journée
+                💡 Les notifications permettent de recevoir des rappels spirituels tout au long de
+                la journée
               </Text>
             </View>
           )}
