@@ -1,0 +1,16 @@
+/.expo
+node_modules
+dist
+android
+ios
+build
+*.log
+.DS_Store
+*.env
+.env.*
+coverage
+*.tgz
+*.tar.gz
+package-lock.json
+yarn.lock
+
