@@ -1,4 +1,5 @@
 import AuthNavigationHandler from '@/components/AuthNavigationHandler';
+import NotificationInitializer from '@/components/NotificationInitializer';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
@@ -31,6 +32,7 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <AuthNavigationHandler>
+        <NotificationInitializer />
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <Stack
             screenOptions={{

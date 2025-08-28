@@ -1,9 +1,9 @@
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors } from '@/constants/Colors';
-import { router } from 'expo-router';
 
 interface BasicsDrawerContentProps {
   onClose: () => void;
@@ -33,7 +33,7 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
       icon: '📖',
       color: '#00C851',
       isSelected: false,
-      isUnlocked: true,
+      isUnlocked: false,
     },
     {
       id: 'dhikr',
@@ -41,7 +41,7 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
       icon: '📿',
       color: '#FF8800',
       isSelected: false,
-      isUnlocked: true,
+      isUnlocked: false,
     },
     {
       id: 'qibla',
@@ -49,7 +49,7 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
       icon: '🧭',
       color: '#E94B4B',
       isSelected: false,
-      isUnlocked: true,
+      isUnlocked: false,
     },
     {
       id: 'calendar',
@@ -57,7 +57,7 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
       icon: '📅',
       color: '#9C27B0',
       isSelected: false,
-      isUnlocked: true,
+      isUnlocked: false,
     },
     {
       id: 'names',
@@ -65,7 +65,7 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
       icon: '✨',
       color: '#F5A623',
       isSelected: false,
-      isUnlocked: true,
+      isUnlocked: false,
     },
     {
       id: 'duas',
@@ -73,7 +73,7 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
       icon: '🤲',
       color: '#7ED321',
       isSelected: false,
-      isUnlocked: true,
+      isUnlocked: false,
     },
     {
       id: 'hijri',
@@ -81,7 +81,7 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
       icon: '🌙',
       color: '#607D8B',
       isSelected: false,
-      isUnlocked: true,
+      isUnlocked: false,
     },
   ];
 
@@ -120,15 +120,9 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
         {/* Search Bar */}
         <View style={styles.searchContainer}>
           <TextInput
-            style={[
-              styles.searchInput,
-              {
-                backgroundColor: Colors[colorScheme ?? 'light'].surface,
-                color: Colors[colorScheme ?? 'light'].text,
-              },
-            ]}
-            placeholder="Search"
-            placeholderTextColor={Colors[colorScheme ?? 'light'].textSecondary}
+            style={styles.searchInput}
+            placeholder="Rechercher"
+            placeholderTextColor="#999999"
             value={searchText}
             onChangeText={setSearchText}
           />
@@ -136,15 +130,10 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
 
         {/* Make my own mix button */}
         <TouchableOpacity
-          style={[
-            styles.makeOwnMixButton,
-            { backgroundColor: Colors[colorScheme ?? 'light'].accent },
-          ]}
+          style={styles.makeOwnMixButton}
           onPress={onClose}
         >
-          <Text
-            style={[styles.makeOwnMixText, { color: Colors[colorScheme ?? 'light'].textOnPrimary }]}
-          >
+          <Text style={styles.makeOwnMixText}>
             Créer ma sélection
           </Text>
         </TouchableOpacity>
@@ -247,10 +236,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   searchInput: {
-    borderRadius: 25,
+    borderRadius: 12,
     paddingHorizontal: 20,
     paddingVertical: 15,
     fontSize: 16,
+    backgroundColor: '#FFFFFF',
+    color: '#000000',
     shadowColor: 'rgba(0, 0, 0, 0.1)',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -258,10 +249,11 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   makeOwnMixButton: {
-    borderRadius: 25,
+    borderRadius: 12,
     paddingVertical: 18,
     alignItems: 'center',
     marginBottom: 30,
+    backgroundColor: '#4CAF50',
     shadowColor: 'rgba(0, 0, 0, 0.2)',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -271,6 +263,7 @@ const styles = StyleSheet.create({
   makeOwnMixText: {
     fontSize: 18,
     fontWeight: '600',
+    color: '#FFFFFF',
   },
   categoriesContainer: {
     flex: 1,

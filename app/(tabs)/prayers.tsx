@@ -4,7 +4,9 @@ import { Colors } from '@/constants/Colors';
 import { formatDate } from '@/data/mockPrayers';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useContent } from '@/hooks/useContent';
+import { useLikes } from '@/hooks/useLikes';
 import { usePrayers } from '@/hooks/usePrayers';
+import { useUserPrayers } from '@/hooks/useUserPrayers';
 import { PrayerFormula } from '@/services/contentService';
 import { PrayerData } from '@/services/prayerService';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,7 +33,6 @@ export default function PrayersScreen() {
   const colorScheme = useColorScheme();
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [likedPrayers, setLikedPrayers] = useState<Set<string>>(new Set());
   const [refreshing, setRefreshing] = useState(false);
   const [shareDrawerVisible, setShareDrawerVisible] = useState(false);
   const [selectedPrayerForShare, setSelectedPrayerForShare] = useState<PrayerData | null>(null);
@@ -54,6 +55,26 @@ export default function PrayersScreen() {
     loadPrayerFormulas,
     getRandomPrayerFormula,
   } = useContent();
+
+  // Utiliser le hook Firebase pour les likes
+  const {
+    likedPrayers,
+    loading: likesLoading,
+    error: likesError,
+    toggleLike,
+    isLiked,
+    loadUserLikes,
+  } = useLikes();
+
+  // Utiliser le hook Firebase pour les prières utilisateur
+  const {
+    completedPrayers,
+    loading: userPrayersLoading,
+    error: userPrayersError,
+    togglePrayerCompleted,
+    isPrayerCompleted,
+    loadUserPrayers,
+  } = useUserPrayers();
 
   // Mémoriser les formules assignées à chaque prière
   const [assignedFormulas, setAssignedFormulas] = useState<{ [key: string]: PrayerFormula }>({});
@@ -94,17 +115,41 @@ export default function PrayersScreen() {
   const handlePray = async (prayerId: string) => {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      const result = await incrementPrayerCount(prayerId);
       
-      if (!result.success) {
-        Alert.alert('Erreur', result.error || 'Impossible d\'enregistrer la prière');
+      // Marquer la prière comme effectuée par l'utilisateur
+      const userPrayerResult = await togglePrayerCompleted(prayerId);
+      
+      // Incrémenter le compteur global seulement si la prière est nouvellement effectuée
+      if (userPrayerResult.success && userPrayerResult.isCompleted) {
+        const countResult = await incrementPrayerCount(prayerId);
+        
+        if (!countResult.success) {
+          Alert.alert('Erreur', countResult.error || 'Impossible d\'enregistrer la prière');
+          return;
+        }
+      }
+      
+      if (!userPrayerResult.success) {
+        Alert.alert('Erreur', userPrayerResult.error || 'Impossible d\'enregistrer votre prière');
       }
     } catch (error) {
       console.warn('Haptic feedback not available:', error);
-      const result = await incrementPrayerCount(prayerId);
       
-      if (!result.success) {
-        Alert.alert('Erreur', result.error || 'Impossible d\'enregistrer la prière');
+      // Marquer la prière comme effectuée par l'utilisateur
+      const userPrayerResult = await togglePrayerCompleted(prayerId);
+      
+      // Incrémenter le compteur global seulement si la prière est nouvellement effectuée
+      if (userPrayerResult.success && userPrayerResult.isCompleted) {
+        const countResult = await incrementPrayerCount(prayerId);
+        
+        if (!countResult.success) {
+          Alert.alert('Erreur', countResult.error || 'Impossible d\'enregistrer la prière');
+          return;
+        }
+      }
+      
+      if (!userPrayerResult.success) {
+        Alert.alert('Erreur', userPrayerResult.error || 'Impossible d\'enregistrer votre prière');
       }
     }
   };
@@ -115,6 +160,8 @@ export default function PrayersScreen() {
       await Promise.all([
         refreshPrayers(),
         loadPrayerFormulas(),
+        loadUserLikes(),
+        loadUserPrayers(),
       ]);
     } catch (error) {
       console.error('Erreur lors du rafraîchissement:', error);
@@ -123,16 +170,22 @@ export default function PrayersScreen() {
     }
   };
 
-  const handleLike = (prayerId: string) => {
-    setLikedPrayers(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(prayerId)) {
-        newSet.delete(prayerId);
-      } else {
-        newSet.add(prayerId);
+  const handleLike = async (prayerId: string) => {
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      const result = await toggleLike(prayerId);
+      
+      if (!result.success) {
+        Alert.alert('Erreur', result.error || 'Impossible de mettre à jour le like');
       }
-      return newSet;
-    });
+    } catch (error) {
+      console.warn('Haptic feedback not available:', error);
+      const result = await toggleLike(prayerId);
+      
+      if (!result.success) {
+        Alert.alert('Erreur', result.error || 'Impossible de mettre à jour le like');
+      }
+    }
   };
 
   const handleScrollEnd = (event: any) => {
@@ -176,9 +229,9 @@ export default function PrayersScreen() {
             activeOpacity={0.8}
           >
             <Ionicons
-              name="hand-left"
+              name={isPrayerCompleted(prayer.id || '') ? 'hand-left' : 'hand-left-outline'}
               size={36}
-              color={Colors[colorScheme ?? 'light'].primary}
+              color={isPrayerCompleted(prayer.id || '') ? Colors[colorScheme ?? 'light'].primary : Colors[colorScheme ?? 'light'].text}
             />
           </TouchableOpacity>
 
@@ -188,10 +241,11 @@ export default function PrayersScreen() {
             activeOpacity={0.8}
           >
             <Ionicons
-              name={likedPrayers.has(prayer.id || '') ? 'heart' : 'heart-outline'}
+              name={isLiked(prayer.id || '') ? 'heart' : 'heart-outline'}
               size={36}
-              color={likedPrayers.has(prayer.id || '') ? '#FF0000' : Colors[colorScheme ?? 'light'].text}
+              color={isLiked(prayer.id || '') ? '#FF0000' : Colors[colorScheme ?? 'light'].text}
             />
+            {/* Affichage optionnel du nombre de likes - peut être activé plus tard */}
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -579,6 +633,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+  },
+  actionCount: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 2,
+    textAlign: 'center',
   },
   prayActionButton: {
     // backgroundColor: Colors.light.primary, // Supprimé le background du bouton de prière aussi

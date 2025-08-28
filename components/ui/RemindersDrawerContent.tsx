@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import CategorySelectionModal from '@/components/ui/CategorySelectionModal';
 import TimeSelectionModal from '@/components/ui/TimeSelectionModal';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { useNotificationPermissions } from '@/hooks/useNotificationPermissions';
+import { NotificationSettings, useNotifications } from '@/services/notificationService';
+import React, { useEffect, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 
 interface RemindersDrawerContentProps {
   onClose: () => void;
@@ -12,6 +14,10 @@ interface RemindersDrawerContentProps {
 export default function RemindersDrawerContent({ onClose }: RemindersDrawerContentProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+  
+  // Services et hooks
+  const { scheduleReminders, cancelAllReminders, sendTestNotification } = useNotifications();
+  const { permissions, requestPermission, isLoading } = useNotificationPermissions();
 
   const [enableReminders, setEnableReminders] = useState(true);
   const [sound, setSound] = useState(true);
@@ -22,6 +28,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
   const [endTime, setEndTime] = useState('22:00');
   const [selectedFeed, setSelectedFeed] = useState('Current feed');
   const [selectedDays, setSelectedDays] = useState([true, true, true, true, true, true, true]);
+  const [isSaving, setIsSaving] = useState(false);
 
   // États pour les modales
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
@@ -29,6 +36,62 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
   const [timeModalType, setTimeModalType] = useState<'start' | 'end'>('start');
 
   const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+  // Vérifier les permissions au chargement
+  useEffect(() => {
+    if (enableReminders && !permissions?.granted) {
+      checkAndRequestPermissions();
+    }
+  }, [enableReminders, permissions]);
+
+  const checkAndRequestPermissions = async () => {
+    if (!permissions?.granted && permissions?.canAskAgain) {
+      Alert.alert(
+        'Permissions requises',
+        'Cette application a besoin de permissions pour envoyer des notifications de rappel.',
+        [
+          { text: 'Plus tard', style: 'cancel' },
+          { 
+            text: 'Autoriser', 
+            onPress: async () => {
+              const granted = await requestPermission();
+              if (!granted) {
+                Alert.alert(
+                  'Permissions refusées',
+                  'Vous pouvez activer les notifications dans les paramètres de votre appareil.'
+                );
+              }
+            }
+          },
+        ]
+      );
+    }
+  };
+
+  const handleEnableRemindersChange = async (value: boolean) => {
+    setEnableReminders(value);
+    
+    if (value && !permissions?.granted) {
+      const granted = await requestPermission();
+      if (!granted) {
+        setEnableReminders(false);
+        Alert.alert(
+          'Permissions requises',
+          'Les notifications sont nécessaires pour les rappels. Vous pouvez les activer dans les paramètres.'
+        );
+        return;
+      }
+    }
+    
+    if (!value) {
+      // Annuler toutes les notifications si désactivé
+      try {
+        await cancelAllReminders();
+      } catch (error) {
+        console.error('Erreur lors de l\'annulation des notifications:', error);
+      }
+    }
+  };
 
   const toggleDay = (index: number) => {
     const newSelectedDays = [...selectedDays];
@@ -63,22 +126,80 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     setCategoryModalVisible(false);
   };
 
-  const handleSave = () => {
-    // Logique de sauvegarde ici
-    const settings = {
-      enableReminders,
-      sound,
-      morningReminder,
-      eveningReminder,
-      dailyCount,
-      startTime,
-      endTime,
-      selectedFeed,
-      selectedDays,
-    };
+  const handleSave = async () => {
+    if (!permissions?.granted && enableReminders) {
+      Alert.alert(
+        'Permissions requises',
+        'Veuillez autoriser les notifications pour sauvegarder vos paramètres de rappel.'
+      );
+      return;
+    }
 
-    console.log('Reminders settings saved:', settings);
-    onClose();
+    setIsSaving(true);
+    
+    try {
+      const settings: NotificationSettings = {
+        enableReminders,
+        sound,
+        morningReminder,
+        eveningReminder,
+        dailyCount,
+        startTime,
+        endTime,
+        selectedFeed,
+        selectedDays,
+      };
+
+      if (enableReminders) {
+        await scheduleReminders(settings);
+        Alert.alert(
+          'Succès',
+          'Vos rappels ont été programmés avec succès !',
+          [{ text: 'OK', onPress: onClose }]
+        );
+      } else {
+        await cancelAllReminders();
+        Alert.alert(
+          'Succès',
+          'Tous vos rappels ont été annulés.',
+          [{ text: 'OK', onPress: onClose }]
+        );
+      }
+
+      console.log('Reminders settings saved:', settings);
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      Alert.alert(
+        'Erreur',
+        'Une erreur s\'est produite lors de la sauvegarde de vos paramètres.'
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleTestNotification = async () => {
+    if (!permissions?.granted) {
+      Alert.alert(
+        'Permissions requises',
+        'Veuillez autoriser les notifications pour tester cette fonctionnalité.'
+      );
+      return;
+    }
+
+    try {
+      await sendTestNotification();
+      Alert.alert(
+        'Test envoyé',
+        'Une notification de test va apparaître dans quelques secondes.'
+      );
+    } catch (error) {
+      console.error('Erreur lors du test:', error);
+      Alert.alert(
+        'Erreur',
+        'Impossible d\'envoyer la notification de test.'
+      );
+    }
   };
 
   const getFeedDisplayName = (feedName: string) => {
@@ -264,6 +385,39 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     switch: {
       transform: [{ scaleX: 1.1 }, { scaleY: 1.1 }],
     },
+    testButton: {
+      backgroundColor: colors.primary,
+      paddingVertical: 16,
+      paddingHorizontal: 20,
+      borderRadius: 12,
+      alignItems: 'center',
+      marginTop: 12,
+    },
+    testButtonText: {
+      color: colors.surface,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    permissionStatus: {
+      marginTop: 12,
+    },
+    permissionText: {
+      fontSize: 16,
+      color: colors.text,
+      marginBottom: 12,
+    },
+    permissionButton: {
+      backgroundColor: colors.info,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    permissionButtonText: {
+      color: colors.surface,
+      fontSize: 14,
+      fontWeight: '500',
+    },
   });
 
   return (
@@ -273,8 +427,10 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
           <Text style={styles.closeText}>×</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveText}>Save</Text>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={isSaving}>
+          <Text style={[styles.saveText, isSaving && { opacity: 0.5 }]}>
+            {isSaving ? 'Saving...' : 'Save'}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -292,9 +448,10 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
             <Switch
               style={styles.switch}
               value={enableReminders}
-              onValueChange={setEnableReminders}
+              onValueChange={handleEnableRemindersChange}
               trackColor={{ false: colors.border, true: colors.primary }}
               thumbColor={enableReminders ? colors.surface : colors.textSecondary}
+              disabled={isLoading}
             />
           </View>
 
@@ -376,6 +533,31 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
                 </TouchableOpacity>
               ))}
             </View>
+          </View>
+        </View>
+
+        {/* Test Notification Button */}
+        {permissions?.granted && (
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Test des notifications</Text>
+            <TouchableOpacity style={styles.testButton} onPress={handleTestNotification}>
+              <Text style={styles.testButtonText}>📱 Envoyer une notification de test</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Permissions Status */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>État des permissions</Text>
+          <View style={styles.permissionStatus}>
+            <Text style={styles.permissionText}>
+              Notifications: {permissions?.granted ? '✅ Autorisées' : '❌ Non autorisées'}
+            </Text>
+            {!permissions?.granted && permissions?.canAskAgain && (
+              <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
+                <Text style={styles.permissionButtonText}>Demander les permissions</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
