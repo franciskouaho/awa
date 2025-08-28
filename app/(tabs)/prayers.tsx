@@ -1,3 +1,5 @@
+import BottomDrawer from '@/components/ui/BottomDrawer';
+import ShareDrawerContent from '@/components/ui/ShareDrawerContent';
 import { Colors } from '@/constants/Colors';
 import { formatDate } from '@/data/mockPrayers';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -9,18 +11,17 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  Platform,
-  RefreshControl,
-  ScrollView,
-  Share,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Dimensions,
+    Platform,
+    RefreshControl,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -32,6 +33,8 @@ export default function PrayersScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [likedPrayers, setLikedPrayers] = useState<Set<string>>(new Set());
   const [refreshing, setRefreshing] = useState(false);
+  const [shareDrawerVisible, setShareDrawerVisible] = useState(false);
+  const [selectedPrayerForShare, setSelectedPrayerForShare] = useState<PrayerData | null>(null);
 
   // Utiliser le hook Firebase pour les prières
   const { 
@@ -138,14 +141,8 @@ export default function PrayersScreen() {
   };
 
   const handleShare = async (prayer: PrayerData) => {
-    try {
-      await Share.share({
-        message: `Prière pour le défunt\n\n${prayer.personalMessage}\n\n${formatDate(prayer.deathDate)}\n${prayer.location}`,
-      });
-    } catch (error) {
-      console.log('Erreur lors du partage:', error);
-      Alert.alert('Erreur', 'Impossible de partager la prière. Veuillez réessayer plus tard.');
-    }
+    setSelectedPrayerForShare(prayer);
+    setShareDrawerVisible(true);
   };
 
   const renderPrayerCard = (prayer: PrayerData, index: number) => {
@@ -400,6 +397,26 @@ export default function PrayersScreen() {
           prayers.map((prayer, index) => renderPrayerCard(prayer, index))
         )}
       </ScrollView>
+
+      {/* Share Drawer */}
+      <BottomDrawer
+        isVisible={shareDrawerVisible}
+        onClose={() => {
+          setShareDrawerVisible(false);
+          setSelectedPrayerForShare(null);
+        }}
+        height={Dimensions.get('window').height * 0.95}
+      >
+        {selectedPrayerForShare && (
+          <ShareDrawerContent
+            prayer={selectedPrayerForShare}
+            onClose={() => {
+              setShareDrawerVisible(false);
+              setSelectedPrayerForShare(null);
+            }}
+          />
+        )}
+      </BottomDrawer>
     </View>
   );
 }
