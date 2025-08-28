@@ -2,7 +2,7 @@
   "expo": {
     "name": "awa",
     "slug": "awa",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "awa",
@@ -10,7 +10,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.iamfrancisco.awa"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "bundleIdentifier": "com.emplica.awa"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +19,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.iamfrancisco.awa"
+      "googleServicesFile": "./google-services.json",
+      "package": "com.emplica.awa"
     },
     "web": {
       "bundler": "metro",
@@ -35,7 +37,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "@react-native-firebase/app"
     ],
     "experiments": {
       "typedRoutes": true

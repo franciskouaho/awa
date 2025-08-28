@@ -1,4 +1,4 @@
-package com.iamfrancisco.awa
+package com.emplica.awa
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

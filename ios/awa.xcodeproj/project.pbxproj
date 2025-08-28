@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		150197892E60B0DC00B1B2FB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 150197882E60B0DC00B1B2FB /* GoogleService-Info.plist */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		68E4E4A0A5C1D4CB62B83659 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 4795E7D6ADA6D4A288A11764 /* PrivacyInfo.xcprivacy */; };
 		7EED5BAB7DEC756CFF0B8B57 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9478B49E1A31955789445E1F /* ExpoModulesProvider.swift */; };
@@ -20,9 +21,10 @@
 		13B07F961A680F5B00A75B9A /* awa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = awa.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = awa/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = awa/Info.plist; sourceTree = "<group>"; };
+		150197882E60B0DC00B1B2FB /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		412CCEF19722108689C56CFA /* Pods-awa.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-awa.release.xcconfig"; path = "Target Support Files/Pods-awa/Pods-awa.release.xcconfig"; sourceTree = "<group>"; };
 		43F114AD08CB6ADED76943B6 /* Pods-awa.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-awa.debug.xcconfig"; path = "Target Support Files/Pods-awa/Pods-awa.debug.xcconfig"; sourceTree = "<group>"; };
-		4795E7D6ADA6D4A288A11764 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = awa/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		4795E7D6ADA6D4A288A11764 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = awa/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		9478B49E1A31955789445E1F /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-awa/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		9C56F4303FD5D485B391EA19 /* libPods-awa.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-awa.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = awa/SplashScreen.storyboard; sourceTree = "<group>"; };
@@ -54,6 +56,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
 				4795E7D6ADA6D4A288A11764 /* PrivacyInfo.xcprivacy */,
+				150197882E60B0DC00B1B2FB /* GoogleService-Info.plist */,
 			);
 			name = awa;
 			sourceTree = "<group>";
@@ -128,7 +131,6 @@
 				43F114AD08CB6ADED76943B6 /* Pods-awa.debug.xcconfig */,
 				412CCEF19722108689C56CFA /* Pods-awa.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -195,6 +197,7 @@
 			files = (
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				150197892E60B0DC00B1B2FB /* GoogleService-Info.plist in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				68E4E4A0A5C1D4CB62B83659 /* PrivacyInfo.xcprivacy in Resources */,
 			);
@@ -354,8 +357,8 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.iamfrancisco.awa;
-				PRODUCT_NAME = awa;
+				PRODUCT_BUNDLE_IDENTIFIER = com.emplica.awa;
+				PRODUCT_NAME = "awa";
 				SWIFT_OBJC_BRIDGING_HEADER = "awa/awa-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -385,8 +388,8 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.iamfrancisco.awa;
-				PRODUCT_NAME = awa;
+				PRODUCT_BUNDLE_IDENTIFIER = com.emplica.awa;
+				PRODUCT_NAME = "awa";
 				SWIFT_OBJC_BRIDGING_HEADER = "awa/awa-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -449,10 +452,7 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -507,10 +507,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

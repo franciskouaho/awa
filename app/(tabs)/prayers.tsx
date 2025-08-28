@@ -35,6 +35,7 @@ export default function PrayersScreen() {
       {} as PrayerCounts
     )
   );
+  const [prayedPrayers, setPrayedPrayers] = useState<Set<string>>(new Set());
 
   const handlePray = async (prayerId: string) => {
     try {
@@ -43,12 +44,14 @@ export default function PrayersScreen() {
         ...prev,
         [prayerId]: (prev[prayerId] || 0) + 1,
       }));
+      setPrayedPrayers(prev => new Set([...prev, prayerId]));
     } catch (error) {
       console.warn('Haptic feedback not available:', error);
       setPrayerCounts(prev => ({
         ...prev,
         [prayerId]: (prev[prayerId] || 0) + 1,
       }));
+      setPrayedPrayers(prev => new Set([...prev, prayerId]));
     }
   };
 
@@ -81,9 +84,13 @@ export default function PrayersScreen() {
             activeOpacity={0.8}
           >
             <Ionicons
-              name="hand-left-outline"
+              name={prayedPrayers.has(prayer.id) ? 'hand-left' : 'hand-left-outline'}
               size={36}
-              color={Colors[colorScheme ?? 'light'].text}
+              color={
+                prayedPrayers.has(prayer.id)
+                  ? Colors[colorScheme ?? 'light'].primary
+                  : Colors[colorScheme ?? 'light'].text
+              }
             />
           </TouchableOpacity>
 

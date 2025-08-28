@@ -372,6 +372,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingVertical: 20,
+    paddingHorizontal: 4,
     alignItems: 'flex-start',
     flexDirection: 'column',
   },
@@ -397,6 +398,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   descriptionSection: {
+    paddingHorizontal: 4,
     marginBottom: 24,
   },
   description: {
@@ -419,6 +421,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 16,
+    paddingHorizontal: 20,
   },
   textContainer: {
     flex: 1,
@@ -441,6 +444,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   form: {
+    paddingHorizontal: 16,
     paddingBottom: 32,
   },
   inputGroup: {
@@ -454,6 +458,7 @@ const styles = StyleSheet.create({
   input: {
     height: 48,
     borderRadius: 12,
+    paddingHorizontal: 16,
     fontSize: 16,
     backgroundColor: '#F9FAFB',
     borderWidth: 1,
@@ -462,6 +467,7 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: 120,
     borderRadius: 12,
+    paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 12,
     fontSize: 16,
@@ -478,6 +484,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 24,
     elevation: 2,
   },
   submitButtonText: {
