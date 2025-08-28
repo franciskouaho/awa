@@ -37,3 +37,16 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+# IDEs and editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+*.komodoproject
