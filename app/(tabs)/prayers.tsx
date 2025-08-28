@@ -1,8 +1,19 @@
-import React, { useRef, useState } from 'react';
+import { Colors } from '@/constants/Colors';
+import { formatDate } from '@/data/mockPrayers';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { useContent } from '@/hooks/useContent';
+import { usePrayers } from '@/hooks/usePrayers';
+import { PrayerFormula } from '@/services/contentService';
+import { PrayerData } from '@/services/prayerService';
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Dimensions,
   Platform,
+  RefreshControl,
   ScrollView,
   Share,
   StatusBar,
@@ -11,59 +22,101 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors } from '@/constants/Colors';
-import { formatDate, mockPrayers, Prayer } from '@/data/mockPrayers';
-import { getRandomFormula } from '@/data/prayerFormulas';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const cardHeight = screenHeight; // Chaque carte prend toute la hauteur de l'écran
-
-interface PrayerCounts {
-  [key: string]: number;
-}
 
 export default function PrayersScreen() {
   const colorScheme = useColorScheme();
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [prayerCounts, setPrayerCounts] = useState<PrayerCounts>(
-    mockPrayers.reduce(
-      (acc, prayer) => ({ ...acc, [prayer.id]: prayer.prayerCount }),
-      {} as PrayerCounts
-    )
-  );
-  const [prayedPrayers, setPrayedPrayers] = useState<Set<string>>(new Set());
   const [likedPrayers, setLikedPrayers] = useState<Set<string>>(new Set());
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Mémoriser les formules pour éviter qu'elles changent à chaque re-render
-  const [prayerFormulas] = useState<{ [key: string]: any }>(() =>
-    mockPrayers.reduce(
-      (acc, prayer) => ({
-        ...acc,
-        [prayer.id]: getRandomFormula(),
-      }),
-      {}
-    )
-  );
+  // Utiliser le hook Firebase pour les prières
+  const { 
+    prayers, 
+    loading, 
+    error, 
+    loadPrayers, 
+    incrementPrayerCount, 
+    refreshPrayers 
+  } = usePrayers();
+
+  // Utiliser le hook Firebase pour le contenu (formules, versets, etc.)
+  const {
+    prayerFormulas,
+    prayerFormulasLoading,
+    prayerFormulasError,
+    loadPrayerFormulas,
+    getRandomPrayerFormula,
+  } = useContent();
+
+  // Mémoriser les formules assignées à chaque prière
+  const [assignedFormulas, setAssignedFormulas] = useState<{ [key: string]: PrayerFormula }>({});
+
+  // Charger les prières et formules au montage du composant
+  useEffect(() => {
+    const loadData = async () => {
+      await Promise.all([
+        loadPrayers(),
+        loadPrayerFormulas(),
+      ]);
+    };
+    loadData();
+  }, [loadPrayers, loadPrayerFormulas]);
+
+  // Assigner des formules aléatoires aux prières
+  useEffect(() => {
+    const assignFormulas = async () => {
+      const newAssignedFormulas: { [key: string]: PrayerFormula } = { ...assignedFormulas };
+      
+      for (const prayer of prayers) {
+        if (prayer.id && !newAssignedFormulas[prayer.id]) {
+          const result = await getRandomPrayerFormula();
+          if (result.success && result.data) {
+            newAssignedFormulas[prayer.id] = result.data;
+          }
+        }
+      }
+      
+      setAssignedFormulas(newAssignedFormulas);
+    };
+
+    if (prayers.length > 0 && prayerFormulas.length > 0) {
+      assignFormulas();
+    }
+  }, [prayers, prayerFormulas, getRandomPrayerFormula]);
 
   const handlePray = async (prayerId: string) => {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      setPrayerCounts(prev => ({
-        ...prev,
-        [prayerId]: (prev[prayerId] || 0) + 1,
-      }));
-      setPrayedPrayers(prev => new Set([...prev, prayerId]));
+      const result = await incrementPrayerCount(prayerId);
+      
+      if (!result.success) {
+        Alert.alert('Erreur', result.error || 'Impossible d\'enregistrer la prière');
+      }
     } catch (error) {
       console.warn('Haptic feedback not available:', error);
-      setPrayerCounts(prev => ({
-        ...prev,
-        [prayerId]: (prev[prayerId] || 0) + 1,
-      }));
-      setPrayedPrayers(prev => new Set([...prev, prayerId]));
+      const result = await incrementPrayerCount(prayerId);
+      
+      if (!result.success) {
+        Alert.alert('Erreur', result.error || 'Impossible d\'enregistrer la prière');
+      }
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        refreshPrayers(),
+        loadPrayerFormulas(),
+      ]);
+    } catch (error) {
+      console.error('Erreur lors du rafraîchissement:', error);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -84,7 +137,7 @@ export default function PrayersScreen() {
     setCurrentIndex(index);
   };
 
-  const handleShare = async (prayer: Prayer) => {
+  const handleShare = async (prayer: PrayerData) => {
     try {
       await Share.share({
         message: `Prière pour le défunt\n\n${prayer.personalMessage}\n\n${formatDate(prayer.deathDate)}\n${prayer.location}`,
@@ -95,38 +148,52 @@ export default function PrayersScreen() {
     }
   };
 
-  const renderPrayerCard = (prayer: Prayer, index: number) => {
-    const formula = prayerFormulas[prayer.id];
+  const renderPrayerCard = (prayer: PrayerData, index: number) => {
+    if (!prayer.id) return null;
+    
+    const formula = assignedFormulas[prayer.id];
+
+    // Si pas de formule assignée, afficher un indicateur de chargement
+    if (!formula) {
+      return (
+        <View key={prayer.id} style={styles.card}>
+          <View style={styles.cardContent}>
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={Colors[colorScheme ?? 'light'].primary} />
+              <Text style={[styles.loadingText, { color: Colors[colorScheme ?? 'light'].text }]}>
+                Chargement de la formule...
+              </Text>
+            </View>
+          </View>
+        </View>
+      );
+    }
 
     return (
       <View key={prayer.id} style={styles.card}>
         {/* Actions à droite style TikTok */}
         <View style={styles.sideActions}>
-          <TouchableOpacity
+                    <TouchableOpacity
             style={[styles.actionButton, styles.prayActionButton]}
-            onPress={() => handlePray(prayer.id)}
+            onPress={() => prayer.id && handlePray(prayer.id)}
             activeOpacity={0.8}
           >
             <Ionicons
-              name={prayedPrayers.has(prayer.id) ? 'hand-left' : 'hand-left-outline'}
+              name="hand-left"
               size={36}
-              color={
-                prayedPrayers.has(prayer.id)
-                  ? Colors[colorScheme ?? 'light'].primary
-                  : Colors[colorScheme ?? 'light'].text
-              }
+              color={Colors[colorScheme ?? 'light'].primary}
             />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => handleLike(prayer.id)}
+            onPress={() => prayer.id && handleLike(prayer.id)}
             activeOpacity={0.8}
           >
             <Ionicons
-              name={likedPrayers.has(prayer.id) ? 'heart' : 'heart-outline'}
+              name={likedPrayers.has(prayer.id || '') ? 'heart' : 'heart-outline'}
               size={36}
-              color={likedPrayers.has(prayer.id) ? '#FF0000' : Colors[colorScheme ?? 'light'].text}
+              color={likedPrayers.has(prayer.id || '') ? '#FF0000' : Colors[colorScheme ?? 'light'].text}
             />
           </TouchableOpacity>
 
@@ -283,8 +350,55 @@ export default function PrayersScreen() {
         snapToInterval={cardHeight}
         snapToAlignment="start"
         contentInsetAdjustmentBehavior="never"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={Colors[colorScheme ?? 'light'].primary}
+          />
+        }
       >
-        {mockPrayers.map((prayer, index) => renderPrayerCard(prayer, index))}
+        {(loading || prayerFormulasLoading) && prayers.length === 0 ? (
+          <View style={[styles.card, styles.loadingContainer]}>
+            <ActivityIndicator size="large" color={Colors[colorScheme ?? 'light'].primary} />
+            <Text style={[styles.loadingText, { color: Colors[colorScheme ?? 'light'].text }]}>
+              Chargement des prières...
+            </Text>
+          </View>
+        ) : (error || prayerFormulasError) ? (
+          <View style={[styles.card, styles.errorContainer]}>
+            <Ionicons 
+              name="alert-circle-outline" 
+              size={64} 
+              color={Colors[colorScheme ?? 'light'].text} 
+            />
+            <Text style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].text }]}>
+              {error || prayerFormulasError}
+            </Text>
+            <TouchableOpacity 
+              style={[styles.retryButton, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}
+              onPress={handleRefresh}
+            >
+              <Text style={styles.retryButtonText}>Réessayer</Text>
+            </TouchableOpacity>
+          </View>
+        ) : prayers.length === 0 ? (
+          <View style={[styles.card, styles.emptyContainer]}>
+            <Ionicons 
+              name="heart-outline" 
+              size={64} 
+              color={Colors[colorScheme ?? 'light'].text} 
+            />
+            <Text style={[styles.emptyText, { color: Colors[colorScheme ?? 'light'].text }]}>
+              Aucune prière disponible
+            </Text>
+            <Text style={[styles.emptySubtext, { color: Colors[colorScheme ?? 'light'].text }]}>
+              Tirez vers le bas pour actualiser
+            </Text>
+          </View>
+        ) : (
+          prayers.map((prayer, index) => renderPrayerCard(prayer, index))
+        )}
       </ScrollView>
     </View>
   );
@@ -451,5 +565,55 @@ const styles = StyleSheet.create({
   },
   prayActionButton: {
     // backgroundColor: Colors.light.primary, // Supprimé le background du bouton de prière aussi
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  errorText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 16,
+    marginBottom: 24,
+  },
+  retryButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  emptyText: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 16,
+    fontWeight: '500',
+  },
+  emptySubtext: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 8,
+    opacity: 0.7,
   },
 });

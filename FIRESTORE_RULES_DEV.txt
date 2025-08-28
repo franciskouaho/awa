@@ -1,25 +1,13 @@
 /*
-RÈGLES FIRESTORE TEMPORAIRES POUR LE DÉVELOPPEMENT
+RÈGLES FIRESTORE POUR LE DÉVELOPPEMENT ET LA MIGRATION
 Copiez ces règles dans votre console Firebase :
 1. Allez dans Firestore Database > Rules
 2. Remplacez le contenu par les règles ci-dessous
 3. Cliquez sur "Publier"
+4. Attendez 1-2 minutes puis exécutez la migration
 
 ATTENTION : Ces règles sont permissives et ne doivent être utilisées qu'en développement !
 */
-
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Règles temporaires permissives pour le développement
-    match /{document=**} {
-      allow read, write: if true;
-    }
-  }
-}
-
-/*
-RÈGLES DE PRODUCTION (à utiliser plus tard) :
 
 rules_version = '2';
 service cloud.firestore {
@@ -30,16 +18,46 @@ service cloud.firestore {
       allow create: if request.auth != null;
     }
     
-    // Autres collections selon vos besoins
+    // Collection prayers - lecture publique, écriture authentifiée
     match /prayers/{prayerId} {
       allow read: if true;
       allow write: if request.auth != null;
     }
     
-    // Par défaut, tout refuser
+    // Collections pour le contenu religieux - accès libre pour la migration
+    match /prayerFormulas/{formulaId} {
+      allow read: if true;
+      allow write: if true; // Libre pour permettre la migration
+    }
+    
+    match /verses/{verseId} {
+      allow read: if true;
+      allow write: if true; // Libre pour permettre la migration
+    }
+    
+    match /hadiths/{hadithId} {
+      allow read: if true;
+      allow write: if true; // Libre pour permettre la migration
+    }
+    
+    // Par défaut, tout refuser pour les autres collections
     match /{document=**} {
       allow read, write: if false;
     }
   }
 }
+
+/*
+ALTERNATIVE ULTRA-PERMISSIVE (si les règles ci-dessus ne fonctionnent pas) :
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+
+IMPORTANT : Remettre des règles sécurisées après la migration !
 */
