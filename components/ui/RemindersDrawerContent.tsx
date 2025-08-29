@@ -4,6 +4,7 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useNotificationPermissions } from '@/hooks/useNotificationPermissions';
 import { NotificationSettings, useNotifications } from '@/services/notificationService';
+import { userService } from '@/services/userService';
 import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 
@@ -16,13 +17,14 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
   const colors = Colors[colorScheme ?? 'light'];
 
   // Services et hooks
-  const { scheduleReminders, cancelAllReminders, sendTestNotification } = useNotifications();
+  const { scheduleReminders, cancelAllReminders, sendTestNotification, sendTestDeceasedPrayerNotification } = useNotifications();
   const { permissions, requestPermission, isLoading } = useNotificationPermissions();
 
   const [enableReminders, setEnableReminders] = useState(true);
   const [sound, setSound] = useState(true);
   const [morningReminder, setMorningReminder] = useState(true);
   const [eveningReminder, setEveningReminder] = useState(true);
+  const [enableDeceasedReminder, setEnableDeceasedReminder] = useState(false);
   const [dailyCount, setDailyCount] = useState(3);
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('22:00');
@@ -36,6 +38,43 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
   const [timeModalType, setTimeModalType] = useState<'start' | 'end'>('start');
 
   const days = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+
+    // Handler for test deceased prayer notification
+    const handleTestDeceasedPrayerNotification = async () => {
+      if (!permissions?.granted) {
+        Alert.alert(
+          'Permissions requises',
+          'Veuillez autoriser les notifications pour tester cette fonctionnalité.'
+        );
+        return;
+      }
+
+      try {
+        await sendTestDeceasedPrayerNotification();
+        Alert.alert('Test envoyé', 'Une notification de prière pour le défunt va apparaître dans quelques secondes.');
+      } catch (error) {
+        console.error('Erreur lors du test:', error);
+        Alert.alert('Erreur', "Impossible d'envoyer la notification de test pour le défunt.");
+      }
+    };
+  // Charger les paramètres de notifications depuis Firebase au montage
+  useEffect(() => {
+    (async () => {
+      const saved = await userService.getNotificationSettings();
+      if (saved) {
+        setEnableReminders(saved.enableReminders ?? true);
+        setSound(saved.sound ?? true);
+        setMorningReminder(saved.morningReminder ?? true);
+        setEveningReminder(saved.eveningReminder ?? true);
+        setEnableDeceasedReminder(saved.enableDeceasedReminder ?? false);
+        setDailyCount(saved.dailyCount ?? 3);
+        setStartTime(saved.startTime ?? '09:00');
+        setEndTime(saved.endTime ?? '22:00');
+        setSelectedFeed(saved.selectedFeed ?? 'Feed actuel');
+        setSelectedDays(saved.selectedDays ?? [true, true, true, true, true, true, true]);
+      }
+    })();
+  }, []);
 
   // Vérifier les permissions au chargement
   useEffect(() => {
@@ -143,12 +182,16 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
         sound,
         morningReminder,
         eveningReminder,
+        enableDeceasedReminder,
         dailyCount,
         startTime,
         endTime,
         selectedFeed,
         selectedDays,
       };
+
+      // Sauvegarder dans Firestore
+      await userService.saveNotificationSettings(settings);
 
       if (enableReminders) {
         await scheduleReminders(settings);
@@ -439,6 +482,17 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Main Settings Card */}
         <View style={styles.card}>
+        {/* Switch pour les rappels de prière pour les défunts */}
+        <View style={styles.row}>
+          <Text style={styles.label}>Activer les rappels pour les défunts</Text>
+          <Switch
+            style={styles.switch}
+            value={enableDeceasedReminder}
+            onValueChange={setEnableDeceasedReminder}
+            trackColor={{ false: colors.border, true: colors.info }}
+            thumbColor={enableDeceasedReminder ? colors.surface : colors.textSecondary}
+          />
+        </View>
           {/* Enable Reminders */}
           <View style={styles.row}>
             <Text style={styles.label}>Activer les rappels</Text>
@@ -533,14 +587,22 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
           </View>
         </View>
 
-        {/* Test Notification Button */}
-        {permissions?.granted && (
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Test des notifications</Text>
-            <TouchableOpacity style={styles.testButton} onPress={handleTestNotification}>
-              <Text style={styles.testButtonText}>📱 Envoyer une notification de test</Text>
-            </TouchableOpacity>
-          </View>
+        {/* Test Notification Button (DEV only) */}
+        {__DEV__ && permissions?.granted && (
+          <>
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Test des notifications</Text>
+              <TouchableOpacity style={styles.testButton} onPress={handleTestNotification}>
+                <Text style={styles.testButtonText}>📱 Envoyer une notification de test</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Test notification prière pour le défunt</Text>
+              <TouchableOpacity style={styles.testButton} onPress={handleTestDeceasedPrayerNotification}>
+                <Text style={styles.testButtonText}>🕊️ Envoyer une notification de prière pour le défunt</Text>
+              </TouchableOpacity>
+            </View>
+          </>
         )}
 
         {/* Daily Streak Reminders Card */}

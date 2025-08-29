@@ -8,6 +8,7 @@ export interface NotificationSettings {
   sound: boolean;
   morningReminder: boolean;
   eveningReminder: boolean;
+  enableDeceasedReminder: boolean;
   dailyCount: number;
   startTime: string;
   endTime: string;
@@ -22,6 +23,29 @@ export interface NotificationPermissions {
 }
 
 class NotificationService {
+  /**
+   * Envoie une notification de test pour la prière du défunt
+   */
+  async sendTestDeceasedPrayerNotification(): Promise<void> {
+    await this.initializeNotifications();
+    const permissions = await this.getPermissions();
+    if (!permissions.granted) {
+      throw new Error('Notification permissions not granted');
+    }
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: '🕊️ Prière pour le défunt',
+        body: 'Ceci est une notification de test pour la prière du défunt.',
+        data: { type: 'deceasedPrayer' },
+        sound: 'default',
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: 1,
+      },
+    });
+  }
+
   private isInitialized = false;
 
   constructor() {
@@ -112,8 +136,9 @@ class NotificationService {
         return null;
       }
 
-      const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-      
+      const projectId =
+        Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+
       if (!projectId) {
         console.log('Project ID not found');
         return null;
@@ -132,47 +157,81 @@ class NotificationService {
    */
   async scheduleReminders(settings: NotificationSettings): Promise<void> {
     await this.initializeNotifications();
-    
     // Annuler toutes les notifications programmées précédemment
     await this.cancelAllReminders();
-
     if (!settings.enableReminders) {
       return;
     }
-
     const permissions = await this.getPermissions();
     if (!permissions.granted) {
       throw new Error('Notification permissions not granted');
     }
-
     // Programmer les rappels de prière
     await this.schedulePrayerReminders(settings);
-
+    // Programmer les rappels de prière pour les défunts
+    if (settings.enableDeceasedReminder) {
+      await this.scheduleDeceasedPrayerReminders(settings);
+    }
     // Programmer les rappels de streak quotidien
     await this.scheduleDailyStreakReminders(settings);
+  }
+
+  /**
+   * Programme les notifications de prière pour les défunts
+   */
+  private async scheduleDeceasedPrayerReminders(settings: NotificationSettings): Promise<void> {
+    const [startHourRaw, startMinuteRaw] = settings.startTime.split(':');
+    const startHour = Number(startHourRaw) || 9;
+    const startMinute = Number(startMinuteRaw) || 0;
+    for (const isEnabled of settings.selectedDays) {
+      const dayIndex = settings.selectedDays.indexOf(isEnabled);
+      if (!isEnabled) continue;
+      // Convertir l'index (0 = dimanche) au format attendu (1 = lundi)
+      const weekday = dayIndex === 0 ? 7 : dayIndex;
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: '🕊️ Prière pour les défunts',
+          body: 'Prenez un moment pour prier pour les âmes des défunts.',
+          data: { type: 'deceasedPrayer' },
+          sound: settings.sound ? 'default' : undefined,
+          categoryIdentifier: 'DECEASED_PRAYER_REMINDER',
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+          weekday: weekday,
+          hour: startHour,
+          minute: startMinute,
+        },
+      });
+    }
   }
 
   /**
    * Programme les rappels de prière
    */
   private async schedulePrayerReminders(settings: NotificationSettings): Promise<void> {
-    const [startHour, startMinute] = settings.startTime.split(':').map(Number);
-    const [endHour, endMinute] = settings.endTime.split(':').map(Number);
+    const [startHourRaw, startMinuteRaw] = settings.startTime.split(':');
+    const [endHourRaw, endMinuteRaw] = settings.endTime.split(':');
+    const startHour = Number(startHourRaw) || 9;
+    const startMinute = Number(startMinuteRaw) || 0;
+    const endHour = Number(endHourRaw) || 22;
+    const endMinute = Number(endMinuteRaw) || 0;
 
     // Calculer l'intervalle entre les notifications
     const startTimeMinutes = startHour * 60 + startMinute;
     const endTimeMinutes = endHour * 60 + endMinute;
     const totalMinutes = endTimeMinutes - startTimeMinutes;
-    const intervalMinutes = Math.floor(totalMinutes / (settings.dailyCount - 1));
+    const intervalMinutes = Math.floor(totalMinutes / Math.max(1, Number(settings.dailyCount) - 1));
 
-    for (let i = 0; i < settings.dailyCount; i++) {
-      const notificationMinutes = startTimeMinutes + (i * intervalMinutes);
+    for (let i = 0; i < Number(settings.dailyCount); i++) {
+      const notificationMinutes = startTimeMinutes + i * intervalMinutes;
       const notificationHour = Math.floor(notificationMinutes / 60);
       const notificationMinute = notificationMinutes % 60;
 
       // Pour chaque jour sélectionné
-      settings.selectedDays.forEach(async (isEnabled, dayIndex) => {
-        if (!isEnabled) return;
+      for (const isEnabled of settings.selectedDays) {
+        const dayIndex = settings.selectedDays.indexOf(isEnabled);
+        if (!isEnabled) continue;
 
         // Convertir l'index (0 = dimanche) au format attendu (1 = lundi)
         const weekday = dayIndex === 0 ? 7 : dayIndex;
@@ -181,11 +240,11 @@ class NotificationService {
           content: {
             title: '🙏 Temps de prière',
             body: this.getPrayerReminderMessage(settings.selectedFeed),
-            data: { 
+            data: {
               type: 'prayer-reminder',
               feed: settings.selectedFeed,
               reminderIndex: i + 1,
-              totalReminders: settings.dailyCount
+              totalReminders: settings.dailyCount,
             },
             sound: settings.sound ? 'default' : undefined,
             categoryIdentifier: 'PRAYER_REMINDER',
@@ -198,7 +257,7 @@ class NotificationService {
             channelId: 'prayer-reminders',
           },
         });
-      });
+      }
     }
   }
 
@@ -271,7 +330,7 @@ class NotificationService {
    */
   async sendTestNotification(): Promise<void> {
     await this.initializeNotifications();
-    
+
     const permissions = await this.getPermissions();
     if (!permissions.granted) {
       throw new Error('Notification permissions not granted');
@@ -309,12 +368,12 @@ class NotificationService {
       'Les bases': [
         'Retournez aux fondements de votre foi.',
         'Cultivez les bases de votre spiritualité.',
-        'Un moment pour revenir à l\'essentiel.',
+        "Un moment pour revenir à l'essentiel.",
       ],
       'The basics': [
         'Retournez aux fondements de votre foi.',
         'Cultivez les bases de votre spiritualité.',
-        'Un moment pour revenir à l\'essentiel.',
+        "Un moment pour revenir à l'essentiel.",
       ],
       'Paix mentale': [
         'Trouvez la paix intérieure par la prière.',
@@ -337,10 +396,10 @@ class NotificationService {
         'Votre flamme spirituelle brille en vous.',
       ],
     };
-
     const feedMessages = messages[feedName] || messages['Feed actuel'];
+    if (!feedMessages || feedMessages.length === 0) return '';
     const randomIndex = Math.floor(Math.random() * feedMessages.length);
-    return feedMessages[randomIndex];
+    return feedMessages[randomIndex] || '';
   }
 
   /**
@@ -353,7 +412,9 @@ class NotificationService {
   /**
    * Écoute les réponses aux notifications
    */
-  addNotificationResponseReceivedListener(listener: (response: Notifications.NotificationResponse) => void) {
+  addNotificationResponseReceivedListener(
+    listener: (response: Notifications.NotificationResponse) => void
+  ) {
     return Notifications.addNotificationResponseReceivedListener(listener);
   }
 
@@ -377,7 +438,7 @@ class NotificationService {
     await Notifications.setNotificationCategoryAsync('STREAK_REMINDER', [
       {
         identifier: 'OPEN_APP',
-        buttonTitle: 'Ouvrir l\'app',
+        buttonTitle: "Ouvrir l'app",
         options: { opensAppToForeground: true },
       },
     ]);
@@ -392,9 +453,12 @@ export function useNotifications() {
   return {
     requestPermissions: () => notificationService.requestPermissions(),
     getPermissions: () => notificationService.getPermissions(),
-    scheduleReminders: (settings: NotificationSettings) => notificationService.scheduleReminders(settings),
+    scheduleReminders: (settings: NotificationSettings) =>
+      notificationService.scheduleReminders(settings),
     cancelAllReminders: () => notificationService.cancelAllReminders(),
     sendTestNotification: () => notificationService.sendTestNotification(),
+    sendTestDeceasedPrayerNotification: () =>
+      notificationService.sendTestDeceasedPrayerNotification(),
     getScheduledReminders: () => notificationService.getScheduledReminders(),
     getExpoPushToken: () => notificationService.getExpoPushToken(),
   };

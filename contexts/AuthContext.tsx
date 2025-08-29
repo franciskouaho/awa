@@ -1,4 +1,5 @@
 import { authService, UserProfile } from '@/services/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User } from 'firebase/auth';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
@@ -24,18 +25,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
-    
+    let firebaseChecked = false;
+
     // Sécurité : démarrer un timeout pour éviter les blocages infinis
     timeoutId = setTimeout(() => {
       console.warn('AuthContext: Timeout reached, setting loading to false');
       setIsLoading(false);
     }, 10000); // 10 secondes maximum
 
+    // Vérifier le cache au démarrage AVANT d'écouter Firebase
+    (async () => {
+      await checkCachedUser();
+    })();
+
     // Écouter les changements d'authentification Firebase
     const unsubscribe = authService.onAuthStateChange(async (firebaseUser) => {
+      firebaseChecked = true;
       try {
         setFirebaseUser(firebaseUser);
-        
         if (firebaseUser) {
           // Utilisateur connecté
           const userProfile = await authService.getUserProfile(firebaseUser.uid);
@@ -45,8 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         } else {
           // Utilisateur déconnecté
-          setUser(null);
-          setIsOnboardingCompleted(false);
+          // NE PAS forcer la déconnexion si le cache existe et que le timeout n'est pas atteint
+          if (!user) {
+            setUser(null);
+            setIsOnboardingCompleted(false);
+          }
         }
       } catch (error) {
         console.error('Error in auth state change:', error);
@@ -55,9 +65,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearTimeout(timeoutId);
       }
     });
-
-    // Vérifier le cache au démarrage
-    checkCachedUser();
 
     return () => {
       unsubscribe();
@@ -68,19 +75,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkCachedUser = async () => {
     try {
       const cachedUser = await authService.getCurrentUserProfile();
-      const onboardingStatus = await authService.isOnboardingCompleted();
-      
+      // Lecture stricte de l'état onboardingCompleted depuis AsyncStorage
+      const onboardingCompletedLocal = await AsyncStorage.getItem('onboardingCompleted');
+      let onboardingStatus = false;
+      if (onboardingCompletedLocal === 'true') {
+        onboardingStatus = true;
+      } else {
+        // fallback sur la méthode existante (Firebase)
+        onboardingStatus = await authService.isOnboardingCompleted();
+      }
       if (cachedUser) {
         setUser(cachedUser);
         setIsOnboardingCompleted(onboardingStatus);
+      } else {
+        setUser(null);
+        setIsOnboardingCompleted(false);
       }
     } catch (error) {
       console.error('Error checking cached user:', error);
-      // En cas d'erreur, s'assurer que l'état de chargement est faux
       setUser(null);
       setIsOnboardingCompleted(false);
     } finally {
-      // Toujours arrêter le chargement
       setIsLoading(false);
     }
   };

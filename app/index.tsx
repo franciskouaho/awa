@@ -21,13 +21,11 @@ export default function IndexScreen() {
     if (!navigationReady) return;
     const timeout = setTimeout(() => {
       if (shouldShowIntro) {
-        router.replace('/intro');
-      } else if (shouldShowOnboarding) {
-        router.replace('/onboarding/email');
-      } else if (shouldShowApp) {
+        router.replace('/onboarding/intro');
+      } else {
         router.replace('/(tabs)/prayers');
       }
-    }, 2200); // 2.2 secondes, ajuste à 3000 pour 3s
+    }, 2200);
     return () => clearTimeout(timeout);
   }, [navigationReady, shouldShowIntro, shouldShowOnboarding, shouldShowApp, router]);
 

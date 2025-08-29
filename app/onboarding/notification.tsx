@@ -2,15 +2,46 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useNotificationPermissions } from '@/hooks/useNotificationPermissions';
 import { NotificationSettings, useNotifications } from '@/services/notificationService';
+import { userService } from '@/services/userService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function NotificationScreen() {
+  // Fonction utilitaire pour sauvegarder instantanément
+  const saveSettings = async (custom?: Partial<NotificationSettings>) => {
+    const settings: NotificationSettings = {
+      ...custom,
+      enableReminders: true,
+      sound: true,
+      morningReminder: true,
+      eveningReminder: true,
+      dailyCount: frequency,
+      startTime: fromTime,
+      endTime: toTime,
+      selectedFeed: 'Current feed',
+      selectedDays: [true, true, true, true, true, true, true],
+      enableDeceasedReminder:
+        typeof custom?.enableDeceasedReminder === 'boolean' ? custom.enableDeceasedReminder : false,
+    };
+    await userService.saveNotificationSettings(settings);
+  };
   const [frequency, setFrequency] = useState(3);
   const [fromTime, setFromTime] = useState('09:00');
   const [toTime, setToTime] = useState('22:00');
+
+  // Charger les paramètres existants au montage
+  React.useEffect(() => {
+    (async () => {
+      const saved = await userService.getNotificationSettings();
+      if (saved) {
+        setFrequency(saved.dailyCount ?? 3);
+        setFromTime(saved.startTime ?? '09:00');
+        setToTime(saved.endTime ?? '22:00');
+      }
+    })();
+  }, []);
   const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
   const colorScheme = useColorScheme();
@@ -20,7 +51,9 @@ export default function NotificationScreen() {
   const { permissions, requestPermission, isLoading } = useNotificationPermissions();
 
   const adjustFrequency = (delta: number) => {
-    setFrequency(Math.max(1, Math.min(10, frequency + delta)));
+    const newFreq = Math.max(1, Math.min(10, frequency + delta));
+    setFrequency(newFreq);
+    saveSettings({ dailyCount: newFreq });
   };
 
   const adjustTime = (type: 'from' | 'to', delta: number) => {
@@ -33,8 +66,10 @@ export default function NotificationScreen() {
 
     if (type === 'from') {
       setFromTime(newTime);
+      saveSettings({ startTime: newTime });
     } else {
       setToTime(newTime);
+      saveSettings({ endTime: newTime });
     }
   };
 
@@ -69,13 +104,14 @@ export default function NotificationScreen() {
         endTime: toTime,
         selectedFeed: 'Current feed',
         selectedDays: [true, true, true, true, true, true, true], // Tous les jours
+        enableDeceasedReminder: false,
       };
 
       // Programmer les rappels
       await scheduleReminders(settings);
 
-      // Sauvegarder dans AsyncStorage
-      await AsyncStorage.setItem('notificationSettings', JSON.stringify(settings));
+      // Sauvegarder dans Firestore et AsyncStorage
+      await userService.saveNotificationSettings(settings);
 
       Alert.alert(
         'Notifications activées !',
@@ -107,12 +143,18 @@ export default function NotificationScreen() {
     try {
       // Sauvegarder l'état même si désactivé
       const settings = {
-        enabled,
-        frequency,
-        fromTime,
-        toTime,
+        enableReminders: enabled,
+        sound: true,
+        morningReminder: true,
+        eveningReminder: true,
+        dailyCount: frequency,
+        startTime: fromTime,
+        endTime: toTime,
+        selectedFeed: 'Current feed',
+        selectedDays: [true, true, true, true, true, true, true],
       };
 
+      await userService.saveNotificationSettings(settings);
       await AsyncStorage.setItem('onboardingNotificationSettings', JSON.stringify(settings));
       router.push('./calculating');
     } catch (error) {
