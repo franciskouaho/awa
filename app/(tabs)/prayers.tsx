@@ -232,46 +232,6 @@ export default function PrayersScreen() {
 
     return (
       <View key={prayer.id} style={styles.card}>
-        {/* Actions à droite style TikTok */}
-        <View style={styles.sideActions}>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.prayActionButton]}
-            onPress={() => prayer.id && handlePray(prayer.id)}
-            activeOpacity={0.8}
-          >
-            <Ionicons
-              name={isPrayerCompleted(prayer.id || '') ? 'hand-left' : 'hand-left-outline'}
-              size={36}
-              color={
-                isPrayerCompleted(prayer.id || '')
-                  ? Colors[colorScheme ?? 'light'].primary
-                  : Colors[colorScheme ?? 'light'].text
-              }
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => prayer.id && handleLike(prayer.id)}
-            activeOpacity={0.8}
-          >
-            <Ionicons
-              name={isLiked(prayer.id || '') ? 'heart' : 'heart-outline'}
-              size={36}
-              color={isLiked(prayer.id || '') ? '#FF0000' : Colors[colorScheme ?? 'light'].text}
-            />
-            {/* Affichage optionnel du nombre de likes - peut être activé plus tard */}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => handleShare(prayer)}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="share-outline" size={36} color={Colors[colorScheme ?? 'light'].text} />
-          </TouchableOpacity>
-        </View>
-
         {/* Contenu principal centré */}
         <View style={styles.cardContent}>
           {/* Formule de prière */}
@@ -294,7 +254,7 @@ export default function PrayersScreen() {
               </Text>
             </View>
 
-            {/* Informations de la personne dans la section prière */}
+            {/* Infos défunt juste après le titre */}
             <View style={styles.personInfoInFormula}>
               <Text
                 style={[
@@ -311,6 +271,7 @@ export default function PrayersScreen() {
                   name="calendar-outline"
                   size={16}
                   color={Colors[colorScheme ?? 'light'].prayer.dateText}
+                  style={{ marginRight: 4 }}
                 />
                 <Text
                   style={[
@@ -322,12 +283,11 @@ export default function PrayersScreen() {
                 >
                   {prayer.age} ans • {formatDate(prayer.deathDate)}
                 </Text>
-              </View>
-              <View style={styles.detailsRowCentered}>
                 <Ionicons
                   name="location-outline"
                   size={16}
                   color={Colors[colorScheme ?? 'light'].prayer.dateText}
+                  style={{ marginLeft: 12, marginRight: 4 }}
                 />
                 <Text
                   style={[
@@ -375,6 +335,48 @@ export default function PrayersScreen() {
               {formula.translation}
             </Text>
           </View>
+        </View>
+
+  // ...existing code...
+
+        {/* Actions à droite style TikTok */}
+        <View style={styles.sideActions}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.prayActionButton]}
+            onPress={() => prayer.id && handlePray(prayer.id)}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name={isPrayerCompleted(prayer.id || '') ? 'hand-left' : 'hand-left-outline'}
+              size={36}
+              color={
+                isPrayerCompleted(prayer.id || '')
+                  ? Colors[colorScheme ?? 'light'].primary
+                  : Colors[colorScheme ?? 'light'].text
+              }
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => prayer.id && handleLike(prayer.id)}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name={isLiked(prayer.id || '') ? 'heart' : 'heart-outline'}
+              size={36}
+              color={isLiked(prayer.id || '') ? '#FF0000' : Colors[colorScheme ?? 'light'].text}
+            />
+            {/* Affichage optionnel du nombre de likes - peut être activé plus tard */}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleShare(prayer)}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="share-outline" size={36} color={Colors[colorScheme ?? 'light'].text} />
+          </TouchableOpacity>
         </View>
       </View>
     );
