@@ -40,7 +40,7 @@ export default function IntroScreen() {
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', width: '100%' }}>
         <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }] }}>
           <View style={styles.logoContainer}>
-            <Image source={require('../assets/images/icon.png')} style={styles.icon} />
+            <Image source={require('../assets/images/logo_rmbg.png')} style={styles.icon} />
           </View>
           <Text style={styles.appName}>AWA</Text>
           <Text style={styles.slogan}>Ta routine spirituelle, simple et motivante.</Text>
@@ -57,9 +57,13 @@ export default function IntroScreen() {
       <View style={styles.termsContainer}>
         <Text style={styles.termsText}>
           En continuant, tu acceptes nos{' '}
-          <Text style={styles.link} onPress={openTerms}>conditions d'utilisation</Text>
-          {' '}et{' '}
-          <Text style={styles.link} onPress={openPrivacy}>politique de confidentialité</Text>
+          <Text style={styles.link} onPress={openTerms}>
+            conditions d&#39;utilisation
+          </Text>{' '}
+          et{' '}
+          <Text style={styles.link} onPress={openPrivacy}>
+            politique de confidentialité
+          </Text>
         </Text>
       </View>
     </View>
@@ -137,7 +141,7 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.10,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 1,
     marginBottom: 8,
@@ -154,7 +158,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     marginTop: 4,
-    marginBottom: 0,
+    marginBottom: 50,
   },
   termsText: {
     color: '#2D5A4A',
