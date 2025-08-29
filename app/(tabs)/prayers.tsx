@@ -1,7 +1,6 @@
 import BottomDrawer from '@/components/ui/BottomDrawer';
 import ShareDrawerContent from '@/components/ui/ShareDrawerContent';
 import { Colors } from '@/constants/Colors';
-import { formatDate } from '@/data/mockPrayers';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useContent } from '@/hooks/useContent';
 import { useLikes } from '@/hooks/useLikes';
@@ -9,6 +8,7 @@ import { usePrayers } from '@/hooks/usePrayers';
 import { useUserPrayers } from '@/hooks/useUserPrayers';
 import { PrayerFormula } from '@/services/contentService';
 import { PrayerData } from '@/services/prayerService';
+import { formatDate } from '@/utils';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useRef, useState } from 'react';

@@ -1,9 +1,9 @@
 import { Colors } from '@/constants/Colors';
-import { formatDate } from '@/data/mockPrayers';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useContent } from '@/hooks/useContent';
 import { PrayerFormula } from '@/services/contentService';
 import { PrayerData } from '@/services/prayerService';
+import { formatDate } from '@/utils';
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as MediaLibrary from 'expo-media-library';
