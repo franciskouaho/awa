@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Awa",
-    "slug": "Awa",
+    "slug": "awa",
     "version": "0.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -32,11 +32,7 @@
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.ACCESS_MEDIA_LOCATION"
-      ]
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
+      ],
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
