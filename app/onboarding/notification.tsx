@@ -235,15 +235,15 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 32,
-    paddingTop: 60,
+    paddingTop: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 29,
     fontWeight: '700',
     color: '#2D3748',
     textAlign: 'center',
-    marginBottom: 30,
-    lineHeight: 36,
+    marginBottom: 15,
+    lineHeight: 29,
   },
   quoteCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',

@@ -23,30 +23,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isOnboardingCompleted, setIsOnboardingCompleted] = useState(false);
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    
+    // Sécurité : démarrer un timeout pour éviter les blocages infinis
+    timeoutId = setTimeout(() => {
+      console.warn('AuthContext: Timeout reached, setting loading to false');
+      setIsLoading(false);
+    }, 10000); // 10 secondes maximum
+
     // Écouter les changements d'authentification Firebase
     const unsubscribe = authService.onAuthStateChange(async (firebaseUser) => {
-      setFirebaseUser(firebaseUser);
-      
-      if (firebaseUser) {
-        // Utilisateur connecté
-        const userProfile = await authService.getUserProfile(firebaseUser.uid);
-        if (userProfile) {
-          setUser(userProfile);
-          setIsOnboardingCompleted(userProfile.onboardingCompleted);
+      try {
+        setFirebaseUser(firebaseUser);
+        
+        if (firebaseUser) {
+          // Utilisateur connecté
+          const userProfile = await authService.getUserProfile(firebaseUser.uid);
+          if (userProfile) {
+            setUser(userProfile);
+            setIsOnboardingCompleted(userProfile.onboardingCompleted);
+          }
+        } else {
+          // Utilisateur déconnecté
+          setUser(null);
+          setIsOnboardingCompleted(false);
         }
-      } else {
-        // Utilisateur déconnecté
-        setUser(null);
-        setIsOnboardingCompleted(false);
+      } catch (error) {
+        console.error('Error in auth state change:', error);
+      } finally {
+        setIsLoading(false);
+        clearTimeout(timeoutId);
       }
-      
-      setIsLoading(false);
     });
 
     // Vérifier le cache au démarrage
     checkCachedUser();
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const checkCachedUser = async () => {
@@ -60,7 +76,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('Error checking cached user:', error);
+      // En cas d'erreur, s'assurer que l'état de chargement est faux
+      setUser(null);
+      setIsOnboardingCompleted(false);
     } finally {
+      // Toujours arrêter le chargement
       setIsLoading(false);
     }
   };

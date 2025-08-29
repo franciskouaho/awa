@@ -415,25 +415,61 @@ export default function PrayersScreen() {
           </TouchableOpacity>
         </View>
       ) : prayers.length === 0 ? (
-        <View style={[styles.card, styles.emptyContainer]}>
-          <Ionicons 
-            name="heart-outline" 
-            size={64} 
-            color={Colors[colorScheme ?? 'light'].text} 
-          />
-          <Text style={[styles.emptyText, { color: Colors[colorScheme ?? 'light'].text }]}>
-            Aucune prière disponible
-          </Text>
-          <Text style={[styles.emptySubtext, { color: Colors[colorScheme ?? 'light'].text }]}>
-            Tirez vers le bas pour actualiser
-          </Text>
-          <TouchableOpacity 
-            style={[styles.retryButton, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}
-            onPress={handleRefresh}
-          >
-            <Text style={styles.retryButtonText}>Recharger</Text>
-          </TouchableOpacity>
-        </View>
+        <ScrollView
+          contentContainerStyle={{ flex: 1 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor={Colors[colorScheme ?? 'light'].primary}
+            />
+          }
+        >
+          <View style={[styles.card, styles.emptyContainer]}>
+            <Ionicons 
+              name="heart-outline" 
+              size={64} 
+              color={Colors[colorScheme ?? 'light'].text} 
+            />
+            <Text style={[styles.emptyText, { color: Colors[colorScheme ?? 'light'].text }]}>
+              Aucune prière disponible
+            </Text>
+            <Text style={[styles.emptySubtext, { color: Colors[colorScheme ?? 'light'].text }]}>
+              Tirez vers le bas pour actualiser
+            </Text>
+            
+            {/* Instructions pour ajouter une prière */}
+            <View style={styles.instructionsContainer}>
+              <Text style={[styles.instructionsTitle, { color: Colors[colorScheme ?? 'light'].text }]}>
+                Comment ajouter une prière ?
+              </Text>
+              <View style={styles.instructionStep}>
+                <View style={[styles.stepIcon, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}>
+                  <Text style={styles.stepNumber}>1</Text>
+                </View>
+                <Text style={[styles.stepText, { color: Colors[colorScheme ?? 'light'].text }]}>
+                  Appuyez sur le bouton <Text style={[styles.boldText, { color: Colors[colorScheme ?? 'light'].primary }]}>+</Text> en bas au centre
+                </Text>
+              </View>
+              <View style={styles.instructionStep}>
+                <View style={[styles.stepIcon, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}>
+                  <Text style={styles.stepNumber}>2</Text>
+                </View>
+                <Text style={[styles.stepText, { color: Colors[colorScheme ?? 'light'].text }]}>
+                  Sélectionnez <Text style={[styles.boldText, { color: Colors[colorScheme ?? 'light'].primary }]}>"Nouvelle prière"</Text>
+                </Text>
+              </View>
+              <View style={styles.instructionStep}>
+                <View style={[styles.stepIcon, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}>
+                  <Text style={styles.stepNumber}>3</Text>
+                </View>
+                <Text style={[styles.stepText, { color: Colors[colorScheme ?? 'light'].text }]}>
+                  Remplissez les informations du défunt
+                </Text>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
       ) : (
         <ScrollView
           ref={scrollViewRef}
@@ -706,5 +742,43 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
     opacity: 0.5,
+  },
+  instructionsContainer: {
+    marginTop: 32,
+    paddingHorizontal: 16,
+    marginBottom: 24,
+  },
+  instructionsTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  instructionStep: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 8,
+  },
+  stepIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  stepNumber: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  stepText: {
+    fontSize: 15,
+    lineHeight: 20,
+    flex: 1,
+  },
+  boldText: {
+    fontWeight: '700',
   },
 });

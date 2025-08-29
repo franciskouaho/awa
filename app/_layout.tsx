@@ -62,14 +62,6 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
-              name="test-firebase"
-              options={{
-                headerShown: true,
-                title: 'Test Firebase',
-                presentation: 'modal',
-              }}
-            />
-            <Stack.Screen
               name="+not-found"
               options={{
                 title: 'Page non trouvée',
