@@ -8,30 +8,30 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		150197892E60B0DC00B1B2FB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 150197882E60B0DC00B1B2FB /* GoogleService-Info.plist */; };
+		22D52CBA0242E80D508C7DBB /* Pods_Awa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC4FC741A33F4F439FA8837A /* Pods_Awa.framework */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		68E4E4A0A5C1D4CB62B83659 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 4795E7D6ADA6D4A288A11764 /* PrivacyInfo.xcprivacy */; };
-		7C643D4F3D0F7CFB134F62DC /* Pods_awa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F891EF16235244355B271B0F /* Pods_awa.framework */; };
-		7EED5BAB7DEC756CFF0B8B57 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9478B49E1A31955789445E1F /* ExpoModulesProvider.swift */; };
+		7C8D9641253D48E79E8195B3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 73C2633026D44364A57732AC /* GoogleService-Info.plist */; };
+		A0A3B743B6333B8BEFC6CC88 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EAC045F16AF44861D3848ED6 /* PrivacyInfo.xcprivacy */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		C002901A20DA54A9ED3E4D36 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6DAD02AA517C584030C0AB /* ExpoModulesProvider.swift */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		13B07F961A680F5B00A75B9A /* Awa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Awa.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = awa/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = awa/Info.plist; sourceTree = "<group>"; };
-		150197882E60B0DC00B1B2FB /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		412CCEF19722108689C56CFA /* Pods-awa.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-awa.release.xcconfig"; path = "Target Support Files/Pods-awa/Pods-awa.release.xcconfig"; sourceTree = "<group>"; };
-		43F114AD08CB6ADED76943B6 /* Pods-awa.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-awa.debug.xcconfig"; path = "Target Support Files/Pods-awa/Pods-awa.debug.xcconfig"; sourceTree = "<group>"; };
-		4795E7D6ADA6D4A288A11764 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = awa/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		9478B49E1A31955789445E1F /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-awa/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = awa/SplashScreen.storyboard; sourceTree = "<group>"; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Awa/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Awa/Info.plist; sourceTree = "<group>"; };
+		73C2633026D44364A57732AC /* GoogleService-Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Awa/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		7D6DAD02AA517C584030C0AB /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Awa/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		A8D5D518B0D7DA9DBD640FAA /* Pods-Awa.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Awa.debug.xcconfig"; path = "Target Support Files/Pods-Awa/Pods-Awa.debug.xcconfig"; sourceTree = "<group>"; };
+		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = Awa/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
+		BC4FC741A33F4F439FA8837A /* Pods_Awa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Awa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAC045F16AF44861D3848ED6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Awa/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		EC4F92B68D8630489AD0C5C1 /* Pods-Awa.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Awa.release.xcconfig"; path = "Target Support Files/Pods-Awa/Pods-Awa.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = awa/AppDelegate.swift; sourceTree = "<group>"; };
-		F11748442D0722820044C1D9 /* awa-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "awa-Bridging-Header.h"; path = "awa/awa-Bridging-Header.h"; sourceTree = "<group>"; };
-		F891EF16235244355B271B0F /* Pods_awa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_awa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Awa/AppDelegate.swift; sourceTree = "<group>"; };
+		F11748442D0722820044C1D9 /* Awa-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Awa-Bridging-Header.h"; path = "Awa/Awa-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,43 +39,51 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7C643D4F3D0F7CFB134F62DC /* Pods_awa.framework in Frameworks */,
+				22D52CBA0242E80D508C7DBB /* Pods_Awa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		13B07FAE1A68108700A75B9A /* awa */ = {
+		02B2F957B3E81D0E0CC50ADA /* Awa */ = {
+			isa = PBXGroup;
+			children = (
+				7D6DAD02AA517C584030C0AB /* ExpoModulesProvider.swift */,
+			);
+			name = Awa;
+			sourceTree = "<group>";
+		};
+		13B07FAE1A68108700A75B9A /* Awa */ = {
 			isa = PBXGroup;
 			children = (
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
-				F11748442D0722820044C1D9 /* awa-Bridging-Header.h */,
+				F11748442D0722820044C1D9 /* Awa-Bridging-Header.h */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				4795E7D6ADA6D4A288A11764 /* PrivacyInfo.xcprivacy */,
-				150197882E60B0DC00B1B2FB /* GoogleService-Info.plist */,
+				73C2633026D44364A57732AC /* GoogleService-Info.plist */,
+				EAC045F16AF44861D3848ED6 /* PrivacyInfo.xcprivacy */,
 			);
-			name = awa;
-			sourceTree = "<group>";
-		};
-		15DFE8F1CFF37633F780C02D /* awa */ = {
-			isa = PBXGroup;
-			children = (
-				9478B49E1A31955789445E1F /* ExpoModulesProvider.swift */,
-			);
-			name = awa;
+			name = Awa;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				F891EF16235244355B271B0F /* Pods_awa.framework */,
+				BC4FC741A33F4F439FA8837A /* Pods_Awa.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7141ED4FB88DE84EA41EED3A /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				02B2F957B3E81D0E0CC50ADA /* Awa */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -88,12 +96,12 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				13B07FAE1A68108700A75B9A /* awa */,
+				13B07FAE1A68108700A75B9A /* Awa */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				BBD6140A50FB16A7E27152EE /* Pods */,
-				953B057F0F18186B3E5ED095 /* ExpoModulesProviders */,
+				FBE388F5EC99430A56C1B25B /* Pods */,
+				7141ED4FB88DE84EA41EED3A /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -108,28 +116,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		953B057F0F18186B3E5ED095 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				15DFE8F1CFF37633F780C02D /* awa */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
 				BB2F792C24A3F905000567C9 /* Expo.plist */,
 			);
 			name = Supporting;
-			path = awa/Supporting;
+			path = Awa/Supporting;
 			sourceTree = "<group>";
 		};
-		BBD6140A50FB16A7E27152EE /* Pods */ = {
+		FBE388F5EC99430A56C1B25B /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				43F114AD08CB6ADED76943B6 /* Pods-awa.debug.xcconfig */,
-				412CCEF19722108689C56CFA /* Pods-awa.release.xcconfig */,
+				A8D5D518B0D7DA9DBD640FAA /* Pods-Awa.debug.xcconfig */,
+				EC4F92B68D8630489AD0C5C1 /* Pods-Awa.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -137,25 +137,25 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		13B07F861A680F5B00A75B9A /* awa */ = {
+		13B07F861A680F5B00A75B9A /* Awa */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "awa" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Awa" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				DE680EC7F6B5A6838CF67259 /* [Expo] Configure project */,
+				84015D9FAD4A395D4DCD18F9 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				2186185298603972D2D52584 /* [CP] Embed Pods Frameworks */,
+				F22300B6C66DABB8651FB4B6 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = awa;
-			productName = awa;
+			name = Awa;
+			productName = Awa;
 			productReference = 13B07F961A680F5B00A75B9A /* Awa.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -168,11 +168,13 @@
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
+						DevelopmentTeam = NAN7MFNMT7;
 						LastSwiftMigration = 1250;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "awa" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Awa" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -185,7 +187,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* awa */,
+				13B07F861A680F5B00A75B9A /* Awa */,
 			);
 		};
 /* End PBXProject section */
@@ -197,9 +199,9 @@
 			files = (
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				150197892E60B0DC00B1B2FB /* GoogleService-Info.plist in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				68E4E4A0A5C1D4CB62B83659 /* PrivacyInfo.xcprivacy in Resources */,
+				7C8D9641253D48E79E8195B3 /* GoogleService-Info.plist in Resources */,
+				A0A3B743B6333B8BEFC6CC88 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,29 +238,11 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-awa-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-Awa-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		2186185298603972D2D52584 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-awa/Pods-awa-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-awa/Pods-awa-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
@@ -267,7 +251,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-awa/Pods-awa-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Awa/Pods-Awa-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXApplication/ExpoApplication_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/ExpoConstants_privacy.bundle",
@@ -308,10 +292,10 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-awa/Pods-awa-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Awa/Pods-Awa-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		DE680EC7F6B5A6838CF67259 /* [Expo] Configure project */ = {
+		84015D9FAD4A395D4DCD18F9 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -328,7 +312,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-awa/expo-configure-project.sh\"\n";
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-Awa/expo-configure-project.sh\"\n";
+		};
+		F22300B6C66DABB8651FB4B6 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Awa/Pods-Awa-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Awa/Pods-Awa-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -338,7 +340,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				7EED5BAB7DEC756CFF0B8B57 /* ExpoModulesProvider.swift in Sources */,
+				C002901A20DA54A9ED3E4D36 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,11 +349,13 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 43F114AD08CB6ADED76943B6 /* Pods-awa.debug.xcconfig */;
+			baseConfigurationReference = A8D5D518B0D7DA9DBD640FAA /* Pods-Awa.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = awa/awa.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Awa/Awa.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NAN7MFNMT7;
 				ENABLE_BITCODE = NO;
@@ -359,7 +363,7 @@
 					"$(inherited)",
 					"FB_SONARKIT_ENABLED=1",
 				);
-				INFOPLIST_FILE = awa/Info.plist;
+				INFOPLIST_FILE = Awa/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Awa - Prières Éternelles";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -376,28 +380,26 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.emplica.awa;
 				PRODUCT_NAME = Awa;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_OBJC_BRIDGING_HEADER = "awa/awa-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Awa/Awa-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 412CCEF19722108689C56CFA /* Pods-awa.release.xcconfig */;
+			baseConfigurationReference = EC4F92B68D8630489AD0C5C1 /* Pods-Awa.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = awa/awa.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Awa/Awa.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NAN7MFNMT7;
-				INFOPLIST_FILE = awa/Info.plist;
+				INFOPLIST_FILE = Awa/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Awa - Prières Éternelles";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -414,13 +416,9 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.emplica.awa;
 				PRODUCT_NAME = Awa;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_OBJC_BRIDGING_HEADER = "awa/awa-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Awa/Awa-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
@@ -574,7 +572,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "awa" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Awa" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
@@ -583,7 +581,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "awa" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Awa" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,

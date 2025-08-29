@@ -11,7 +11,8 @@
     "ios": {
       "supportsTablet": true,
       "googleServicesFile": "./GoogleService-Info.plist",
-      "bundleIdentifier": "com.emplica.awa"
+      "bundleIdentifier": "com.emplica.awa",
+      "appleTeamId": "NAN7MFNMT7"
     },
     "android": {
       "adaptiveIcon": {
