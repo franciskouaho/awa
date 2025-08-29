@@ -11,7 +11,7 @@ export default function PlanScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const colorScheme = useColorScheme();
-  const { completeOnboarding, user, signUp } = useAuth();
+  const { completeOnboarding, user, signUp, refreshUser } = useAuth();
 
   useEffect(() => {
     loadUserName();
@@ -36,7 +36,7 @@ export default function PlanScreen() {
       // Récupérer l'email et le nom sauvegardés pendant l'onboarding
       const email = await AsyncStorage.getItem('userEmail');
       const name = await AsyncStorage.getItem('userName');
-      
+
       if (!email || !name) {
         Alert.alert('Erreur', 'Informations manquantes. Veuillez recommencer l\'onboarding.');
         router.replace('/onboarding/email');
@@ -56,7 +56,11 @@ export default function PlanScreen() {
 
       // Marquer l'onboarding comme terminé dans Firebase
       await completeOnboarding(preferences);
-      
+
+      // Forcer la mise à jour du cache local et du contexte utilisateur
+  await AsyncStorage.setItem('onboardingCompleted', 'true');
+  await refreshUser();
+
       // Naviguer vers l'application principale
       router.replace('/(tabs)/prayers');
     } catch (error: any) {

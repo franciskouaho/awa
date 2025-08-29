@@ -23,7 +23,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -38,14 +38,8 @@ export default function PrayersScreen() {
   const [selectedPrayerForShare, setSelectedPrayerForShare] = useState<PrayerData | null>(null);
 
   // Utiliser le hook Firebase pour les prières
-  const { 
-    prayers, 
-    loading, 
-    error, 
-    loadPrayers, 
-    incrementPrayerCount, 
-    refreshPrayers 
-  } = usePrayers();
+  const { prayers, loading, error, loadPrayers, incrementPrayerCount, refreshPrayers } =
+    usePrayers();
 
   // Utiliser le hook Firebase pour le contenu (formules, versets, etc.)
   const {
@@ -98,10 +92,15 @@ export default function PrayersScreen() {
 
   // Assigner des formules aléatoires aux prières
   useEffect(() => {
-    console.log('🎲 Assignation des formules - prayers:', prayers.length, 'formulas:', prayerFormulas.length);
+    console.log(
+      '🎲 Assignation des formules - prayers:',
+      prayers.length,
+      'formulas:',
+      prayerFormulas.length
+    );
     const assignFormulas = async () => {
       const newAssignedFormulas: { [key: string]: PrayerFormula } = { ...assignedFormulas };
-      
+
       for (const prayer of prayers) {
         if (prayer.id && !newAssignedFormulas[prayer.id]) {
           console.log(`🔄 Assignation formule pour prière ${prayer.id}`);
@@ -114,7 +113,7 @@ export default function PrayersScreen() {
           }
         }
       }
-      
+
       setAssignedFormulas(newAssignedFormulas);
       console.log('📋 Formules assignées:', Object.keys(newAssignedFormulas).length);
     };
@@ -127,41 +126,41 @@ export default function PrayersScreen() {
   const handlePray = async (prayerId: string) => {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      
+
       // Marquer la prière comme effectuée par l'utilisateur
       const userPrayerResult = await togglePrayerCompleted(prayerId);
-      
+
       // Incrémenter le compteur global seulement si la prière est nouvellement effectuée
       if (userPrayerResult.success && userPrayerResult.isCompleted) {
         const countResult = await incrementPrayerCount(prayerId);
-        
+
         if (!countResult.success) {
-          Alert.alert('Erreur', countResult.error || 'Impossible d\'enregistrer la prière');
+          Alert.alert('Erreur', countResult.error || "Impossible d'enregistrer la prière");
           return;
         }
       }
-      
+
       if (!userPrayerResult.success) {
-        Alert.alert('Erreur', userPrayerResult.error || 'Impossible d\'enregistrer votre prière');
+        Alert.alert('Erreur', userPrayerResult.error || "Impossible d'enregistrer votre prière");
       }
     } catch (error) {
       console.warn('Haptic feedback not available:', error);
-      
+
       // Marquer la prière comme effectuée par l'utilisateur
       const userPrayerResult = await togglePrayerCompleted(prayerId);
-      
+
       // Incrémenter le compteur global seulement si la prière est nouvellement effectuée
       if (userPrayerResult.success && userPrayerResult.isCompleted) {
         const countResult = await incrementPrayerCount(prayerId);
-        
+
         if (!countResult.success) {
-          Alert.alert('Erreur', countResult.error || 'Impossible d\'enregistrer la prière');
+          Alert.alert('Erreur', countResult.error || "Impossible d'enregistrer la prière");
           return;
         }
       }
-      
+
       if (!userPrayerResult.success) {
-        Alert.alert('Erreur', userPrayerResult.error || 'Impossible d\'enregistrer votre prière');
+        Alert.alert('Erreur', userPrayerResult.error || "Impossible d'enregistrer votre prière");
       }
     }
   };
@@ -186,14 +185,14 @@ export default function PrayersScreen() {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       const result = await toggleLike(prayerId);
-      
+
       if (!result.success) {
         Alert.alert('Erreur', result.error || 'Impossible de mettre à jour le like');
       }
     } catch (error) {
       console.warn('Haptic feedback not available:', error);
       const result = await toggleLike(prayerId);
-      
+
       if (!result.success) {
         Alert.alert('Erreur', result.error || 'Impossible de mettre à jour le like');
       }
@@ -212,7 +211,7 @@ export default function PrayersScreen() {
 
   const renderPrayerCard = (prayer: PrayerData, index: number) => {
     if (!prayer.id) return null;
-    
+
     const formula = assignedFormulas[prayer.id];
 
     // Si pas de formule assignée, afficher un indicateur de chargement
@@ -235,7 +234,7 @@ export default function PrayersScreen() {
       <View key={prayer.id} style={styles.card}>
         {/* Actions à droite style TikTok */}
         <View style={styles.sideActions}>
-                    <TouchableOpacity
+          <TouchableOpacity
             style={[styles.actionButton, styles.prayActionButton]}
             onPress={() => prayer.id && handlePray(prayer.id)}
             activeOpacity={0.8}
@@ -243,7 +242,11 @@ export default function PrayersScreen() {
             <Ionicons
               name={isPrayerCompleted(prayer.id || '') ? 'hand-left' : 'hand-left-outline'}
               size={36}
-              color={isPrayerCompleted(prayer.id || '') ? Colors[colorScheme ?? 'light'].primary : Colors[colorScheme ?? 'light'].text}
+              color={
+                isPrayerCompleted(prayer.id || '')
+                  ? Colors[colorScheme ?? 'light'].primary
+                  : Colors[colorScheme ?? 'light'].text
+              }
             />
           </TouchableOpacity>
 
@@ -397,18 +400,21 @@ export default function PrayersScreen() {
             Debug: Prayers: {prayers.length}, Formulas: {prayerFormulas.length}
           </Text>
         </View>
-      ) : (error || prayerFormulasError) ? (
+      ) : error || prayerFormulasError ? (
         <View style={[styles.card, styles.errorContainer]}>
-          <Ionicons 
-            name="alert-circle-outline" 
-            size={64} 
-            color={Colors[colorScheme ?? 'light'].text} 
+          <Ionicons
+            name="alert-circle-outline"
+            size={64}
+            color={Colors[colorScheme ?? 'light'].text}
           />
           <Text style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].text }]}>
             {error || prayerFormulasError}
           </Text>
-          <TouchableOpacity 
-            style={[styles.retryButton, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}
+          <TouchableOpacity
+            style={[
+              styles.retryButton,
+              { backgroundColor: Colors[colorScheme ?? 'light'].primary },
+            ]}
             onPress={handleRefresh}
           >
             <Text style={styles.retryButtonText}>Réessayer</Text>
@@ -426,41 +432,65 @@ export default function PrayersScreen() {
           }
         >
           <View style={[styles.card, styles.emptyContainer]}>
-            <Ionicons 
-              name="heart-outline" 
-              size={64} 
-              color={Colors[colorScheme ?? 'light'].text} 
-            />
+            <Ionicons name="heart-outline" size={64} color={Colors[colorScheme ?? 'light'].text} />
             <Text style={[styles.emptyText, { color: Colors[colorScheme ?? 'light'].text }]}>
               Aucune prière disponible
             </Text>
             <Text style={[styles.emptySubtext, { color: Colors[colorScheme ?? 'light'].text }]}>
               Tirez vers le bas pour actualiser
             </Text>
-            
+
             {/* Instructions pour ajouter une prière */}
             <View style={styles.instructionsContainer}>
-              <Text style={[styles.instructionsTitle, { color: Colors[colorScheme ?? 'light'].text }]}>
+              <Text
+                style={[styles.instructionsTitle, { color: Colors[colorScheme ?? 'light'].text }]}
+              >
                 Comment ajouter une prière ?
               </Text>
               <View style={styles.instructionStep}>
-                <View style={[styles.stepIcon, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}>
+                <View
+                  style={[
+                    styles.stepIcon,
+                    { backgroundColor: Colors[colorScheme ?? 'light'].primary },
+                  ]}
+                >
                   <Text style={styles.stepNumber}>1</Text>
                 </View>
                 <Text style={[styles.stepText, { color: Colors[colorScheme ?? 'light'].text }]}>
-                  Appuyez sur le bouton <Text style={[styles.boldText, { color: Colors[colorScheme ?? 'light'].primary }]}>+</Text> en bas au centre
+                  Appuyez sur le bouton{' '}
+                  <Text
+                    style={[styles.boldText, { color: Colors[colorScheme ?? 'light'].primary }]}
+                  >
+                    +
+                  </Text>{' '}
+                  en bas au centre
                 </Text>
               </View>
               <View style={styles.instructionStep}>
-                <View style={[styles.stepIcon, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}>
+                <View
+                  style={[
+                    styles.stepIcon,
+                    { backgroundColor: Colors[colorScheme ?? 'light'].primary },
+                  ]}
+                >
                   <Text style={styles.stepNumber}>2</Text>
                 </View>
                 <Text style={[styles.stepText, { color: Colors[colorScheme ?? 'light'].text }]}>
-                  Sélectionnez <Text style={[styles.boldText, { color: Colors[colorScheme ?? 'light'].primary }]}>"Nouvelle prière"</Text>
+                  Sélectionnez{' '}
+                  <Text
+                    style={[styles.boldText, { color: Colors[colorScheme ?? 'light'].primary }]}
+                  >
+                    Nouvelle prière
+                  </Text>
                 </Text>
               </View>
               <View style={styles.instructionStep}>
-                <View style={[styles.stepIcon, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}>
+                <View
+                  style={[
+                    styles.stepIcon,
+                    { backgroundColor: Colors[colorScheme ?? 'light'].primary },
+                  ]}
+                >
                   <Text style={styles.stepNumber}>3</Text>
                 </View>
                 <Text style={[styles.stepText, { color: Colors[colorScheme ?? 'light'].text }]}>

@@ -1,11 +1,11 @@
 import { useAuth } from '@/contexts/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
 import Constants from 'expo-constants';
+import { useEffect, useState } from 'react';
 
 export function useAuthNavigation() {
   const { user, isLoading, isOnboardingCompleted } = useAuth();
-  const [shouldShowIntro, setShouldShowIntro] = useState(true);
+  const [shouldShowIntro, setShouldShowIntro] = useState(false);
   const [shouldShowOnboarding, setShouldShowOnboarding] = useState(false);
   const [shouldShowApp, setShouldShowApp] = useState(false);
   const [navigationReady, setNavigationReady] = useState(false);
@@ -59,50 +59,35 @@ export function useAuthNavigation() {
         return;
       }
 
-      // Vérifier si l'intro a déjà été vue
-      const introSeen = await AsyncStorage.getItem('introSeen');
-      console.log('useAuthNavigation: introSeen =', introSeen);
-      
       if (!user) {
         console.log('useAuthNavigation: No user, checking onboarding data');
         // Pas d'utilisateur connecté
         // Vérifier si on a des données d'onboarding en cours
         const userEmail = await AsyncStorage.getItem('userEmail');
         const userName = await AsyncStorage.getItem('userName');
-        
-        if (userEmail && userName) {
-          // L'utilisateur a commencé l'onboarding mais n'a pas créé de compte
-          console.log('useAuthNavigation: Onboarding in progress');
-          setShouldShowIntro(false);
-          setShouldShowOnboarding(true);
-          setShouldShowApp(false);
-        } else if (introSeen === 'true') {
-          // Intro déjà vue, mais pas d'utilisateur -> retourner à l'intro
-          console.log('useAuthNavigation: Intro seen, returning to intro');
+
+        if (!userEmail || !userName) {
+          // Première visite, afficher intro comme première étape de l'onboarding
+          console.log('useAuthNavigation: First visit, showing intro (onboarding step 1)');
           setShouldShowIntro(true);
           setShouldShowOnboarding(false);
           setShouldShowApp(false);
         } else {
-          // Première visite
-          console.log('useAuthNavigation: First visit, showing intro');
-          setShouldShowIntro(true);
-          setShouldShowOnboarding(false);
+          // Onboarding en cours (après intro)
+          console.log('useAuthNavigation: Onboarding in progress');
+          setShouldShowIntro(false);
+          setShouldShowOnboarding(true);
           setShouldShowApp(false);
         }
       } else {
         console.log('useAuthNavigation: User connected, onboarding completed:', isOnboardingCompleted);
-        // Utilisateur connecté
-        await AsyncStorage.setItem('introSeen', 'true');
-        
         if (!isOnboardingCompleted) {
           // Onboarding pas terminé (ne devrait pas arriver avec le nouveau flux)
-          console.log('useAuthNavigation: Onboarding not completed');
           setShouldShowIntro(false);
           setShouldShowOnboarding(true);
           setShouldShowApp(false);
         } else {
           // Tout est terminé
-          console.log('useAuthNavigation: Everything completed, showing app');
           setShouldShowIntro(false);
           setShouldShowOnboarding(false);
           setShouldShowApp(true);

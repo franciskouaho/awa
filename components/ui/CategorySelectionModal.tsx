@@ -20,16 +20,13 @@ export default function CategorySelectionModal({
   const colors = Colors[colorScheme ?? 'light'];
 
   const categories = [
-    { id: 'current-feed', name: 'Feed actuel', unlocked: true },
-    { id: 'the-basics', name: 'Les bases', unlocked: true },
-    { id: 'unfiltered-raw', name: 'Brut et sans filtre', unlocked: true },
-    { id: 'mental-peace', name: 'Paix mentale', unlocked: false },
-    { id: 'abundance-wealth', name: 'Abondance et richesse', unlocked: false },
-    { id: 'confidence-boost', name: 'Boost de confiance', unlocked: false },
-    { id: 'morning-fire', name: 'Feu matinal', unlocked: true },
-    { id: 'my-favorites', name: 'Mes favoris', unlocked: true },
-    { id: 'anti-depression', name: 'Anti-dépression', unlocked: false },
-    { id: 'nurture-faith', name: 'Nourrir votre foi', unlocked: false },
+    { id: 'prayers', name: 'Prières', unlocked: true },
+    { id: 'reminders', name: 'Rappels', unlocked: true },
+    { id: 'coran', name: 'Coran', unlocked: false },
+    { id: 'dhikr', name: 'Dhikr', unlocked: false },
+    { id: 'qibla', name: 'Qibla', unlocked: false },
+    { id: 'calendar', name: 'Calendrier', unlocked: false },
+    { id: '99names', name: '99 Noms', unlocked: false },
   ];
 
   if (!isVisible) return null;

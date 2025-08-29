@@ -12,6 +12,7 @@ interface BasicsDrawerContentProps {
 export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProps) {
   const colorScheme = useColorScheme();
   const [searchText, setSearchText] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['prayers']);
 
   const navigateTo = (screen: string) => {
     onClose();
@@ -25,6 +26,14 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
       icon: '🤲',
       color: '#4A90E2',
       isSelected: true,
+      isUnlocked: true,
+    },
+    {
+      id: 'reminders',
+      title: 'Rappels',
+      icon: '🔔',
+      color: '#4CAF50',
+      isSelected: false,
       isUnlocked: true,
     },
     {
@@ -87,12 +96,14 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
 
   const handleCategoryPress = (item: any) => {
     if (!item.isUnlocked) return;
-
-    if (item.id === 'basics') {
-      navigateTo('prayers');
-    } else {
-      navigateTo('prayers');
-    }
+    setSelectedCategories(prev => {
+      if (prev.includes(item.id)) {
+        return prev.filter(id => id !== item.id);
+      } else {
+        return [...prev, item.id];
+      }
+    });
+    // Ne quitte plus le drawer !
   };
 
   return (
@@ -128,64 +139,57 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
           />
         </View>
 
-        {/* Make my own mix button */}
-        <TouchableOpacity
-          style={styles.makeOwnMixButton}
-          onPress={onClose}
-        >
-          <Text style={styles.makeOwnMixText}>
-            Créer ma sélection
-          </Text>
-        </TouchableOpacity>
-
         {/* Categories Grid */}
         <ScrollView style={styles.categoriesContainer} showsVerticalScrollIndicator={false}>
           <View style={styles.categoriesGrid}>
-            {categoryItems.map(item => (
-              <TouchableOpacity
-                key={item.id}
-                style={[
-                  styles.categoryCard,
-                  {
-                    backgroundColor: item.isUnlocked
-                      ? Colors[colorScheme ?? 'light'].surface
-                      : Colors[colorScheme ?? 'light'].textSecondary + '20',
-                    borderColor: item.isSelected ? item.color : 'transparent',
-                    borderWidth: item.isSelected ? 3 : 0,
-                  },
-                ]}
-                onPress={() => handleCategoryPress(item)}
-                disabled={!item.isUnlocked}
-              >
-                <View style={styles.categoryIconContainer}>
-                  <Text style={styles.categoryIcon}>{item.icon}</Text>
-                </View>
-                <Text
+            {categoryItems.map(item => {
+              const isSelected = selectedCategories.includes(item.id);
+              return (
+                <TouchableOpacity
+                  key={item.id}
                   style={[
-                    styles.categoryTitle,
+                    styles.categoryCard,
                     {
-                      color: item.isUnlocked
-                        ? Colors[colorScheme ?? 'light'].text
-                        : Colors[colorScheme ?? 'light'].textSecondary,
+                      backgroundColor: item.isUnlocked
+                        ? Colors[colorScheme ?? 'light'].surface
+                        : Colors[colorScheme ?? 'light'].textSecondary + '20',
+                      borderColor: isSelected ? item.color : 'transparent',
+                      borderWidth: isSelected ? 3 : 0,
                     },
                   ]}
+                  onPress={() => handleCategoryPress(item)}
+                  disabled={!item.isUnlocked}
                 >
-                  {item.title}
-                </Text>
-                {item.isSelected && (
-                  <View style={[styles.selectionIndicator, { backgroundColor: item.color }]} />
-                )}
-                {!item.isUnlocked && (
-                  <View style={styles.lockOverlay}>
-                    <IconSymbol
-                      name="lock.fill"
-                      size={24}
-                      color={Colors[colorScheme ?? 'light'].textSecondary}
-                    />
+                  <View style={styles.categoryIconContainer}>
+                    <Text style={styles.categoryIcon}>{item.icon}</Text>
                   </View>
-                )}
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    style={[
+                      styles.categoryTitle,
+                      {
+                        color: item.isUnlocked
+                          ? Colors[colorScheme ?? 'light'].text
+                          : Colors[colorScheme ?? 'light'].textSecondary,
+                      },
+                    ]}
+                  >
+                    {item.title}
+                  </Text>
+                  {isSelected && (
+                    <View style={[styles.selectionIndicator, { backgroundColor: item.color }]} />
+                  )}
+                  {!item.isUnlocked && (
+                    <View style={styles.lockOverlay}>
+                      <IconSymbol
+                        name="lock.fill"
+                        size={24}
+                        color={Colors[colorScheme ?? 'light'].textSecondary}
+                      />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </ScrollView>
       </View>

@@ -1,34 +1,42 @@
 import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 import { useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, Image, StyleSheet, Text, View } from 'react-native';
 
 export default function IndexScreen() {
   const router = useRouter();
   const { shouldShowIntro, shouldShowOnboarding, shouldShowApp, navigationReady } =
     useAuthNavigation();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 900,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
 
   useEffect(() => {
     if (!navigationReady) return;
-
-    console.log('Index navigation decision:', {
-      shouldShowIntro,
-      shouldShowOnboarding,
-      shouldShowApp,
-    });
-
-    if (shouldShowIntro) {
-      router.replace('/intro');
-    } else if (shouldShowOnboarding) {
-      router.replace('/onboarding/email');
-    } else if (shouldShowApp) {
-      router.replace('/(tabs)/prayers');
-    }
+    const timeout = setTimeout(() => {
+      if (shouldShowIntro) {
+        router.replace('/intro');
+      } else if (shouldShowOnboarding) {
+        router.replace('/onboarding/email');
+      } else if (shouldShowApp) {
+        router.replace('/(tabs)/prayers');
+      }
+    }, 2200); // 2.2 secondes, ajuste à 3000 pour 3s
+    return () => clearTimeout(timeout);
   }, [navigationReady, shouldShowIntro, shouldShowOnboarding, shouldShowApp, router]);
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="#2D5A4A" />
+      <Animated.View style={{ alignItems: 'center', opacity: fadeAnim }}>
+        <Image source={require('../assets/images/logo_rmbg.png')} style={styles.icon} />
+        <Text style={styles.appName}>AWA</Text>
+      </Animated.View>
     </View>
   );
 }
@@ -38,6 +46,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8FBF9',
+    backgroundColor: '#1E2D28',
+  },
+  icon: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+    marginBottom: 16,
+  },
+  appName: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    fontFamily: 'System',
+    letterSpacing: 2,
   },
 });
