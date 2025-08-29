@@ -25,7 +25,7 @@ export default function NotificationScreen() {
 
   const adjustTime = (type: 'from' | 'to', delta: number) => {
     const currentTime = type === 'from' ? fromTime : toTime;
-    const [hours, minutes] = currentTime.split(':').map(Number);
+    const [hours = 0, minutes = 0] = currentTime.split(':').map(Number);
     const totalMinutes = hours * 60 + minutes + delta * 60;
     const newHours = Math.floor(totalMinutes / 60) % 24;
     const newMinutes = totalMinutes % 60;
