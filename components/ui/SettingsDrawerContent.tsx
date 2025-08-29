@@ -18,14 +18,18 @@ interface SettingsDrawerContentProps {
 
 export default function SettingsDrawerContent({ onClose }: SettingsDrawerContentProps) {
   const colorScheme = useColorScheme();
-  const { streakData, getWeeklyProgress } = useStreak();
-  const { settings, saveSetting, loading, error } = useUserSettings();
+  const { streakData, getWeeklyProgress, refreshStreak, recordPrayer } = useStreak();
+  const { settings, saveSetting, error } = useUserSettings();
   const [remindersDrawerVisible, setRemindersDrawerVisible] = useState(false);
   const [generalDrawerVisible, setGeneralDrawerVisible] = useState(false);
   const [currentSubScreen, setCurrentSubScreen] = useState<string | null>(null);
 
   // Obtenir les données de progression de la semaine
   const weeklyProgress = getWeeklyProgress();
+
+  React.useEffect(() => {
+    refreshStreak();
+  }, [refreshStreak]);
 
   const handleItemPress = (itemId: string) => {
     console.log(`Pressed ${itemId}`);
@@ -67,6 +71,16 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
     language: settings?.language || 'Français',
   });
 
+  const handleRecordPrayer = async () => {
+    const result = await recordPrayer();
+    if (result.success) {
+      await refreshStreak();
+    } else {
+      // Optionnel : afficher une erreur
+      console.error(result.error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Header avec bouton Back et titre */}
@@ -98,6 +112,16 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
             <Text style={[styles.streakLabel, { color: Colors[colorScheme ?? 'light'].text }]}>
               Série
             </Text>
+            <TouchableOpacity
+              style={[
+                styles.prayerButton,
+                { backgroundColor: Colors[colorScheme ?? 'light'].tint },
+              ]}
+              onPress={handleRecordPrayer}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.prayerButtonText}>Enregistrer une prière</Text>
+            </TouchableOpacity>
           </View>
           <View style={styles.streakDays}>
             {weeklyProgress.map((day, index) => (
@@ -435,5 +459,18 @@ const styles = StyleSheet.create({
   },
   chevron: {
     fontSize: 16,
+  },
+  prayerButton: {
+    marginTop: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  prayerButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'white',
   },
 });
