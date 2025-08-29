@@ -1,18 +1,64 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { db } from '@/config/firebase';
 import { Colors } from '@/constants/Colors';
+import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useReminders } from '@/hooks/useReminders';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface BasicsDrawerContentProps {
   onClose: () => void;
 }
 
+
+
 export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProps) {
+  const { user } = useAuth();
+  const userId = user?.uid;
   const colorScheme = useColorScheme();
   const [searchText, setSearchText] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['prayers']);
+
+  // Charger la sélection persistée au montage
+  useEffect(() => {
+    const loadSelectedCategories = async () => {
+      try {
+        // 1. Charger depuis AsyncStorage (fallback local)
+        const saved = await AsyncStorage.getItem('selectedCategories');
+        if (saved) {
+          setSelectedCategories(JSON.parse(saved));
+        }
+        // 2. Charger depuis Firestore (si userId dispo)
+        if (userId) {
+          const ref = doc(db, 'users', userId, 'settings', 'categories');
+          const snap = await getDoc(ref);
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data && data.selectedCategories) {
+              setSelectedCategories(data.selectedCategories);
+              // Met à jour le local aussi
+              AsyncStorage.setItem('selectedCategories', JSON.stringify(data.selectedCategories));
+            }
+          }
+        }
+      } catch (e) {
+        console.log('Erreur chargement selectedCategories:', e);
+      }
+    };
+    loadSelectedCategories();
+  }, []);
+
+  // Charger les rappels
+  const { reminders, loading: remindersLoading, error: remindersError } = useReminders();
+
+  // Debug : log les rappels et l'état
+  console.log('[BasicsDrawerContent] reminders:', reminders);
+  console.log('[BasicsDrawerContent] remindersLoading:', remindersLoading);
+  console.log('[BasicsDrawerContent] remindersError:', remindersError);
 
   const navigateTo = (screen: string) => {
     onClose();
@@ -94,14 +140,23 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
     },
   ];
 
-  const handleCategoryPress = (item: any) => {
+  const handleCategoryPress = async (item: any) => {
     if (!item.isUnlocked) return;
     setSelectedCategories(prev => {
+      let updated;
       if (prev.includes(item.id)) {
-        return prev.filter(id => id !== item.id);
+        updated = prev.filter(id => id !== item.id);
       } else {
-        return [...prev, item.id];
+        updated = [...prev, item.id];
       }
+      // Sauvegarder la sélection localement
+      AsyncStorage.setItem('selectedCategories', JSON.stringify(updated));
+      // Sauvegarder la sélection sur Firestore (SDK Web)
+      if (userId) {
+        const ref = doc(db, 'users', userId, 'settings', 'categories');
+        setDoc(ref, { selectedCategories: updated });
+      }
+      return updated;
     });
     // Ne quitte plus le drawer !
   };
@@ -191,6 +246,31 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
               );
             })}
           </View>
+
+          {/* Affichage dynamique du contenu selon la sélection */}
+          {selectedCategories.includes('reminders') && (
+            <View style={{ marginTop: 24 }}>
+              <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 12, color: Colors[colorScheme ?? 'light'].text }}>
+                Rappels
+              </Text>
+              {remindersLoading ? (
+                <Text style={{ color: Colors[colorScheme ?? 'light'].textSecondary }}>Chargement...</Text>
+              ) : remindersError ? (
+                <Text style={{ color: 'red' }}>{remindersError}</Text>
+              ) : reminders.length === 0 ? (
+                <Text style={{ color: Colors[colorScheme ?? 'light'].textSecondary }}>Aucun rappel disponible</Text>
+              ) : (
+                reminders.map(reminder => (
+                  <View key={reminder.id} style={{ marginBottom: 16, padding: 12, borderRadius: 10, backgroundColor: Colors[colorScheme ?? 'light'].surface }}>
+                    <Text style={{ fontWeight: '600', fontSize: 16, color: Colors[colorScheme ?? 'light'].text }}>{reminder.title}</Text>
+                    <Text style={{ color: Colors[colorScheme ?? 'light'].textSecondary }}>{reminder.description}</Text>
+                    <Text style={{ color: Colors[colorScheme ?? 'light'].textSecondary, fontSize: 13, marginTop: 4 }}>⏰ {reminder.time}</Text>
+                  </View>
+                ))
+              )}
+            </View>
+          )}
+          {/* Tu peux ajouter d'autres catégories ici, ex: prayers, quran, etc. */}
         </ScrollView>
       </View>
     </View>

@@ -1,4 +1,5 @@
-import firestore from '@react-native-firebase/firestore';
+import { db } from '@/config/firebase';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
 export interface Reminder {
@@ -18,7 +19,8 @@ export function useReminders() {
     const fetchReminders = async () => {
       setLoading(true);
       try {
-        const snapshot = await firestore().collection('reminders').orderBy('order').get();
+        const q = query(collection(db, 'reminders'), orderBy('order'));
+        const snapshot = await getDocs(q);
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reminder));
         setReminders(data);
         setError(null);

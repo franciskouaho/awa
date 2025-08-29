@@ -1,20 +1,12 @@
 import { auth, db } from '@/config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-    signOut as firebaseSignOut,
-    onAuthStateChanged,
-    signInAnonymously,
-    User
+  onAuthStateChanged,
+  signInAnonymously,
+  signOut as firebaseSignOut,
+  User,
 } from 'firebase/auth';
-import {
-    collection,
-    doc,
-    getDoc,
-    getDocs,
-    query,
-    setDoc,
-    where
-} from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
 import { userService } from './userService';
 
 export interface UserProfile {
@@ -53,14 +45,14 @@ class AuthService {
         createdAt: new Date(),
         preferences: {
           notificationsEnabled: false,
-        }
+        },
       };
 
       await setDoc(doc(db, 'users', user.uid), userProfile);
-      
+
       // Initialiser les paramètres généraux avec le nom fourni
       await userService.initializeGeneralSettings(name);
-      
+
       // Sauvegarder localement
       await AsyncStorage.setItem('user', JSON.stringify(userProfile));
       await AsyncStorage.setItem('onboardingCompleted', 'false');
@@ -79,16 +71,16 @@ class AuthService {
       const usersRef = collection(db, 'users');
       const q = query(usersRef, where('email', '==', email));
       const querySnapshot = await getDocs(q);
-      
+
       if (!querySnapshot.empty) {
         const doc = querySnapshot.docs[0];
         const data = doc.data();
         return {
           ...data,
-          createdAt: data.createdAt?.toDate() || new Date()
+          createdAt: data.createdAt?.toDate() || new Date(),
         } as UserProfile;
       }
-      
+
       return null;
     } catch (error) {
       console.error('Error finding user by email:', error);
@@ -101,21 +93,21 @@ class AuthService {
     try {
       // Chercher l'utilisateur par email dans Firestore
       const userProfile = await this.findUserByEmail(email);
-      
+
       if (!userProfile) {
         throw new Error('Aucun compte trouvé avec cette adresse email');
       }
 
       // Se connecter anonymement (nouveau session)
       await signInAnonymously(auth);
-      
+
       // Sauvegarder le profil localement
       await AsyncStorage.setItem('user', JSON.stringify(userProfile));
       await AsyncStorage.setItem('userEmail', email);
-      
+
       // Initialiser les paramètres généraux si ce n'est pas déjà fait
       await userService.initializeGeneralSettings(userProfile.name);
-      
+
       return userProfile;
     } catch (error: any) {
       console.error('Error signing in:', error);
@@ -131,7 +123,7 @@ class AuthService {
         const data = userDoc.data();
         return {
           ...data,
-          createdAt: data.createdAt?.toDate() || new Date()
+          createdAt: data.createdAt?.toDate() || new Date(),
         } as UserProfile;
       }
       return null;
@@ -147,35 +139,38 @@ class AuthService {
       // Récupérer d'abord les informations utilisateur depuis le cache local
       const userString = await AsyncStorage.getItem('user');
       const userEmail = await AsyncStorage.getItem('userEmail');
-      
+
       if (!userString || !userEmail) {
         throw new Error('Informations utilisateur manquantes');
       }
-      
+
       const userProfile = JSON.parse(userString);
-      
+
       // Créer ou mettre à jour le document utilisateur avec toutes les informations nécessaires
-      await setDoc(doc(db, 'users', uid), {
-        uid: uid,
-        email: userEmail,
-        name: userProfile.name || '',
-        onboardingCompleted: true,
-        createdAt: userProfile.createdAt || new Date(),
-        preferences: { 
-          ...userProfile.preferences,
-          ...preferences 
-        }
-      }, { merge: true });
+      await setDoc(
+        doc(db, 'users', uid),
+        {
+          uid: uid,
+          email: userEmail,
+          name: userProfile.name || '',
+          onboardingCompleted: true,
+          createdAt: userProfile.createdAt || new Date(),
+          preferences: {
+            ...userProfile.preferences,
+            ...preferences,
+          },
+        },
+        { merge: true }
+      );
 
       // Mettre à jour le cache local
       await AsyncStorage.setItem('onboardingCompleted', 'true');
-      
+
       userProfile.onboardingCompleted = true;
       if (preferences) {
         userProfile.preferences = { ...userProfile.preferences, ...preferences };
       }
       await AsyncStorage.setItem('user', JSON.stringify(userProfile));
-      
     } catch (error) {
       console.error('Error completing onboarding:', error);
       throw error;
@@ -227,13 +222,13 @@ class AuthService {
       if (user) {
         return JSON.parse(user);
       }
-      
+
       // Si pas de cache, vérifier par email
       const email = await AsyncStorage.getItem('userEmail');
       if (email) {
         return await this.findUserByEmail(email);
       }
-      
+
       return null;
     } catch (error) {
       console.error('Error getting current user:', error);
@@ -257,7 +252,7 @@ class AuthService {
       case 'auth/network-request-failed':
         return 'Erreur de connexion réseau';
       default:
-        return 'Une erreur est survenue lors de l\'authentification';
+        return "Une erreur est survenue lors de l'authentification";
     }
   }
 }

@@ -2,6 +2,87 @@ import { addDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { showConfigurationInstructions, testFirebasePermissions } from './testFirebasePermissions';
 
+const reminders = [
+  {
+    title: 'Prière du matin',
+    description: 'N’oublie pas de faire ta prière du matin.',
+    time: '06:00',
+    order: 1,
+  },
+  {
+    title: 'Prière du soir',
+    description: 'N’oublie pas de faire ta prière du soir.',
+    time: '20:00',
+    order: 2,
+  },
+  {
+    title: 'Lecture du Coran',
+    description: 'Lis quelques versets du Coran aujourd’hui.',
+    time: '08:00',
+    order: 3,
+  },
+  { title: 'Dhikr', description: 'Prends un moment pour faire du dhikr.', time: '12:00', order: 4 },
+  {
+    title: 'Invocation',
+    description: 'Fais une invocation spéciale pour tes proches.',
+    time: '14:00',
+    order: 5,
+  },
+  {
+    title: 'Prière surérogatoire',
+    description: 'Essaie de faire une prière surérogatoire.',
+    time: '16:00',
+    order: 6,
+  },
+  {
+    title: 'Charité',
+    description: 'Fais une bonne action ou une aumône aujourd’hui.',
+    time: '10:00',
+    order: 7,
+  },
+  {
+    title: 'Réflexion',
+    description: 'Prends un moment pour réfléchir à tes bénédictions.',
+    time: '18:00',
+    order: 8,
+  },
+  {
+    title: 'Demande pardon',
+    description: 'Demande pardon à Allah pour tes erreurs.',
+    time: '22:00',
+    order: 9,
+  },
+  {
+    title: 'Gratitude',
+    description: 'Exprime ta gratitude pour la journée écoulée.',
+    time: '23:00',
+    order: 10,
+  },
+];
+
+// Fonction pour migrer les rappels
+async function migrateReminders() {
+  console.log('⏰ Migration des rappels...');
+
+  const hasData = await collectionExists('reminders');
+  if (hasData) {
+    console.log('✅ Les rappels existent déjà dans Firebase');
+    return;
+  }
+
+  try {
+    for (const reminder of reminders) {
+      await addDoc(collection(db, 'reminders'), {
+        ...reminder,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    console.log('✅ Rappels migrés avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors de la migration des rappels:', error);
+  }
+}
+
 // Données des formules de prière à migrer
 const prayerFormulas = [
   {
@@ -66,6 +147,82 @@ const hadiths = [
     source: 'Rapporté par At-Tabarani',
     arabic: 'ادْعُوا لِمَوْتَاكُمْ فَإِنَّ دُعَاءَكُمْ يَبْلُغُهُمْ',
     order: 2,
+  },
+];
+
+// Données des catégories à migrer (synchronisées avec BasicsDrawerContent)
+const categories = [
+  {
+    id: 'prayers',
+    title: 'Prières',
+    icon: '🤲',
+    color: '#4A90E2',
+    isUnlocked: true,
+    order: 1,
+  },
+  {
+    id: 'reminders',
+    title: 'Rappels',
+    icon: '🔔',
+    color: '#4CAF50',
+    isUnlocked: true,
+    order: 2,
+  },
+  {
+    id: 'quran',
+    title: 'Coran',
+    icon: '📖',
+    color: '#00C851',
+    isUnlocked: false,
+    order: 3,
+  },
+  {
+    id: 'dhikr',
+    title: 'Dhikr',
+    icon: '📿',
+    color: '#FF8800',
+    isUnlocked: false,
+    order: 4,
+  },
+  {
+    id: 'qibla',
+    title: 'Qibla',
+    icon: '🧭',
+    color: '#E94B4B',
+    isUnlocked: false,
+    order: 5,
+  },
+  {
+    id: 'calendar',
+    title: 'Calendrier',
+    icon: '📅',
+    color: '#9C27B0',
+    isUnlocked: false,
+    order: 6,
+  },
+  {
+    id: 'names',
+    title: '99 Noms',
+    icon: '✨',
+    color: '#F5A623',
+    isUnlocked: false,
+    order: 7,
+  },
+  {
+    id: 'duas',
+    title: 'Duas',
+    icon: '🤲',
+    color: '#7ED321',
+    isUnlocked: false,
+    order: 8,
+  },
+  {
+    id: 'hijri',
+    title: 'Hijri',
+    icon: '🌙',
+    color: '#607D8B',
+    isUnlocked: false,
+    order: 9,
   },
 ];
 
@@ -149,6 +306,252 @@ async function migrateHadiths() {
   }
 }
 
+// Fonction pour migrer les catégories
+async function migrateCategories() {
+  console.log('📂 Migration des catégories...');
+
+  const hasData = await collectionExists('categories');
+  if (hasData) {
+    console.log('✅ Les catégories existent déjà dans Firebase');
+    return;
+  }
+
+  try {
+    for (const category of categories) {
+      await addDoc(collection(db, 'categories'), {
+        ...category,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    console.log('✅ Catégories migrées avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors de la migration des catégories:', error);
+  }
+}
+
+// Données de dhikr à migrer
+const dhikrItems = [
+  {
+    arabic: 'سُبْحَانَ اللَّهِ',
+    transliteration: 'SubhanAllah',
+    translation: 'Gloire à Allah',
+    order: 1,
+  },
+  {
+    arabic: 'الْحَمْدُ لِلَّهِ',
+    transliteration: 'Alhamdulillah',
+    translation: 'Louange à Allah',
+    order: 2,
+  },
+  {
+    arabic: 'اللَّهُ أَكْبَرُ',
+    transliteration: 'Allahu Akbar',
+    translation: 'Allah est le plus Grand',
+    order: 3,
+  },
+];
+
+// Données de duas à migrer
+const duasItems = [
+  {
+    arabic: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً',
+    transliteration: 'Rabbana atina fid-dunya hasanatan',
+    translation: 'Seigneur, accorde-nous une belle part ici-bas',
+    order: 1,
+  },
+  {
+    arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ',
+    transliteration: 'Allahumma inni as’aluka al-‘afwa wal-‘afiyah',
+    translation: 'Ô Allah, je Te demande le pardon et la santé',
+    order: 2,
+  },
+];
+
+// Données de quran à migrer (déjà versets)
+// Données de qibla à migrer (exemple)
+const qiblaItems = [
+  {
+    info: 'La direction de la Qibla est vers la Kaaba à La Mecque.',
+    city: 'Paris',
+    angle: 119.5,
+    order: 1,
+  },
+];
+
+// Données de calendar à migrer (exemple)
+const calendarItems = [
+  {
+    event: 'Aïd al-Fitr',
+    date: '2025-04-01',
+    description: 'Fin du Ramadan',
+    order: 1,
+  },
+  {
+    event: 'Aïd al-Adha',
+    date: '2025-06-07',
+    description: 'Fête du sacrifice',
+    order: 2,
+  },
+];
+
+// Données de names à migrer (exemple)
+const namesItems = [
+  {
+    arabic: 'الرَّحْمَنُ',
+    transliteration: 'Ar-Rahman',
+    translation: 'Le Tout Miséricordieux',
+    order: 1,
+  },
+  {
+    arabic: 'الرَّحِيمُ',
+    transliteration: 'Ar-Rahim',
+    translation: 'Le Très Miséricordieux',
+    order: 2,
+  },
+];
+
+// Données de hijri à migrer (exemple)
+const hijriItems = [
+  {
+    month: 'Muharram',
+    number: 1,
+    description: 'Premier mois du calendrier islamique',
+    order: 1,
+  },
+  {
+    month: 'Ramadan',
+    number: 9,
+    description: 'Mois du jeûne',
+    order: 2,
+  },
+];
+
+// Fonction pour migrer les dhikr
+async function migrateDhikr() {
+  console.log('🟢 Migration des dhikr...');
+  const hasData = await collectionExists('dhikr');
+  if (hasData) {
+    console.log('✅ Les dhikr existent déjà dans Firebase');
+    return;
+  }
+  try {
+    for (const item of dhikrItems) {
+      await addDoc(collection(db, 'dhikr'), {
+        ...item,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    console.log('✅ Dhikr migrés avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors de la migration des dhikr:', error);
+  }
+}
+
+// Fonction pour migrer les duas
+async function migrateDuas() {
+  console.log('🟢 Migration des duas...');
+  const hasData = await collectionExists('duas');
+  if (hasData) {
+    console.log('✅ Les duas existent déjà dans Firebase');
+    return;
+  }
+  try {
+    for (const item of duasItems) {
+      await addDoc(collection(db, 'duas'), {
+        ...item,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    console.log('✅ Duas migrées avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors de la migration des duas:', error);
+  }
+}
+
+// Fonction pour migrer les qibla
+async function migrateQibla() {
+  console.log('🟢 Migration des qibla...');
+  const hasData = await collectionExists('qibla');
+  if (hasData) {
+    console.log('✅ Les qibla existent déjà dans Firebase');
+    return;
+  }
+  try {
+    for (const item of qiblaItems) {
+      await addDoc(collection(db, 'qibla'), {
+        ...item,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    console.log('✅ Qibla migrée avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors de la migration des qibla:', error);
+  }
+}
+
+// Fonction pour migrer le calendrier
+async function migrateCalendar() {
+  console.log('🟢 Migration du calendrier...');
+  const hasData = await collectionExists('calendar');
+  if (hasData) {
+    console.log('✅ Le calendrier existe déjà dans Firebase');
+    return;
+  }
+  try {
+    for (const item of calendarItems) {
+      await addDoc(collection(db, 'calendar'), {
+        ...item,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    console.log('✅ Calendrier migré avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors de la migration du calendrier:', error);
+  }
+}
+
+// Fonction pour migrer les 99 noms
+async function migrateNames() {
+  console.log('🟢 Migration des 99 noms...');
+  const hasData = await collectionExists('names');
+  if (hasData) {
+    console.log('✅ Les 99 noms existent déjà dans Firebase');
+    return;
+  }
+  try {
+    for (const item of namesItems) {
+      await addDoc(collection(db, 'names'), {
+        ...item,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    console.log('✅ 99 noms migrés avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors de la migration des 99 noms:', error);
+  }
+}
+
+// Fonction pour migrer le calendrier hijri
+async function migrateHijri() {
+  console.log('🟢 Migration du calendrier hijri...');
+  const hasData = await collectionExists('hijri');
+  if (hasData) {
+    console.log('✅ Le calendrier hijri existe déjà dans Firebase');
+    return;
+  }
+  try {
+    for (const item of hijriItems) {
+      await addDoc(collection(db, 'hijri'), {
+        ...item,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    console.log('✅ Calendrier hijri migré avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors de la migration du calendrier hijri:', error);
+  }
+}
+
 // Fonction principale de migration avec test de permissions
 export async function migrateAllContent() {
   console.log('🚀 Début de la migration du contenu vers Firebase...');
@@ -173,7 +576,19 @@ export async function migrateAllContent() {
   console.log('✅ Permissions Firebase vérifiées\n');
 
   try {
-    await Promise.all([migratePrayerFormulas(), migrateVerses(), migrateHadiths()]);
+    await Promise.all([
+      migratePrayerFormulas(),
+      migrateVerses(),
+      migrateHadiths(),
+      migrateReminders(),
+      migrateCategories(),
+      migrateDhikr(),
+      migrateDuas(),
+      migrateQibla(),
+      migrateCalendar(),
+      migrateNames(),
+      migrateHijri(),
+    ]);
 
     console.log('🎉 Migration terminée avec succès !');
   } catch (error) {
