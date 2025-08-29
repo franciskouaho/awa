@@ -256,20 +256,38 @@ export default function PrayersScreen() {
 
             {/* Infos défunt juste après le titre */}
             <View style={styles.personInfoInFormula}>
+              {/* Nom du défunt */}
               <Text
                 style={[
                   styles.nameInFormula,
                   {
                     color: Colors[colorScheme ?? 'light'].primary,
+                    fontWeight: 'bold',
+                    fontSize: 24,
+                    textAlign: 'center',
+                    marginBottom: 8,
                   },
                 ]}
               >
                 {prayer.name}
               </Text>
-              <View style={styles.detailsRowCentered}>
+              {/* Âge et date de décès sur la même ligne, bien alignés */}
+              <View
+                style={[
+                  styles.detailsRowCentered,
+                  {
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexWrap: 'nowrap',
+                    flexDirection: 'row',
+                    width: '100%',
+                    flexShrink: 1,
+                  },
+                ]}
+              >
                 <Ionicons
-                  name="calendar-outline"
-                  size={16}
+                  name="person-outline"
+                  size={18}
                   color={Colors[colorScheme ?? 'light'].prayer.dateText}
                   style={{ marginRight: 4 }}
                 />
@@ -278,22 +296,63 @@ export default function PrayersScreen() {
                     styles.details,
                     {
                       color: Colors[colorScheme ?? 'light'].prayer.dateText,
+                      fontSize: 16,
+                      flexShrink: 1,
                     },
                   ]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
                 >
-                  {prayer.age} ans • {formatDate(prayer.deathDate)}
+                  {prayer.age} ans
+                </Text>
+                <Text
+                  style={{
+                    marginHorizontal: 6,
+                    color: Colors[colorScheme ?? 'light'].prayer.dateText,
+                  }}
+                >
+                  •
                 </Text>
                 <Ionicons
-                  name="location-outline"
-                  size={16}
+                  name="flower-outline"
+                  size={18}
                   color={Colors[colorScheme ?? 'light'].prayer.dateText}
-                  style={{ marginLeft: 12, marginRight: 4 }}
+                  style={{ marginRight: 4 }}
+                />
+                <Text
+                  style={[
+                    styles.details,
+                    {
+                      color: Colors[colorScheme ?? 'light'].prayer.dateText,
+                      fontSize: 16,
+                      flexShrink: 1,
+                    },
+                  ]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {formatDate(prayer.deathDate)}
+                </Text>
+              </View>
+              {/* Lieu sur une ligne séparée, bien aligné */}
+              <View
+                style={[
+                  styles.detailsRowCentered,
+                  { justifyContent: 'center', alignItems: 'center', width: '100%' },
+                ]}
+              >
+                <Ionicons
+                  name="location-outline"
+                  size={18}
+                  color={Colors[colorScheme ?? 'light'].prayer.dateText}
+                  style={{ marginRight: 6 }}
                 />
                 <Text
                   style={[
                     styles.location,
                     {
                       color: Colors[colorScheme ?? 'light'].prayer.dateText,
+                      fontSize: 16,
                     },
                   ]}
                 >
@@ -336,8 +395,6 @@ export default function PrayersScreen() {
             </Text>
           </View>
         </View>
-
-  // ...existing code...
 
         {/* Actions à droite style TikTok */}
         <View style={styles.sideActions}>
