@@ -14,7 +14,7 @@ interface RemindersDrawerContentProps {
 export default function RemindersDrawerContent({ onClose }: RemindersDrawerContentProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
-  
+
   // Services et hooks
   const { scheduleReminders, cancelAllReminders, sendTestNotification } = useNotifications();
   const { permissions, requestPermission, isLoading } = useNotificationPermissions();
@@ -51,8 +51,8 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
         'Cette application a besoin de permissions pour envoyer des notifications de rappel.',
         [
           { text: 'Plus tard', style: 'cancel' },
-          { 
-            text: 'Autoriser', 
+          {
+            text: 'Autoriser',
             onPress: async () => {
               const granted = await requestPermission();
               if (!granted) {
@@ -61,7 +61,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
                   'Vous pouvez activer les notifications dans les paramètres de votre appareil.'
                 );
               }
-            }
+            },
           },
         ]
       );
@@ -70,7 +70,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
 
   const handleEnableRemindersChange = async (value: boolean) => {
     setEnableReminders(value);
-    
+
     if (value && !permissions?.granted) {
       const granted = await requestPermission();
       if (!granted) {
@@ -82,13 +82,13 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
         return;
       }
     }
-    
+
     if (!value) {
       // Annuler toutes les notifications si désactivé
       try {
         await cancelAllReminders();
       } catch (error) {
-        console.error('Erreur lors de l\'annulation des notifications:', error);
+        console.error("Erreur lors de l'annulation des notifications:", error);
       }
     }
   };
@@ -136,7 +136,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     }
 
     setIsSaving(true);
-    
+
     try {
       const settings: NotificationSettings = {
         enableReminders,
@@ -152,27 +152,20 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
 
       if (enableReminders) {
         await scheduleReminders(settings);
-        Alert.alert(
-          'Succès',
-          'Vos rappels ont été programmés avec succès !',
-          [{ text: 'OK', onPress: onClose }]
-        );
+        Alert.alert('Succès', 'Vos rappels ont été programmés avec succès !', [
+          { text: 'OK', onPress: onClose },
+        ]);
       } else {
         await cancelAllReminders();
-        Alert.alert(
-          'Succès',
-          'Tous vos rappels ont été annulés.',
-          [{ text: 'OK', onPress: onClose }]
-        );
+        Alert.alert('Succès', 'Tous vos rappels ont été annulés.', [
+          { text: 'OK', onPress: onClose },
+        ]);
       }
 
       console.log('Reminders settings saved:', settings);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      Alert.alert(
-        'Erreur',
-        'Une erreur s\'est produite lors de la sauvegarde de vos paramètres.'
-      );
+      Alert.alert('Erreur', "Une erreur s'est produite lors de la sauvegarde de vos paramètres.");
     } finally {
       setIsSaving(false);
     }
@@ -189,16 +182,10 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
 
     try {
       await sendTestNotification();
-      Alert.alert(
-        'Test envoyé',
-        'Une notification de test va apparaître dans quelques secondes.'
-      );
+      Alert.alert('Test envoyé', 'Une notification de test va apparaître dans quelques secondes.');
     } catch (error) {
       console.error('Erreur lors du test:', error);
-      Alert.alert(
-        'Erreur',
-        'Impossible d\'envoyer la notification de test.'
-      );
+      Alert.alert('Erreur', "Impossible d'envoyer la notification de test.");
     }
   };
 
@@ -555,21 +542,6 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
             </TouchableOpacity>
           </View>
         )}
-
-        {/* Permissions Status */}
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>État des permissions</Text>
-          <View style={styles.permissionStatus}>
-            <Text style={styles.permissionText}>
-              Notifications: {permissions?.granted ? '✅ Autorisées' : '❌ Non autorisées'}
-            </Text>
-            {!permissions?.granted && permissions?.canAskAgain && (
-              <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
-                <Text style={styles.permissionButtonText}>Demander les permissions</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
 
         {/* Daily Streak Reminders Card */}
         <View style={styles.card}>

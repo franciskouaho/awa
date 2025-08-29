@@ -93,9 +93,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
               <Text style={[styles.streakNumber, { color: Colors[colorScheme ?? 'light'].text }]}>
                 {streakData?.currentStreak ?? 0}
               </Text>
-              {(streakData?.currentStreak ?? 0) > 0 && (
-                <Text style={styles.fireEmoji}>🔥</Text>
-              )}
+              {(streakData?.currentStreak ?? 0) > 0 && <Text style={styles.fireEmoji}>🔥</Text>}
             </View>
             <Text style={[styles.streakLabel, { color: Colors[colorScheme ?? 'light'].text }]}>
               Série
@@ -112,20 +110,15 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
                 <View
                   style={[
                     styles.dayCircle,
-                    { 
-                      backgroundColor: day.completed 
-                        ? Colors[colorScheme ?? 'light'].tint 
-                        : Colors[colorScheme ?? 'light'].border 
+                    {
+                      backgroundColor: day.completed
+                        ? Colors[colorScheme ?? 'light'].tint
+                        : Colors[colorScheme ?? 'light'].border,
                     },
                   ]}
                 >
                   {day.completed && (
-                    <IconSymbol 
-                      name="checkmark" 
-                      size={12} 
-                      color="white" 
-                      style={styles.checkmark}
-                    />
+                    <IconSymbol name="checkmark" size={12} color="white" style={styles.checkmark} />
                   )}
                 </View>
               </View>
