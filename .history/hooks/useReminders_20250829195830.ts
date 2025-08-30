@@ -6,9 +6,6 @@ export interface Reminder {
   id?: string;
   title: string;
   description: string;
-  arabic: string;
-  transliteration: string;
-  translation: string;
   time: string;
   order: number;
 }
@@ -24,7 +21,7 @@ export function useReminders() {
       try {
         const q = query(collection(db, 'reminders'), orderBy('order'));
         const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Reminder);
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reminder));
         setReminders(data);
         setError(null);
       } catch (e: any) {

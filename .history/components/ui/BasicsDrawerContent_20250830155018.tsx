@@ -1,20 +1,11 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
-import { useCategories as useCategorySelections } from '@/contexts/CategoryContext';
-import { useCategories } from '@/hooks/useCategories';
+import { useCategories } from '@/contexts/CategoryContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useReminders } from '@/hooks/useReminders';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface BasicsDrawerContentProps {
   onClose: () => void;
@@ -24,11 +15,8 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
   const colorScheme = useColorScheme();
   const [searchText, setSearchText] = useState('');
 
-  // Utiliser le hook pour récupérer les catégories depuis Firestore
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
-
-  // Utiliser le contexte des catégories pour les sélections utilisateur
-  const { selectedCategories, toggleCategory } = useCategorySelections();
+  // Utiliser le contexte des catégories
+  const { selectedCategories, toggleCategory } = useCategories();
 
   // Charger les rappels
   const { reminders, loading: remindersLoading, error: remindersError } = useReminders();
@@ -38,13 +26,77 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
   console.log('[BasicsDrawerContent] remindersLoading:', remindersLoading);
   console.log('[BasicsDrawerContent] remindersError:', remindersError);
   console.log('[BasicsDrawerContent] selectedCategories:', selectedCategories);
-  console.log('[BasicsDrawerContent] categories:', categories);
-  console.log('[BasicsDrawerContent] categoriesLoading:', categoriesLoading);
 
   const navigateTo = (screen: string) => {
     onClose();
     router.push(`/(tabs)/${screen}` as any);
   };
+
+  const categoryItems = [
+    {
+      id: 'prayers',
+      title: 'Prières',
+      icon: '🤲',
+      color: '#4A90E2',
+      isUnlocked: true,
+    },
+    {
+      id: 'reminders',
+      title: 'Rappels',
+      icon: '🔔',
+      color: '#4CAF50',
+      isUnlocked: true,
+    },
+    {
+      id: 'quran',
+      title: 'Coran',
+      icon: '📖',
+      color: '#00C851',
+      isUnlocked: false,
+    },
+    {
+      id: 'dhikr',
+      title: 'Dhikr',
+      icon: '📿',
+      color: '#FF8800',
+      isUnlocked: false,
+    },
+    {
+      id: 'qibla',
+      title: 'Qibla',
+      icon: '🧭',
+      color: '#E94B4B',
+      isUnlocked: false,
+    },
+    {
+      id: 'calendar',
+      title: 'Calendrier',
+      icon: '📅',
+      color: '#9C27B0',
+      isUnlocked: false,
+    },
+    {
+      id: 'names',
+      title: '99 Noms',
+      icon: '✨',
+      color: '#F5A623',
+      isUnlocked: false,
+    },
+    {
+      id: 'duas',
+      title: 'Duas',
+      icon: '🤲',
+      color: '#7ED321',
+      isUnlocked: false,
+    },
+    {
+      id: 'hijri',
+      title: 'Hijri',
+      icon: '🌙',
+      color: '#607D8B',
+      isUnlocked: false,
+    },
+  ];
 
   const handleCategoryPress = async (item: any) => {
     if (!item.isUnlocked) return;
@@ -86,69 +138,56 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
 
         {/* Categories Grid */}
         <ScrollView style={styles.categoriesContainer} showsVerticalScrollIndicator={false}>
-          {categoriesLoading ? (
-            <View style={{ alignItems: 'center', padding: 40 }}>
-              <ActivityIndicator size="large" color={Colors[colorScheme ?? 'light'].primary} />
-              <Text style={{ color: Colors[colorScheme ?? 'light'].textSecondary, marginTop: 16 }}>
-                Chargement des catégories...
-              </Text>
-            </View>
-          ) : categoriesError ? (
-            <View style={{ alignItems: 'center', padding: 40 }}>
-              <Text style={{ color: 'red', textAlign: 'center' }}>Erreur: {categoriesError}</Text>
-            </View>
-          ) : (
-            <View style={styles.categoriesGrid}>
-              {categories.map(item => {
-                const isSelected = selectedCategories.includes(item.id);
-                return (
-                  <TouchableOpacity
-                    key={item.id}
+          <View style={styles.categoriesGrid}>
+            {categoryItems.map(item => {
+              const isSelected = selectedCategories.includes(item.id);
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[
+                    styles.categoryCard,
+                    {
+                      backgroundColor: item.isUnlocked
+                        ? Colors[colorScheme ?? 'light'].surface
+                        : Colors[colorScheme ?? 'light'].textSecondary + '20',
+                      borderColor: isSelected ? item.color : 'transparent',
+                      borderWidth: isSelected ? 3 : 0,
+                    },
+                  ]}
+                  onPress={() => handleCategoryPress(item)}
+                  disabled={!item.isUnlocked}
+                >
+                  <View style={styles.categoryIconContainer}>
+                    <Text style={styles.categoryIcon}>{item.icon}</Text>
+                  </View>
+                  <Text
                     style={[
-                      styles.categoryCard,
+                      styles.categoryTitle,
                       {
-                        backgroundColor: item.isUnlocked
-                          ? Colors[colorScheme ?? 'light'].surface
-                          : Colors[colorScheme ?? 'light'].textSecondary + '20',
-                        borderColor: isSelected ? item.color : 'transparent',
-                        borderWidth: isSelected ? 3 : 0,
+                        color: item.isUnlocked
+                          ? Colors[colorScheme ?? 'light'].text
+                          : Colors[colorScheme ?? 'light'].textSecondary,
                       },
                     ]}
-                    onPress={() => handleCategoryPress(item)}
-                    disabled={!item.isUnlocked}
                   >
-                    <View style={styles.categoryIconContainer}>
-                      <Text style={styles.categoryIcon}>{item.icon}</Text>
+                    {item.title}
+                  </Text>
+                  {isSelected && (
+                    <View style={[styles.selectionIndicator, { backgroundColor: item.color }]} />
+                  )}
+                  {!item.isUnlocked && (
+                    <View style={styles.lockOverlay}>
+                      <IconSymbol
+                        name="lock.fill"
+                        size={24}
+                        color={Colors[colorScheme ?? 'light'].textSecondary}
+                      />
                     </View>
-                    <Text
-                      style={[
-                        styles.categoryTitle,
-                        {
-                          color: item.isUnlocked
-                            ? Colors[colorScheme ?? 'light'].text
-                            : Colors[colorScheme ?? 'light'].textSecondary,
-                        },
-                      ]}
-                    >
-                      {item.title}
-                    </Text>
-                    {isSelected && (
-                      <View style={[styles.selectionIndicator, { backgroundColor: item.color }]} />
-                    )}
-                    {!item.isUnlocked && (
-                      <View style={styles.lockOverlay}>
-                        <IconSymbol
-                          name="lock.fill"
-                          size={24}
-                          color={Colors[colorScheme ?? 'light'].textSecondary}
-                        />
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          )}
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
 
           {/* Affichage dynamique du contenu selon la sélection */}
           {selectedCategories.includes('reminders') && (

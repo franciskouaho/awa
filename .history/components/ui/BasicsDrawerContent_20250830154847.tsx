@@ -1,34 +1,54 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { db } from '@/config/firebase';
 import { Colors } from '@/constants/Colors';
-import { useCategories as useCategorySelections } from '@/contexts/CategoryContext';
-import { useCategories } from '@/hooks/useCategories';
+import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useReminders } from '@/hooks/useReminders';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface BasicsDrawerContentProps {
   onClose: () => void;
 }
 
 export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProps) {
+  const { user } = useAuth();
+  const userId = user?.uid;
   const colorScheme = useColorScheme();
   const [searchText, setSearchText] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['prayers']);
 
-  // Utiliser le hook pour récupérer les catégories depuis Firestore
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
-
-  // Utiliser le contexte des catégories pour les sélections utilisateur
-  const { selectedCategories, toggleCategory } = useCategorySelections();
+  // Charger la sélection persistée au montage
+  useEffect(() => {
+    const loadSelectedCategories = async () => {
+      try {
+        // 1. Charger depuis AsyncStorage (fallback local)
+        const saved = await AsyncStorage.getItem('selectedCategories');
+        if (saved) {
+          setSelectedCategories(JSON.parse(saved));
+        }
+        // 2. Charger depuis Firestore (si userId dispo)
+        if (userId) {
+          const ref = doc(db, 'users', userId, 'settings', 'categories');
+          const snap = await getDoc(ref);
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data && data.selectedCategories) {
+              setSelectedCategories(data.selectedCategories);
+              // Met à jour le local aussi
+              AsyncStorage.setItem('selectedCategories', JSON.stringify(data.selectedCategories));
+            }
+          }
+        }
+      } catch (e) {
+        console.log('Erreur chargement selectedCategories:', e);
+      }
+    };
+    loadSelectedCategories();
+  }, []);
 
   // Charger les rappels
   const { reminders, loading: remindersLoading, error: remindersError } = useReminders();
@@ -37,18 +57,106 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
   console.log('[BasicsDrawerContent] reminders:', reminders);
   console.log('[BasicsDrawerContent] remindersLoading:', remindersLoading);
   console.log('[BasicsDrawerContent] remindersError:', remindersError);
-  console.log('[BasicsDrawerContent] selectedCategories:', selectedCategories);
-  console.log('[BasicsDrawerContent] categories:', categories);
-  console.log('[BasicsDrawerContent] categoriesLoading:', categoriesLoading);
 
   const navigateTo = (screen: string) => {
     onClose();
     router.push(`/(tabs)/${screen}` as any);
   };
 
+  const categoryItems = [
+    {
+      id: 'prayers',
+      title: 'Prières',
+      icon: '🤲',
+      color: '#4A90E2',
+      isSelected: true,
+      isUnlocked: true,
+    },
+    {
+      id: 'reminders',
+      title: 'Rappels',
+      icon: '🔔',
+      color: '#4CAF50',
+      isSelected: true,
+      isUnlocked: true,
+    },
+    {
+      id: 'quran',
+      title: 'Coran',
+      icon: '📖',
+      color: '#00C851',
+      isSelected: false,
+      isUnlocked: false,
+    },
+    {
+      id: 'dhikr',
+      title: 'Dhikr',
+      icon: '📿',
+      color: '#FF8800',
+      isSelected: false,
+      isUnlocked: false,
+    },
+    {
+      id: 'qibla',
+      title: 'Qibla',
+      icon: '🧭',
+      color: '#E94B4B',
+      isSelected: false,
+      isUnlocked: false,
+    },
+    {
+      id: 'calendar',
+      title: 'Calendrier',
+      icon: '📅',
+      color: '#9C27B0',
+      isSelected: false,
+      isUnlocked: false,
+    },
+    {
+      id: 'names',
+      title: '99 Noms',
+      icon: '✨',
+      color: '#F5A623',
+      isSelected: false,
+      isUnlocked: false,
+    },
+    {
+      id: 'duas',
+      title: 'Duas',
+      icon: '🤲',
+      color: '#7ED321',
+      isSelected: false,
+      isUnlocked: false,
+    },
+    {
+      id: 'hijri',
+      title: 'Hijri',
+      icon: '🌙',
+      color: '#607D8B',
+      isSelected: false,
+      isUnlocked: false,
+    },
+  ];
+
   const handleCategoryPress = async (item: any) => {
     if (!item.isUnlocked) return;
-    await toggleCategory(item.id);
+    setSelectedCategories(prev => {
+      let updated;
+      if (prev.includes(item.id)) {
+        updated = prev.filter(id => id !== item.id);
+      } else {
+        updated = [...prev, item.id];
+      }
+      // Sauvegarder la sélection localement
+      AsyncStorage.setItem('selectedCategories', JSON.stringify(updated));
+      // Sauvegarder la sélection sur Firestore (SDK Web)
+      if (userId) {
+        const ref = doc(db, 'users', userId, 'settings', 'categories');
+        setDoc(ref, { selectedCategories: updated });
+      }
+      return updated;
+    });
+    // Ne quitte plus le drawer !
   };
 
   return (
@@ -86,69 +194,56 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
 
         {/* Categories Grid */}
         <ScrollView style={styles.categoriesContainer} showsVerticalScrollIndicator={false}>
-          {categoriesLoading ? (
-            <View style={{ alignItems: 'center', padding: 40 }}>
-              <ActivityIndicator size="large" color={Colors[colorScheme ?? 'light'].primary} />
-              <Text style={{ color: Colors[colorScheme ?? 'light'].textSecondary, marginTop: 16 }}>
-                Chargement des catégories...
-              </Text>
-            </View>
-          ) : categoriesError ? (
-            <View style={{ alignItems: 'center', padding: 40 }}>
-              <Text style={{ color: 'red', textAlign: 'center' }}>Erreur: {categoriesError}</Text>
-            </View>
-          ) : (
-            <View style={styles.categoriesGrid}>
-              {categories.map(item => {
-                const isSelected = selectedCategories.includes(item.id);
-                return (
-                  <TouchableOpacity
-                    key={item.id}
+          <View style={styles.categoriesGrid}>
+            {categoryItems.map(item => {
+              const isSelected = selectedCategories.includes(item.id);
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[
+                    styles.categoryCard,
+                    {
+                      backgroundColor: item.isUnlocked
+                        ? Colors[colorScheme ?? 'light'].surface
+                        : Colors[colorScheme ?? 'light'].textSecondary + '20',
+                      borderColor: isSelected ? item.color : 'transparent',
+                      borderWidth: isSelected ? 3 : 0,
+                    },
+                  ]}
+                  onPress={() => handleCategoryPress(item)}
+                  disabled={!item.isUnlocked}
+                >
+                  <View style={styles.categoryIconContainer}>
+                    <Text style={styles.categoryIcon}>{item.icon}</Text>
+                  </View>
+                  <Text
                     style={[
-                      styles.categoryCard,
+                      styles.categoryTitle,
                       {
-                        backgroundColor: item.isUnlocked
-                          ? Colors[colorScheme ?? 'light'].surface
-                          : Colors[colorScheme ?? 'light'].textSecondary + '20',
-                        borderColor: isSelected ? item.color : 'transparent',
-                        borderWidth: isSelected ? 3 : 0,
+                        color: item.isUnlocked
+                          ? Colors[colorScheme ?? 'light'].text
+                          : Colors[colorScheme ?? 'light'].textSecondary,
                       },
                     ]}
-                    onPress={() => handleCategoryPress(item)}
-                    disabled={!item.isUnlocked}
                   >
-                    <View style={styles.categoryIconContainer}>
-                      <Text style={styles.categoryIcon}>{item.icon}</Text>
+                    {item.title}
+                  </Text>
+                  {isSelected && (
+                    <View style={[styles.selectionIndicator, { backgroundColor: item.color }]} />
+                  )}
+                  {!item.isUnlocked && (
+                    <View style={styles.lockOverlay}>
+                      <IconSymbol
+                        name="lock.fill"
+                        size={24}
+                        color={Colors[colorScheme ?? 'light'].textSecondary}
+                      />
                     </View>
-                    <Text
-                      style={[
-                        styles.categoryTitle,
-                        {
-                          color: item.isUnlocked
-                            ? Colors[colorScheme ?? 'light'].text
-                            : Colors[colorScheme ?? 'light'].textSecondary,
-                        },
-                      ]}
-                    >
-                      {item.title}
-                    </Text>
-                    {isSelected && (
-                      <View style={[styles.selectionIndicator, { backgroundColor: item.color }]} />
-                    )}
-                    {!item.isUnlocked && (
-                      <View style={styles.lockOverlay}>
-                        <IconSymbol
-                          name="lock.fill"
-                          size={24}
-                          color={Colors[colorScheme ?? 'light'].textSecondary}
-                        />
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          )}
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
 
           {/* Affichage dynamique du contenu selon la sélection */}
           {selectedCategories.includes('reminders') && (
@@ -210,21 +305,7 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
               )}
             </View>
           )}
-
-          {/* Message quand aucune catégorie n'est sélectionnée */}
-          {selectedCategories.length === 0 && (
-            <View style={{ marginTop: 24, alignItems: 'center', padding: 20 }}>
-              <Text
-                style={{
-                  color: Colors[colorScheme ?? 'light'].textSecondary,
-                  fontSize: 16,
-                  textAlign: 'center',
-                }}
-              >
-                Sélectionnez une ou plusieurs catégories pour voir leur contenu
-              </Text>
-            </View>
-          )}
+          {/* Tu peux ajouter d'autres catégories ici, ex: prayers, quran, etc. */}
         </ScrollView>
       </View>
     </View>

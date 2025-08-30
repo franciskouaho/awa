@@ -254,47 +254,37 @@ export default function PrayersScreen() {
               {reminder.description}
             </Text>
 
-            {/* Texte en arabe */}
-            <Text
+            {/* Heure du rappel */}
+            <View
               style={[
-                styles.arabicFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].prayer.formulaArabic,
-                },
+                styles.detailsRowCentered,
+                { justifyContent: 'center', alignItems: 'center', width: '100%' },
               ]}
             >
-              {reminder.arabic}
-            </Text>
-
-            {/* Translittération */}
-            <Text
-              style={[
-                styles.transliterationFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].prayer.formulaTranslation,
-                },
-              ]}
-            >
-              {reminder.transliteration}
-            </Text>
-
-            {/* Traduction */}
-            <Text
-              style={[
-                styles.translationFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].text,
-                },
-              ]}
-            >
-              {reminder.translation}
-            </Text>
+              <Ionicons
+                name="time-outline"
+                size={18}
+                color={Colors[colorScheme ?? 'light'].prayer.dateText}
+                style={{ marginRight: 6 }}
+              />
+              <Text
+                style={[
+                  styles.location,
+                  {
+                    color: Colors[colorScheme ?? 'light'].prayer.dateText,
+                    fontSize: 16,
+                  },
+                ]}
+              >
+                {reminder.time}
+              </Text>
+            </View>
           </View>
         </View>
       </View>
 
       {/* Actions à droite style TikTok - exactement comme pour les prières */}
-      <View style={[styles.sideActions, { transform: [{ translateX: -44 }] }]}>
+      <View style={styles.sideActions}>
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => {

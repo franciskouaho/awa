@@ -254,82 +254,6 @@ const verses = [
   },
 ];
 
-// Données des catégories à migrer (synchronisées avec BasicsDrawerContent)
-const categories = [
-  {
-    id: 'prayers',
-    title: 'Prières',
-    icon: '🤲',
-    color: '#4A90E2',
-    isUnlocked: true,
-    order: 1,
-  },
-  {
-    id: 'reminders',
-    title: 'Rappels',
-    icon: '🔔',
-    color: '#4CAF50',
-    isUnlocked: true,
-    order: 2,
-  },
-  {
-    id: 'quran',
-    title: 'Coran',
-    icon: '📖',
-    color: '#00C851',
-    isUnlocked: false,
-    order: 3,
-  },
-  {
-    id: 'dhikr',
-    title: 'Dhikr',
-    icon: '📿',
-    color: '#FF8800',
-    isUnlocked: false,
-    order: 4,
-  },
-  {
-    id: 'qibla',
-    title: 'Qibla',
-    icon: '🧭',
-    color: '#E94B4B',
-    isUnlocked: false,
-    order: 5,
-  },
-  {
-    id: 'calendar',
-    title: 'Calendrier',
-    icon: '📅',
-    color: '#9C27B0',
-    isUnlocked: false,
-    order: 6,
-  },
-  {
-    id: 'names',
-    title: '99 Noms',
-    icon: '✨',
-    color: '#F5A623',
-    isUnlocked: false,
-    order: 7,
-  },
-  {
-    id: 'duas',
-    title: 'Duas',
-    icon: '🤲',
-    color: '#7ED321',
-    isUnlocked: false,
-    order: 8,
-  },
-  {
-    id: 'hijri',
-    title: 'Hijri',
-    icon: '🌙',
-    color: '#607D8B',
-    isUnlocked: false,
-    order: 9,
-  },
-];
-
 // Données des hadiths à migrer
 const hadiths = [
   {
@@ -650,27 +574,6 @@ async function migrateHijri() {
   }
 }
 
-// Fonction pour migrer les catégories
-async function migrateCategories() {
-  console.log('🟢 Migration des catégories...');
-  const hasData = await collectionExists('categories');
-  if (hasData) {
-    console.log('✅ Les catégories existent déjà dans Firebase');
-    return;
-  }
-  try {
-    for (const category of categories) {
-      await addDoc(collection(db, 'categories'), {
-        ...category,
-        createdAt: new Date().toISOString(),
-      });
-    }
-    console.log('✅ Catégories migrées avec succès');
-  } catch (error) {
-    console.error('❌ Erreur lors de la migration des catégories:', error);
-  }
-}
-
 // Fonction principale de migration avec test de permissions
 export async function migrateAllContent() {
   console.log('🚀 Début de la migration du contenu vers Firebase...');
@@ -706,7 +609,6 @@ export async function migrateAllContent() {
       migrateCalendar(),
       migrateNames(),
       migrateHijri(),
-      migrateCategories(),
     ]);
 
     console.log('🎉 Migration terminée avec succès !');

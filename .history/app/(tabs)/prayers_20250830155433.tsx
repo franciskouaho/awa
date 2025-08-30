@@ -253,42 +253,6 @@ export default function PrayersScreen() {
             >
               {reminder.description}
             </Text>
-
-            {/* Texte en arabe */}
-            <Text
-              style={[
-                styles.arabicFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].prayer.formulaArabic,
-                },
-              ]}
-            >
-              {reminder.arabic}
-            </Text>
-
-            {/* Translittération */}
-            <Text
-              style={[
-                styles.transliterationFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].prayer.formulaTranslation,
-                },
-              ]}
-            >
-              {reminder.transliteration}
-            </Text>
-
-            {/* Traduction */}
-            <Text
-              style={[
-                styles.translationFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].text,
-                },
-              ]}
-            >
-              {reminder.translation}
-            </Text>
           </View>
         </View>
       </View>

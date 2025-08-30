@@ -198,19 +198,17 @@ export default function PrayersScreen() {
   // Fonction pour afficher le contenu des rappels
   const renderReminderCard = (reminder: any, index: number) => (
     <View key={reminder.id} style={styles.card}>
-      {/* Contenu principal centré */}
       <View style={styles.cardContent}>
-        {/* Section rappel */}
-        <View style={[styles.formulaSection]}>
-          <View style={styles.formulaHeader}>
+        <View style={styles.reminderSection}>
+          <View style={styles.reminderHeader}>
             <Ionicons
               name="notifications-outline"
-              size={18}
+              size={24}
               color={Colors[colorScheme ?? 'light'].primary}
             />
             <Text
               style={[
-                styles.formulaTitle,
+                styles.reminderTitle,
                 {
                   color: Colors[colorScheme ?? 'light'].primary,
                 },
@@ -220,81 +218,60 @@ export default function PrayersScreen() {
             </Text>
           </View>
 
-          {/* Infos du rappel juste après le titre */}
-          <View style={styles.personInfoInFormula}>
-            {/* Titre du rappel */}
-            <Text
-              style={[
-                styles.nameInFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].primary,
-                  fontWeight: 'bold',
-                  fontSize: 24,
-                  textAlign: 'center',
-                  marginBottom: 8,
-                },
-              ]}
-            >
-              {reminder.title}
-            </Text>
+          <Text
+            style={[
+              styles.reminderName,
+              {
+                color: Colors[colorScheme ?? 'light'].text,
+                fontWeight: 'bold',
+                fontSize: 28,
+                textAlign: 'center',
+                marginBottom: 16,
+              },
+            ]}
+          >
+            {reminder.title}
+          </Text>
 
-            {/* Description du rappel */}
+          <Text
+            style={[
+              styles.reminderDescription,
+              {
+                color: Colors[colorScheme ?? 'light'].text,
+                fontSize: 18,
+                textAlign: 'center',
+                marginBottom: 20,
+                lineHeight: 26,
+              },
+            ]}
+          >
+            {reminder.description}
+          </Text>
+
+          <View style={styles.reminderTimeContainer}>
+            <Ionicons
+              name="time-outline"
+              size={20}
+              color={Colors[colorScheme ?? 'light'].prayer.dateText}
+            />
             <Text
               style={[
-                styles.translationFormula,
+                styles.reminderTime,
                 {
-                  color: Colors[colorScheme ?? 'light'].text,
+                  color: Colors[colorScheme ?? 'light'].prayer.dateText,
                   fontSize: 16,
-                  textAlign: 'center',
-                  marginBottom: 16,
-                  lineHeight: 22,
+                  marginLeft: 8,
                 },
               ]}
             >
-              {reminder.description}
-            </Text>
-
-            {/* Texte en arabe */}
-            <Text
-              style={[
-                styles.arabicFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].prayer.formulaArabic,
-                },
-              ]}
-            >
-              {reminder.arabic}
-            </Text>
-
-            {/* Translittération */}
-            <Text
-              style={[
-                styles.transliterationFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].prayer.formulaTranslation,
-                },
-              ]}
-            >
-              {reminder.transliteration}
-            </Text>
-
-            {/* Traduction */}
-            <Text
-              style={[
-                styles.translationFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].text,
-                },
-              ]}
-            >
-              {reminder.translation}
+              {reminder.time}
             </Text>
           </View>
         </View>
       </View>
 
-      {/* Actions à droite style TikTok - exactement comme pour les prières */}
-      <View style={[styles.sideActions, { transform: [{ translateX: -44 }] }]}>
+      {/* Actions à droite style TikTok */}
+      <View style={styles.sideActions}>
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => {
@@ -302,13 +279,17 @@ export default function PrayersScreen() {
           }}
           activeOpacity={0.8}
         >
-          <Ionicons name="heart-outline" size={36} color={Colors[colorScheme ?? 'light'].text} />
+          <Ionicons
+            name="checkmark-circle-outline"
+            size={36}
+            color={Colors[colorScheme ?? 'light'].text}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => {
-            /* Action pour partager le rappel */
+            /* Action pour les rappels */
           }}
           activeOpacity={0.8}
         >
@@ -996,5 +977,42 @@ const styles = StyleSheet.create({
   },
   boldText: {
     fontWeight: '700',
+  },
+  reminderSection: {
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 32,
+  },
+  reminderHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  reminderTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  reminderName: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  reminderDescription: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 26,
+  },
+  reminderTimeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  reminderTime: {
+    fontSize: 16,
+    marginLeft: 8,
   },
 });

@@ -158,99 +158,43 @@ const prayerFormulas = [
   },
 ];
 
-// Données des versets du Coran à migrer
+// Données des versets à migrer
 const verses = [
   {
-    arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-    transliteration: 'Bismillahi ar-Rahmani ar-Raheem',
-    translation: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux",
-    surah: 'Al-Fatiha',
-    ayah: 1,
+    arabic:
+      'وَبَشِّرِ الصَّابِرِينَ الَّذِينَ إِذَا أَصَابَتْهُم مُّصِيبَةٌ قَالُوا إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ',
+    transliteration:
+      "Wa bashshiri as-sabirin. Alladhina idha asabat-hum musibatun qalu inna lillahi wa inna ilayhi raji'un",
+    translation:
+      'Et annonce la bonne nouvelle aux endurants, qui disent, quand un malheur les atteint : "Certes nous sommes à Allah, et c\'est à Lui que nous retournerons."',
+    reference: 'Sourate Al-Baqarah (2:155-156)',
     order: 1,
   },
   {
-    arabic: 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ',
-    transliteration: "Alhamdu lillahi rabbi al-'alameen",
-    translation: "Louange à Allah, Seigneur de l'univers",
-    surah: 'Al-Fatiha',
-    ayah: 2,
+    arabic:
+      'كُلُّ نَفْسٍ ذَائِقَةُ الْمَوْتِ وَإِنَّمَا تُوَفَّوْنَ أُجُورَكُمْ يَوْمَ الْقِيَامَةِ',
+    transliteration: "Kullu nafsin dha'iqatul-mawt. Wa innama tuwaffawna ujurakum yawmal-qiyamah",
+    translation:
+      "Toute âme goûtera la mort. Et c'est seulement au Jour de la Résurrection que vous recevrez votre entière rétribution.",
+    reference: "Sourate Ali 'Imran (3:185)",
     order: 2,
   },
+];
+
+// Données des hadiths à migrer
+const hadiths = [
   {
-    arabic: 'الرَّحْمَٰنِ الرَّحِيمِ',
-    transliteration: 'Ar-Rahmani ar-Raheem',
-    translation: 'Le Tout Miséricordieux, le Très Miséricordieux',
-    surah: 'Al-Fatiha',
-    ayah: 3,
-    order: 3,
-  },
-  {
-    arabic: 'مَالِكِ يَوْمِ الدِّينِ',
-    transliteration: 'Maliki yawmi ad-deen',
-    translation: 'Maître du Jour de la rétribution',
-    surah: 'Al-Fatiha',
-    ayah: 4,
-    order: 4,
-  },
-  {
-    arabic: 'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ',
-    transliteration: "Iyyaka na'budu wa iyyaka nasta'een",
-    translation:
-      "C'est Toi [Seul] que nous adorons, et c'est Toi [Seul] dont nous implorons secours",
-    surah: 'Al-Fatiha',
-    ayah: 5,
-    order: 5,
-  },
-  {
-    arabic: 'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ',
-    transliteration: 'Ihdina as-sirata al-mustaqeem',
-    translation: 'Guide-nous dans le droit chemin',
-    surah: 'Al-Fatiha',
-    ayah: 6,
-    order: 6,
-  },
-  {
+    text: 'Le Prophète (ﷺ) a dit : "Quand l\'homme meurt, ses œuvres s\'arrêtent sauf trois : une aumône continue, une science dont les gens tirent profit, et un enfant pieux qui invoque Allah pour lui."',
+    source: 'Rapporté par Muslim',
     arabic:
-      'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ',
-    transliteration:
-      "Sirata alladheena an'amta 'alayhim ghayri al-maghdoobi 'alayhim wa la ad-daalleen",
-    translation:
-      'Le chemin de ceux que Tu as comblés de faveurs, non pas de ceux qui ont encouru Ta colère, ni des égarés',
-    surah: 'Al-Fatiha',
-    ayah: 7,
-    order: 7,
+      'إِذَا مَاتَ الإِنْسَانُ انْقَطَعَ عَمَلُهُ إِلاَّ مِنْ ثَلاَثَةٍ إِلاَّ مِنْ صَدَقَةٍ جَارِيَةٍ أَوْ عِلْمٍ يُنْتَفَعُ بِهِ أَوْ وَلَدٍ صَالِحٍ يَدْعُو لَهُ',
+    order: 1,
   },
   {
-    arabic: 'قُلْ هُوَ اللَّهُ أَحَدٌ',
-    transliteration: 'Qul huwa Allahu ahad',
-    translation: 'Dis : "Il est Allah, [Dieu] Unique',
-    surah: 'Al-Ikhlas',
-    ayah: 1,
-    order: 8,
-  },
-  {
-    arabic: 'اللَّهُ الصَّمَدُ',
-    transliteration: 'Allahu as-samad',
-    translation: 'Allah, Le Seul à être imploré pour ce que nous désirons',
-    surah: 'Al-Ikhlas',
-    ayah: 2,
-    order: 9,
-  },
-  {
-    arabic: 'لَمْ يَلِدْ وَلَمْ يُولَدْ',
-    transliteration: 'Lam yalid wa lam yoolad',
-    translation: "Il n'a jamais engendré, n'a pas été engendré non plus",
-    surah: 'Al-Ikhlas',
-    ayah: 3,
-    order: 10,
-  },
-  {
-    arabic: 'وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ',
-    transliteration: 'Wa lam yakun lahu kufuwan ahad',
-    translation: 'Et nul n\'est égal à Lui"',
-    surah: 'Al-Ikhlas',
-    ayah: 4,
-    order: 11,
+    text: 'Le Prophète (ﷺ) a dit : "Invoquez Allah en faveur de vos morts, car vos invocations les atteignent."',
+    source: 'Rapporté par At-Tabarani',
+    arabic: 'ادْعُوا لِمَوْتَاكُمْ فَإِنَّ دُعَاءَكُمْ يَبْلُغُهُمْ',
+    order: 2,
   },
 ];
 
@@ -330,22 +274,108 @@ const categories = [
   },
 ];
 
-// Données des hadiths à migrer
-const hadiths = [
-  {
-    text: 'Le Prophète (ﷺ) a dit : "Quand l\'homme meurt, ses œuvres s\'arrêtent sauf trois : une aumône continue, une science dont les gens tirent profit, et un enfant pieux qui invoque Allah pour lui."',
-    source: 'Rapporté par Muslim',
-    arabic:
-      'إِذَا مَاتَ الإِنْسَانُ انْقَطَعَ عَمَلُهُ إِلاَّ مِنْ ثَلاَثَةٍ إِلاَّ مِنْ صَدَقَةٍ جَارِيَةٍ أَوْ عِلْمٍ يُنْتَفَعُ بِهِ أَوْ وَلَدٍ صَالِحٍ يَدْعُو لَهُ',
-    order: 1,
-  },
-  {
-    text: 'Le Prophète (ﷺ) a dit : "Invoquez Allah en faveur de vos morts, car vos invocations les atteignent."',
-    source: 'Rapporté par At-Tabarani',
-    arabic: 'ادْعُوا لِمَوْتَاكُمْ فَإِنَّ دُعَاءَكُمْ يَبْلُغُهُمْ',
-    order: 2,
-  },
-];
+// Fonction pour vérifier si une collection existe et contient des données
+async function collectionExists(collectionName: string): Promise<boolean> {
+  try {
+    const querySnapshot = await getDocs(collection(db, collectionName));
+    return !querySnapshot.empty;
+  } catch (error) {
+    console.error(`Erreur lors de la vérification de la collection ${collectionName}:`, error);
+    return false;
+  }
+}
+
+// Fonction pour migrer les formules de prière
+async function migratePrayerFormulas() {
+  console.log('📖 Migration des formules de prière...');
+
+  const hasData = await collectionExists('prayerFormulas');
+  if (hasData) {
+    console.log('✅ Les formules de prière existent déjà dans Firebase');
+    return;
+  }
+
+  try {
+    for (const formula of prayerFormulas) {
+      await addDoc(collection(db, 'prayerFormulas'), {
+        ...formula,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    console.log('✅ Formules de prière migrées avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors de la migration des formules:', error);
+  }
+}
+
+// Fonction pour migrer les versets
+async function migrateVerses() {
+  console.log('📜 Migration des versets...');
+
+  const hasData = await collectionExists('verses');
+  if (hasData) {
+    console.log('✅ Les versets existent déjà dans Firebase');
+    return;
+  }
+
+  try {
+    for (const verse of verses) {
+      await addDoc(collection(db, 'verses'), {
+        ...verse,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    console.log('✅ Versets migrés avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors de la migration des versets:', error);
+  }
+}
+
+// Fonction pour migrer les hadiths
+async function migrateHadiths() {
+  console.log('📚 Migration des hadiths...');
+
+  const hasData = await collectionExists('hadiths');
+  if (hasData) {
+    console.log('✅ Les hadiths existent déjà dans Firebase');
+    return;
+  }
+
+  try {
+    for (const hadith of hadiths) {
+      await addDoc(collection(db, 'hadiths'), {
+        ...hadith,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    console.log('✅ Hadiths migrés avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors de la migration des hadiths:', error);
+  }
+}
+
+// Fonction pour migrer les catégories
+async function migrateCategories() {
+  console.log('📂 Migration des catégories...');
+
+  const hasData = await collectionExists('categories');
+  if (hasData) {
+    console.log('✅ Les catégories existent déjà dans Firebase');
+    return;
+  }
+
+  try {
+    for (const category of categories) {
+      await addDoc(collection(db, 'categories'), {
+        ...category,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    console.log('✅ Catégories migrées avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors de la migration des catégories:', error);
+  }
+}
 
 // Données de dhikr à migrer
 const dhikrItems = [
@@ -443,86 +473,6 @@ const hijriItems = [
     order: 2,
   },
 ];
-
-// Fonction pour vérifier si une collection existe et contient des données
-async function collectionExists(collectionName: string): Promise<boolean> {
-  try {
-    const querySnapshot = await getDocs(collection(db, collectionName));
-    return !querySnapshot.empty;
-  } catch (error) {
-    console.error(`Erreur lors de la vérification de la collection ${collectionName}:`, error);
-    return false;
-  }
-}
-
-// Fonction pour migrer les formules de prière
-async function migratePrayerFormulas() {
-  console.log('📖 Migration des formules de prière...');
-
-  const hasData = await collectionExists('prayerFormulas');
-  if (hasData) {
-    console.log('✅ Les formules de prière existent déjà dans Firebase');
-    return;
-  }
-
-  try {
-    for (const formula of prayerFormulas) {
-      await addDoc(collection(db, 'prayerFormulas'), {
-        ...formula,
-        createdAt: new Date().toISOString(),
-      });
-    }
-    console.log('✅ Formules de prière migrées avec succès');
-  } catch (error) {
-    console.error('❌ Erreur lors de la migration des formules:', error);
-  }
-}
-
-// Fonction pour migrer les versets
-async function migrateVerses() {
-  console.log('📜 Migration des versets...');
-
-  const hasData = await collectionExists('verses');
-  if (hasData) {
-    console.log('✅ Les versets existent déjà dans Firebase');
-    return;
-  }
-
-  try {
-    for (const verse of verses) {
-      await addDoc(collection(db, 'verses'), {
-        ...verse,
-        createdAt: new Date().toISOString(),
-      });
-    }
-    console.log('✅ Versets migrés avec succès');
-  } catch (error) {
-    console.error('❌ Erreur lors de la migration des versets:', error);
-  }
-}
-
-// Fonction pour migrer les hadiths
-async function migrateHadiths() {
-  console.log('📚 Migration des hadiths...');
-
-  const hasData = await collectionExists('hadiths');
-  if (hasData) {
-    console.log('✅ Les hadiths existent déjà dans Firebase');
-    return;
-  }
-
-  try {
-    for (const hadith of hadiths) {
-      await addDoc(collection(db, 'hadiths'), {
-        ...hadith,
-        createdAt: new Date().toISOString(),
-      });
-    }
-    console.log('✅ Hadiths migrés avec succès');
-  } catch (error) {
-    console.error('❌ Erreur lors de la migration des hadiths:', error);
-  }
-}
 
 // Fonction pour migrer les dhikr
 async function migrateDhikr() {
@@ -650,27 +600,6 @@ async function migrateHijri() {
   }
 }
 
-// Fonction pour migrer les catégories
-async function migrateCategories() {
-  console.log('🟢 Migration des catégories...');
-  const hasData = await collectionExists('categories');
-  if (hasData) {
-    console.log('✅ Les catégories existent déjà dans Firebase');
-    return;
-  }
-  try {
-    for (const category of categories) {
-      await addDoc(collection(db, 'categories'), {
-        ...category,
-        createdAt: new Date().toISOString(),
-      });
-    }
-    console.log('✅ Catégories migrées avec succès');
-  } catch (error) {
-    console.error('❌ Erreur lors de la migration des catégories:', error);
-  }
-}
-
 // Fonction principale de migration avec test de permissions
 export async function migrateAllContent() {
   console.log('🚀 Début de la migration du contenu vers Firebase...');
@@ -700,13 +629,13 @@ export async function migrateAllContent() {
       migrateVerses(),
       migrateHadiths(),
       migrateReminders(),
+      migrateCategories(),
       migrateDhikr(),
       migrateDuas(),
       migrateQibla(),
       migrateCalendar(),
       migrateNames(),
       migrateHijri(),
-      migrateCategories(),
     ]);
 
     console.log('🎉 Migration terminée avec succès !');

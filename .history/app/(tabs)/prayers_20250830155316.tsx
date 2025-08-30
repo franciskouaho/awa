@@ -254,47 +254,51 @@ export default function PrayersScreen() {
               {reminder.description}
             </Text>
 
-            {/* Texte en arabe */}
-            <Text
+            {/* Heure du rappel */}
+            <View
               style={[
-                styles.arabicFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].prayer.formulaArabic,
-                },
+                styles.detailsRowCentered,
+                { justifyContent: 'center', alignItems: 'center', width: '100%' },
               ]}
             >
-              {reminder.arabic}
-            </Text>
-
-            {/* Translittération */}
-            <Text
-              style={[
-                styles.transliterationFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].prayer.formulaTranslation,
-                },
-              ]}
-            >
-              {reminder.transliteration}
-            </Text>
-
-            {/* Traduction */}
-            <Text
-              style={[
-                styles.translationFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].text,
-                },
-              ]}
-            >
-              {reminder.translation}
-            </Text>
+              <Ionicons
+                name="time-outline"
+                size={18}
+                color={Colors[colorScheme ?? 'light'].prayer.dateText}
+                style={{ marginRight: 6 }}
+              />
+              <Text
+                style={[
+                  styles.location,
+                  {
+                    color: Colors[colorScheme ?? 'light'].prayer.dateText,
+                    fontSize: 16,
+                  },
+                ]}
+              >
+                {reminder.time}
+              </Text>
+            </View>
           </View>
         </View>
       </View>
 
       {/* Actions à droite style TikTok - exactement comme pour les prières */}
-      <View style={[styles.sideActions, { transform: [{ translateX: -44 }] }]}>
+      <View style={styles.sideActions}>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.prayActionButton]}
+          onPress={() => {
+            /* Action pour marquer le rappel comme fait */
+          }}
+          activeOpacity={0.8}
+        >
+          <Ionicons
+            name="checkmark-circle-outline"
+            size={36}
+            color={Colors[colorScheme ?? 'light'].text}
+          />
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => {
