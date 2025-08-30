@@ -1,8 +1,7 @@
 import { addDoc, collection, deleteDoc, getDocs } from 'firebase/firestore';
-import { db } from '../config/firebase';
 
 // Test de base pour vérifier les permissions Firebase
-export async function testFirebasePermissions(): Promise<{
+export async function testFirebasePermissions(db: any): Promise<{
   success: boolean;
   results: {
     read: boolean;

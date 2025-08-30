@@ -24,7 +24,9 @@ export const getRandomFormula = async (): Promise<PrayerFormula> => {
 
 // Fonction synchrone pour compatibilité (utilise les données locales)
 export const getRandomFormulaSync = (): PrayerFormula => {
-  throw new Error('getRandomFormulaSync n’est pas supporté, utilisez la version asynchrone avec Firebase');
+  throw new Error(
+    'getRandomFormulaSync n’est pas supporté, utilisez la version asynchrone avec Firebase'
+  );
 };
 
 // Export par défaut pour compatibilité
@@ -50,11 +52,15 @@ export const getRandomHadith = async (): Promise<Hadith> => {
 
 // Fonctions synchrones pour compatibilité (utilisent les données locales)
 export const getRandomVerseSync = (): Verse => {
-  throw new Error('getRandomVerseSync n’est pas supporté, utilisez la version asynchrone avec Firebase');
+  throw new Error(
+    'getRandomVerseSync n’est pas supporté, utilisez la version asynchrone avec Firebase'
+  );
 };
 
 export const getRandomHadithSync = (): Hadith => {
-  throw new Error('getRandomHadithSync n’est pas supporté, utilisez la version asynchrone avec Firebase');
+  throw new Error(
+    'getRandomHadithSync n’est pas supporté, utilisez la version asynchrone avec Firebase'
+  );
 };
 
 // Exports par défaut pour compatibilité

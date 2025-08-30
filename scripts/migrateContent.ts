@@ -1,6 +1,19 @@
-import { addDoc, collection, getDocs } from 'firebase/firestore';
-import { db } from '@/config/firebase';
+import { addDoc, collection, getDocs, getFirestore } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 import { showConfigurationInstructions, testFirebasePermissions } from './testFirebasePermissions';
+
+// Initialisation locale de Firebase
+const firebaseConfig = {
+  apiKey: 'AIzaSyAkCtfughN1kT8f_9HJzxqGS_Ih__tMie4',
+  authDomain: 'awaa-9c731.firebaseapp.com',
+  projectId: 'awaa-9c731',
+  storageBucket: 'awaa-9c731.firebasestorage.app',
+  messagingSenderId: '882661233700',
+  appId: '1:882661233700:web:22fa79320fedcdf0dd74b1',
+  measurementId: 'G-R6Y8SNC82R',
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const reminders = [
   {
@@ -558,7 +571,7 @@ export async function migrateAllContent() {
 
   // Test des permissions avant la migration
   console.log('\n🔐 Vérification des permissions Firebase...');
-  const permissionTest = await testFirebasePermissions();
+  const permissionTest = await testFirebasePermissions(db);
 
   if (!permissionTest.success || !permissionTest.results.write) {
     console.error('\n❌ ERREUR: Permissions insuffisantes pour la migration');
@@ -597,8 +610,8 @@ export async function migrateAllContent() {
   }
 }
 
-// Exécuter la migration si ce fichier est appelé directement
-if (require.main === module) {
+// Exécuter la migration si ce fichier est appelé directement (compatible ES module)
+if (process.argv[1] && process.argv[1].endsWith('migrateContent.ts')) {
   migrateAllContent()
     .then(() => process.exit(0))
     .catch(error => {

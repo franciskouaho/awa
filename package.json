@@ -5,8 +5,8 @@
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
-    "test-firebase": "npx ts-node scripts/testFirebasePermissions.ts",
-    "migrate-content": "npx ts-node scripts/migrateContent.ts",
+    "test-firebase": "ts-node scripts/testFirebasePermissions.ts",
+    "migrate-content": "ts-node scripts/migrateContent.ts",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
@@ -68,6 +68,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
     "prettier": "^3.2.5",
+    "ts-node": "^10.9.2",
     "typescript": "~5.8.3"
   },
   "private": true
