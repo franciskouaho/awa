@@ -29,17 +29,13 @@ import {
   View,
 } from 'react-native';
 
+import { useAuth } from '../../contexts/AuthContext';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const cardHeight = screenHeight; // Chaque carte prend toute la hauteur de l'écran
 
 export default function PrayersScreen() {
-  // Récupérer l'userId via AuthContext (à adapter selon ton contexte)
-  // Exemple :
-  // import { useContext } from 'react';
-  // import { AuthContext } from '@/contexts/AuthContext';
-  // const { user } = useContext(AuthContext);
-  // const userId = user?.id || '';
-  const userId = '';
+  const { user } = useAuth();
+  const userId = user?.uid || '';
 
   // Utiliser le hook pour les prières utilisateur
   const {
