@@ -79,7 +79,7 @@ export default function BasicsDrawerContent({ onClose }: BasicsDrawerContentProp
       title: 'Rappels',
       icon: '🔔',
       color: '#4CAF50',
-      isSelected: false,
+      isSelected: true,
       isUnlocked: true,
     },
     {

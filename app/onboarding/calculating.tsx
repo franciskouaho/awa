@@ -1,44 +1,59 @@
+
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    View
+  Animated,
+  Easing,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 
 export default function CalculatingScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
+  const rotateAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Simulate calculation time
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 2000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
+
     const timer = setTimeout(() => {
       router.push('./plan');
-    }, 3000); // 3 seconds
+    }, 3000);
 
-    return () => clearTimeout(timer);
-  }, [router]);
+    return () => {
+      clearTimeout(timer);
+      rotateAnim.stopAnimation();
+    };
+  }, [router, rotateAnim]);
+
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: Colors[colorScheme ?? 'light'].onboarding.backgroundColor }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: Colors[colorScheme ?? 'light'].onboarding.backgroundColor }]}> 
       <View style={styles.content}>
-        {/* Progress Circle with Islamic Icon */}
         <View style={styles.progressContainer}>
-          <View style={styles.progressCircle}>
-            {/* Progress arc */}
+          <Animated.View style={[styles.progressCircle, { transform: [{ rotate: spin }] }]}> 
             <View style={styles.progressArc} />
-            
-            {/* Islamic icon in the center */}
             <View style={styles.islamicContainer}>
-              <Text style={styles.islamicEmoji}>�</Text>
+              <FontAwesome5 name="mosque" size={48} color="#fff" />
             </View>
-          </View>
+          </Animated.View>
         </View>
-
-        {/* Loading Text */}
         <Text style={styles.loadingText}>
           Configuration de votre expérience spirituelle...
         </Text>
@@ -69,6 +84,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    overflow: 'hidden',
   },
   progressArc: {
     position: 'absolute',
@@ -80,7 +96,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#22C55E',
     borderRightColor: '#22C55E',
     borderBottomColor: '#2D5A4A',
-    transform: [{ rotate: '0deg' }],
+    borderLeftColor: 'transparent',
   },
   islamicContainer: {
     width: 100,
@@ -90,17 +106,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
-  },
-  islamicEmoji: {
-    fontSize: 50,
-    color: '#FFFFFF',
   },
   loadingText: {
     fontSize: 18,

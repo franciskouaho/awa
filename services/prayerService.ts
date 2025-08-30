@@ -1,14 +1,14 @@
 import { db } from '@/config/firebase';
 import {
-    addDoc,
-    collection,
-    doc,
-    getDocs,
-    increment,
-    orderBy,
-    query,
-    updateDoc,
-    where
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  increment,
+  orderBy,
+  query,
+  updateDoc,
+  where
 } from 'firebase/firestore';
 
 // Interface pour les données de prière
@@ -29,6 +29,16 @@ const PRAYERS_COLLECTION = 'prayers';
 
 // Service pour gérer les prières
 export class PrayerService {
+  // Supprimer une prière
+  static async deletePrayer(prayerId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      await (await import('firebase/firestore')).deleteDoc(doc(db, PRAYERS_COLLECTION, prayerId));
+      return { success: true };
+    } catch (error: any) {
+      console.error('Erreur lors de la suppression de la prière:', error);
+      return { success: false, error: error.message };
+    }
+  }
   // Ajouter une nouvelle prière
   static async addPrayer(prayerData: Omit<PrayerData, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ success: boolean; id?: string; error?: string }> {
     try {

@@ -5,10 +5,13 @@ import GeneralDrawerContent from '@/components/ui/GeneralDrawerContent';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import LanguageScreen from '@/components/ui/LanguageScreen';
 import RemindersDrawerContent from '@/components/ui/RemindersDrawerContent';
+import UserPrayersDrawerContent from '@/components/ui/UserPrayersDrawerContent';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useStreak } from '@/hooks/useStreak';
+import { useUserPrayers } from '@/hooks/useUserPrayers';
 import { useUserSettings } from '@/hooks/useUserSettings';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -18,11 +21,16 @@ interface SettingsDrawerContentProps {
 
 export default function SettingsDrawerContent({ onClose }: SettingsDrawerContentProps) {
   const colorScheme = useColorScheme();
-  const { streakData, getWeeklyProgress, refreshStreak, recordPrayer } = useStreak();
+  const { streakData, getWeeklyProgress, refreshStreak } = useStreak();
   const { settings, saveSetting, error } = useUserSettings();
+  const {
+    /* prayers, deletePrayer */
+  } = useUserPrayers(); // Récupère les données utilisateur (prayers et deletePrayer inutiles ici)
   const [remindersDrawerVisible, setRemindersDrawerVisible] = useState(false);
   const [generalDrawerVisible, setGeneralDrawerVisible] = useState(false);
+  const [userPrayersDrawerVisible, setUserPrayersDrawerVisible] = useState(false);
   const [currentSubScreen, setCurrentSubScreen] = useState<string | null>(null);
+  const router = useRouter();
 
   // Obtenir les données de progression de la semaine
   const weeklyProgress = getWeeklyProgress();
@@ -33,13 +41,15 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
 
   const handleItemPress = (itemId: string) => {
     console.log(`Pressed ${itemId}`);
-    // Ici vous pouvez ajouter la logique pour chaque paramètre
     if (itemId === 'general') {
-      setGeneralDrawerVisible(true); // Ouvrir le drawer des paramètres généraux
-      return; // Ne pas fermer le drawer principal
+      setGeneralDrawerVisible(true);
+      return;
     } else if (itemId === 'reminders') {
-      setRemindersDrawerVisible(true); // Ouvrir le drawer des rappels
-      return; // Ne pas fermer le drawer principal
+      setRemindersDrawerVisible(true);
+      return;
+    } else if (itemId === 'userPrayers') {
+      setUserPrayersDrawerVisible(true);
+      return;
     }
     onClose();
   };
@@ -205,18 +215,21 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
 
           <TouchableOpacity
             style={styles.menuItem}
-            onPress={() => handleItemPress('history')}
+              onPress={() => handleItemPress('userPrayers')}
             activeOpacity={0.7}
           >
             <IconSymbol name="clock" size={20} color={Colors[colorScheme ?? 'light'].text} />
             <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Historique
+              Mes Prières
             </Text>
             <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
               ›
             </Text>
           </TouchableOpacity>
 
+          <View
+            style={[styles.separator, { backgroundColor: Colors[colorScheme ?? 'light'].border }]}
+          />
           <View
             style={[styles.separator, { backgroundColor: Colors[colorScheme ?? 'light'].border }]}
           />
@@ -227,8 +240,8 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
             activeOpacity={0.7}
           >
             <IconSymbol name="heart" size={20} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Punchlines favorites
+            <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}> 
+              Favoris de prières ou rappels
             </Text>
             <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
               ›
@@ -267,6 +280,14 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
         onClose={() => setRemindersDrawerVisible(false)}
       >
         <RemindersDrawerContent onClose={() => setRemindersDrawerVisible(false)} />
+      </BottomDrawer>
+
+      {/* Drawer Mes Prières */}
+      <BottomDrawer
+        isVisible={userPrayersDrawerVisible}
+        onClose={() => setUserPrayersDrawerVisible(false)}
+      >
+        <UserPrayersDrawerContent onClose={() => setUserPrayersDrawerVisible(false)} />
       </BottomDrawer>
 
       {/* Drawer General */}
