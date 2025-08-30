@@ -75,17 +75,6 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
     }
   };
 
-  // Fonction pour tester le chargement des prières
-  const handleTestLoadPrayers = async () => {
-    console.log('🔍 DEBUG: Test de chargement des prières');
-    try {
-      await loadPrayers();
-      console.log('✅ DEBUG: Chargement des prières terminé');
-    } catch (error) {
-      console.error('❌ DEBUG: Erreur lors du chargement:', error);
-    }
-  };
-
   // Fonction pour obtenir les valeurs actuelles
   const getCurrentValues = () => ({
     firstName: settings?.firstName || 'Utilisateur',
@@ -278,30 +267,6 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
             <IconSymbol name="globe" size={20} color={Colors[colorScheme ?? 'light'].text} />
             <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
               Nous contacter
-            </Text>
-            <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
-              ›
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* DEBUG Section */}
-        <Text
-          style={[styles.sectionTitle, { color: Colors[colorScheme ?? 'light'].textSecondary }]}
-        >
-          DÉBOGAGE
-        </Text>
-        <View
-          style={[styles.menuSection, { backgroundColor: Colors[colorScheme ?? 'light'].surface }]}
-        >
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={handleTestLoadPrayers}
-            activeOpacity={0.7}
-          >
-            <IconSymbol name="bug" size={20} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Test Chargement Prières
             </Text>
             <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
               ›

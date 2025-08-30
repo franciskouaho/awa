@@ -7,6 +7,7 @@ import { useContent } from '@/hooks/useContent';
 import { useLikes } from '@/hooks/useLikes';
 import { usePrayers } from '@/hooks/usePrayers';
 import { useReminders } from '@/hooks/useReminders';
+import { useUserPrayers } from '@/hooks/useUserPrayers';
 
 import { PrayerFormula } from '@/services/contentService';
 import { PrayerData } from '@/services/prayerService';
@@ -32,6 +33,23 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const cardHeight = screenHeight; // Chaque carte prend toute la hauteur de l'écran
 
 export default function PrayersScreen() {
+  // Récupérer l'userId via AuthContext (à adapter selon ton contexte)
+  // Exemple :
+  // import { useContext } from 'react';
+  // import { AuthContext } from '@/contexts/AuthContext';
+  // const { user } = useContext(AuthContext);
+  // const userId = user?.id || '';
+  const userId = '';
+
+  // Utiliser le hook pour les prières utilisateur
+  const {
+    completedPrayers,
+    loading: userPrayersLoading,
+    error: userPrayersError,
+    togglePrayerCompleted,
+    isPrayerCompleted,
+    loadUserPrayers,
+  } = useUserPrayers(userId);
   const colorScheme = useColorScheme();
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -124,31 +142,34 @@ export default function PrayersScreen() {
     }
   }, [prayers, prayerFormulas, getRandomPrayerFormula]);
 
+  // Handler pour marquer une prière comme effectuée
   const handlePray = async (prayerId: string) => {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-
-      // Incrémenter le compteur global
-      const countResult = await incrementPrayerCount(prayerId);
-
-      if (!countResult.success) {
-        Alert.alert('Erreur', countResult.error || "Impossible d'enregistrer la prière");
-        return;
+      const userPrayerResult = await togglePrayerCompleted(prayerId);
+      if (userPrayerResult.success && userPrayerResult.isCompleted) {
+        const countResult = await incrementPrayerCount(prayerId);
+        if (!countResult.success) {
+          Alert.alert('Erreur', countResult.error || "Impossible d'enregistrer la prière");
+          return;
+        }
       }
-
-      console.log('✅ Prière enregistrée avec succès');
+      if (!userPrayerResult.success) {
+        Alert.alert('Erreur', userPrayerResult.error || "Impossible d'enregistrer votre prière");
+      }
     } catch (error) {
       console.warn('Haptic feedback not available:', error);
-
-      // Incrémenter le compteur global
-      const countResult = await incrementPrayerCount(prayerId);
-
-      if (!countResult.success) {
-        Alert.alert('Erreur', countResult.error || "Impossible d'enregistrer la prière");
-        return;
+      const userPrayerResult = await togglePrayerCompleted(prayerId);
+      if (userPrayerResult.success && userPrayerResult.isCompleted) {
+        const countResult = await incrementPrayerCount(prayerId);
+        if (!countResult.success) {
+          Alert.alert('Erreur', countResult.error || "Impossible d'enregistrer la prière");
+          return;
+        }
       }
-
-      console.log('✅ Prière enregistrée avec succès');
+      if (!userPrayerResult.success) {
+        Alert.alert('Erreur', userPrayerResult.error || "Impossible d'enregistrer votre prière");
+      }
     }
   };
 
@@ -515,7 +536,7 @@ export default function PrayersScreen() {
             <Ionicons
               name="hand-left-outline"
               size={36}
-              color={Colors[colorScheme ?? 'light'].text}
+              color={isPrayerCompleted(prayer.id || '') ? 'green' : Colors[colorScheme ?? 'light'].text}
             />
           </TouchableOpacity>
 

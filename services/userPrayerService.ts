@@ -18,8 +18,7 @@ export class UserPrayerService {
   // Marquer une prière comme effectuée
   static async markPrayerAsCompleted(
     prayerId: string,
-    userId: string,
-    deviceId?: string
+    userId: string
   ): Promise<{
     success: boolean;
     id?: string;
@@ -27,7 +26,7 @@ export class UserPrayerService {
   }> {
     try {
       // Vérifier si l'utilisateur a déjà prié pour cette prière
-      const existingPrayer = await this.getUserPrayer(prayerId, userId, deviceId);
+  const existingPrayer = await this.getUserPrayer(prayerId, userId);
       if (existingPrayer.success && existingPrayer.data) {
         return { success: false, error: 'Vous avez déjà prié pour cette personne' };
       }
@@ -35,7 +34,6 @@ export class UserPrayerService {
       const prayerData = {
         prayerId,
         userId,
-        deviceId,
         createdAt: new Date().toISOString(),
       };
 
@@ -51,14 +49,13 @@ export class UserPrayerService {
   // Retirer une prière effectuée (si l'utilisateur veut "dé-prier")
   static async removePrayerCompleted(
     prayerId: string,
-    userId: string,
-    deviceId?: string
+    userId: string
   ): Promise<{
     success: boolean;
     error?: string;
   }> {
     try {
-      const existingPrayer = await this.getUserPrayer(prayerId, userId, deviceId);
+  const existingPrayer = await this.getUserPrayer(prayerId, userId);
 
       if (!existingPrayer.success || !existingPrayer.data) {
         return { success: false, error: 'Prière utilisateur non trouvée' };
@@ -76,32 +73,18 @@ export class UserPrayerService {
   // Vérifier si un utilisateur a prié pour une prière spécifique
   static async getUserPrayer(
     prayerId: string,
-    userId: string,
-    deviceId?: string
+    userId: string
   ): Promise<{
     success: boolean;
     data?: UserPrayerData;
     error?: string;
   }> {
     try {
-      let q;
-
-      // Rechercher par userId en priorité, sinon par deviceId
-      if (userId) {
-        q = query(
-          collection(db, USER_PRAYERS_COLLECTION),
-          where('prayerId', '==', prayerId),
-          where('userId', '==', userId)
-        );
-      } else if (deviceId) {
-        q = query(
-          collection(db, USER_PRAYERS_COLLECTION),
-          where('prayerId', '==', prayerId),
-          where('deviceId', '==', deviceId)
-        );
-      } else {
-        return { success: false, error: 'UserId ou deviceId requis' };
-      }
+      const q = query(
+        collection(db, USER_PRAYERS_COLLECTION),
+        where('prayerId', '==', prayerId),
+        where('userId', '==', userId)
+      );
 
       const querySnapshot = await getDocs(q);
 
@@ -130,23 +113,14 @@ export class UserPrayerService {
 
   // Récupérer toutes les prières effectuées par un utilisateur
   static async getUserPrayers(
-    userId: string,
-    deviceId?: string
+    userId: string
   ): Promise<{
     success: boolean;
     data?: string[];
     error?: string;
   }> {
     try {
-      let q;
-
-      if (userId) {
-        q = query(collection(db, USER_PRAYERS_COLLECTION), where('userId', '==', userId));
-      } else if (deviceId) {
-        q = query(collection(db, USER_PRAYERS_COLLECTION), where('deviceId', '==', deviceId));
-      } else {
-        return { success: false, error: 'UserId ou deviceId requis' };
-      }
+  const q = query(collection(db, USER_PRAYERS_COLLECTION), where('userId', '==', userId));
 
       const querySnapshot = await getDocs(q);
 
@@ -162,23 +136,22 @@ export class UserPrayerService {
   // Basculer l'état d'une prière (toggle)
   static async togglePrayerCompleted(
     prayerId: string,
-    userId: string,
-    deviceId?: string
+    userId: string
   ): Promise<{
     success: boolean;
     isCompleted?: boolean;
     error?: string;
   }> {
     try {
-      const existingPrayer = await this.getUserPrayer(prayerId, userId, deviceId);
+      const existingPrayer = await this.getUserPrayer(prayerId, userId);
 
       if (existingPrayer.success && existingPrayer.data) {
         // Si déjà prié, retirer la prière
-        const result = await this.removePrayerCompleted(prayerId, userId, deviceId);
+        const result = await this.removePrayerCompleted(prayerId, userId);
         return { ...result, isCompleted: false };
       } else {
         // Si pas encore prié, marquer comme prié
-        const result = await this.markPrayerAsCompleted(prayerId, userId, deviceId);
+        const result = await this.markPrayerAsCompleted(prayerId, userId);
         return { ...result, isCompleted: true };
       }
     } catch (error: any) {
