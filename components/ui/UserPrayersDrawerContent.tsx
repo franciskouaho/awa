@@ -12,6 +12,16 @@ interface UserPrayersDrawerContentProps {
 export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerContentProps) {
   const colorScheme = useColorScheme();
   const { prayers, deletePrayer, loading, error } = useUserPrayers();
+  // On suppose que l'ID utilisateur est stocké dans useUserPrayers
+  const [userId, setUserId] = React.useState<string>('');
+  React.useEffect(() => {
+    // Récupérer l'ID utilisateur depuis AsyncStorage (même logique que useUserPrayers)
+    import('@react-native-async-storage/async-storage').then(AsyncStorage => {
+      AsyncStorage.default.getItem('user_id').then(id => {
+        if (id) setUserId(id);
+      });
+    });
+  }, []);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
   // Confirmation avant suppression
@@ -59,13 +69,13 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
       )}
       {error && <Text style={{ color: 'red', textAlign: 'center', marginTop: 16 }}>{error}</Text>}
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 32 }}>
-        {prayers.length === 0 && !loading ? (
+        {prayers.filter(prayer => prayer.creatorId === userId).length === 0 && !loading ? (
           <Text style={{ color: Colors[colorScheme ?? 'light'].textSecondary, marginTop: 32, textAlign: 'center' }}>
             Vous n'avez ajouté aucune prière.
           </Text>
         ) : (
-          prayers.map(prayer => (
-            <View key={prayer.id} style={[styles.card, { backgroundColor: Colors[colorScheme ?? 'light'].surface, shadowColor: Colors[colorScheme ?? 'light'].border }]}>
+          prayers.filter(prayer => prayer.creatorId === userId).map(prayer => (
+            <View key={prayer.id} style={[styles.card, { backgroundColor: Colors[colorScheme ?? 'light'].surface, shadowColor: Colors[colorScheme ?? 'light'].border }]}> 
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
                 <Ionicons name="person" size={22} color={Colors[colorScheme ?? 'light'].tint} style={{ marginRight: 8 }} />
                 <Text style={styles.cardTitle}>{prayer.name}</Text>
@@ -92,10 +102,12 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
                 <Text style={styles.cardInfo}>Ajoutée le : {formatDate(prayer.createdAt)}</Text>
                 <Text style={styles.cardInfo}>Prières : {prayer.prayerCount ?? 0}</Text>
               </View>
-              <TouchableOpacity onPress={() => handleDelete(prayer.id!)} style={[styles.deleteButton, deletingId === prayer.id && { opacity: 0.5 }]} disabled={deletingId === prayer.id}>
-                <Ionicons name="trash" size={18} color="#fff" style={{ marginRight: 4 }} />
-                <Text style={{ color: 'white', fontSize: 14 }}>Supprimer</Text>
-              </TouchableOpacity>
+              {prayer.creatorId === userId && (
+                <TouchableOpacity onPress={() => handleDelete(prayer.id!)} style={[styles.deleteButton, deletingId === prayer.id && { opacity: 0.5 }]} disabled={deletingId === prayer.id}>
+                  <Ionicons name="trash" size={18} color="#fff" style={{ marginRight: 4 }} />
+                  <Text style={{ color: 'white', fontSize: 14 }}>Supprimer</Text>
+                </TouchableOpacity>
+              )}
             </View>
           ))
         )}

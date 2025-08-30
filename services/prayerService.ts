@@ -1,14 +1,14 @@
 import { db } from '@/config/firebase';
 import {
-  addDoc,
-  collection,
-  doc,
-  getDocs,
-  increment,
-  orderBy,
-  query,
-  updateDoc,
-  where
+    addDoc,
+    collection,
+    doc,
+    getDocs,
+    increment,
+    orderBy,
+    query,
+    updateDoc,
+    where
 } from 'firebase/firestore';
 
 // Interface pour les données de prière
@@ -20,6 +20,7 @@ export interface PrayerData {
   location: string;
   personalMessage: string;
   prayerCount: number;
+  creatorId: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -45,6 +46,7 @@ export class PrayerService {
       // Convertir la date en timestamp pour Firestore
       const dataToSave = {
         ...prayerData,
+        creatorId: prayerData.creatorId,
         deathDate: prayerData.deathDate.toISOString(), // Convertir en string ISO
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
