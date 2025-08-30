@@ -13,7 +13,6 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   completeOnboarding: (preferences?: any) => Promise<void>;
   refreshUser: () => Promise<void>;
-  syncFirebaseUid: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,23 +39,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })();
 
     // Écouter les changements d'authentification Firebase
-    const unsubscribe = authService.onAuthStateChange(async firebaseUser => {
+    const unsubscribe = authService.onAuthStateChange(async (firebaseUser) => {
       firebaseChecked = true;
       try {
         setFirebaseUser(firebaseUser);
         if (firebaseUser) {
-          // Utilisateur connecté - synchroniser l'ID Firebase
-          await authService.syncFirebaseUid();
-
-          // Récupérer le profil utilisateur
+          // Utilisateur connecté
           const userProfile = await authService.getUserProfile(firebaseUser.uid);
           if (userProfile) {
             setUser(userProfile);
             setIsOnboardingCompleted(userProfile.onboardingCompleted);
-
-            // Mettre à jour le cache local avec le profil Firebase
-            await AsyncStorage.setItem('user', JSON.stringify(userProfile));
-            await AsyncStorage.setItem('firebaseUid', firebaseUser.uid);
           }
         } else {
           // Utilisateur déconnecté
@@ -83,8 +75,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkCachedUser = async () => {
     try {
       const cachedUser = await authService.getCurrentUserProfile();
-      const firebaseUid = await authService.getCurrentFirebaseUid();
-
       // Lecture stricte de l'état onboardingCompleted depuis AsyncStorage
       const onboardingCompletedLocal = await AsyncStorage.getItem('onboardingCompleted');
       let onboardingStatus = false;
@@ -94,19 +84,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // fallback sur la méthode existante (Firebase)
         onboardingStatus = await authService.isOnboardingCompleted();
       }
-
-      if (cachedUser && firebaseUid) {
-        // Vérifier que l'ID utilisateur correspond à l'ID Firebase
-        if (cachedUser.uid === firebaseUid) {
-          setUser(cachedUser);
-          setIsOnboardingCompleted(onboardingStatus);
-        } else {
-          // ID incohérent - nettoyer le cache et redémarrer
-          console.warn('User ID mismatch detected, clearing cache');
-          await AsyncStorage.multiRemove(['user', 'firebaseUid', 'userEmail']);
-          setUser(null);
-          setIsOnboardingCompleted(false);
-        }
+      if (cachedUser) {
+        setUser(cachedUser);
+        setIsOnboardingCompleted(onboardingStatus);
       } else {
         setUser(null);
         setIsOnboardingCompleted(false);
@@ -186,22 +166,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (userProfile) {
           setUser(userProfile);
           setIsOnboardingCompleted(userProfile.onboardingCompleted);
-
-          // Mettre à jour le cache local
-          await AsyncStorage.setItem('user', JSON.stringify(userProfile));
-          await AsyncStorage.setItem('firebaseUid', firebaseUser.uid);
         }
       }
     } catch (error) {
       console.error('Refresh user error:', error);
-    }
-  };
-
-  const syncFirebaseUid = async () => {
-    try {
-      await authService.syncFirebaseUid();
-    } catch (error) {
-      console.error('Error syncing Firebase UID:', error);
     }
   };
 
@@ -215,10 +183,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut,
     completeOnboarding,
     refreshUser,
-    syncFirebaseUid,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

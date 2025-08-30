@@ -95,7 +95,7 @@ export function useStreak(): UseStreakResult {
       const date = new Date(weekStart);
       date.setDate(weekStart.getDate() + i);
 
-      const dateString = date.toISOString().split('T')[0] || '';
+      const dateString = date.toISOString().split('T')[0];
       const dayName = date.toLocaleDateString('fr-FR', { weekday: 'short' });
 
       // Vérifier si cette date est dans le streak

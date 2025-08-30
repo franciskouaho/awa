@@ -1,6 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useUserCreatedPrayers } from '@/hooks/useUserCreatedPrayers';
+import { useUserPrayers } from '@/hooks/useUserPrayers';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -11,7 +11,18 @@ interface UserPrayersDrawerContentProps {
 
 export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerContentProps) {
   const colorScheme = useColorScheme();
-  const { prayers, deletePrayer, loading, error, refreshPrayers } = useUserCreatedPrayers();
+  const { prayers, deletePrayer, loading, error } = useUserPrayers();
+  // On suppose que l'ID utilisateur est stocké dans useUserPrayers
+  const [userId, setUserId] = React.useState<string>('');
+
+  React.useEffect(() => {
+    // Récupérer l'ID utilisateur depuis AsyncStorage (même logique que useUserPrayers)
+    import('@react-native-async-storage/async-storage').then(AsyncStorage => {
+      AsyncStorage.default.getItem('user_id').then(id => {
+        if (id) setUserId(id);
+      });
+    });
+  }, []);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
   // Confirmation avant suppression
@@ -26,12 +37,8 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
           style: 'destructive',
           onPress: async () => {
             setDeletingId(prayerId);
-            const result = await deletePrayer(prayerId);
+            await deletePrayer(prayerId);
             setDeletingId(null);
-
-            if (!result.success) {
-              Alert.alert('Erreur', result.error || 'Erreur lors de la suppression');
-            }
           },
         },
       ]
@@ -53,97 +60,36 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
       {/* Header avec bouton Back et titre */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onClose} activeOpacity={0.7}>
-          <Text style={[styles.backIcon, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
-            ✕
-          </Text>
-          <Text style={[styles.backText, { color: Colors[colorScheme ?? 'light'].text }]}>
-            Retour
-          </Text>
+          <Text style={[styles.backIcon, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>✕</Text>
+          <Text style={[styles.backText, { color: Colors[colorScheme ?? 'light'].text }]}>Retour</Text>
         </TouchableOpacity>
-        <Text style={[styles.title, { color: Colors[colorScheme ?? 'light'].text }]}>
-          Mes Prières
-        </Text>
-        <TouchableOpacity
-          style={styles.refreshButton}
-          onPress={refreshPrayers}
-          disabled={loading}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="refresh" size={20} color={Colors[colorScheme ?? 'light'].tint} />
-        </TouchableOpacity>
+        <Text style={[styles.title, { color: Colors[colorScheme ?? 'light'].text }]}>Mes Prières</Text>
       </View>
-
       {loading && (
-        <Text
-          style={{
-            color: Colors[colorScheme ?? 'light'].textSecondary,
-            textAlign: 'center',
-            marginTop: 16,
-          }}
-        >
-          Chargement...
-        </Text>
+        <Text style={{ color: Colors[colorScheme ?? 'light'].textSecondary, textAlign: 'center', marginTop: 16 }}>Chargement...</Text>
       )}
-
       {error && <Text style={{ color: 'red', textAlign: 'center', marginTop: 16 }}>{error}</Text>}
-
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 32 }}>
-        {prayers.length === 0 && !loading ? (
-          <View style={styles.emptyState}>
-            <Ionicons
-              name="heart-outline"
-              size={64}
-              color={Colors[colorScheme ?? 'light'].textSecondary}
-            />
-            <Text
-              style={[
-                styles.emptyStateText,
-                { color: Colors[colorScheme ?? 'light'].textSecondary },
-              ]}
-            >
-              Vous n'avez créé aucune prière.
-            </Text>
-            <Text
-              style={[
-                styles.emptyStateSubtext,
-                { color: Colors[colorScheme ?? 'light'].textSecondary },
-              ]}
-            >
-              Créez votre première prière depuis l'écran principal.
-            </Text>
-          </View>
+        {prayers.filter(prayer => prayer.creatorId === userId).length === 0 && !loading ? (
+          <Text style={{ color: Colors[colorScheme ?? 'light'].textSecondary, marginTop: 32, textAlign: 'center' }}>
+            Vous n'avez ajouté aucune prière.
+          </Text>
         ) : (
-          prayers.map(prayer => (
-            <View
-              key={prayer.id}
-              style={[
-                styles.card,
-                {
-                  backgroundColor: Colors[colorScheme ?? 'light'].surface,
-                  shadowColor: Colors[colorScheme ?? 'light'].border,
-                },
-              ]}
-            >
+          prayers.filter(prayer => prayer.creatorId === userId).map(prayer => (
+            <View key={prayer.id} style={[styles.card, { backgroundColor: Colors[colorScheme ?? 'light'].surface, shadowColor: Colors[colorScheme ?? 'light'].border }]}> 
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-                <Ionicons
-                  name="person"
-                  size={22}
-                  color={Colors[colorScheme ?? 'light'].tint}
-                  style={{ marginRight: 8 }}
-                />
+                <Ionicons name="person" size={22} color={Colors[colorScheme ?? 'light'].tint} style={{ marginRight: 8 }} />
                 <Text style={styles.cardTitle}>{prayer.name}</Text>
                 {prayer.prayerCount > 10 && (
                   <View style={styles.badgePopular}>
                     <Text style={styles.badgeText}>Populaire</Text>
                   </View>
                 )}
-                {prayer.createdAt &&
-                  new Date().getTime() - new Date(prayer.createdAt).getTime() <
-                    7 * 24 * 3600 * 1000 && (
-                    <View style={styles.badgeRecent}>
-                      <Text style={styles.badgeText}>Nouveau</Text>
-                    </View>
-                  )}
+                {prayer.createdAt && new Date().getTime() - new Date(prayer.createdAt).getTime() < 7 * 24 * 3600 * 1000 && (
+                  <View style={styles.badgeRecent}>
+                    <Text style={styles.badgeText}>Nouveau</Text>
+                  </View>
+                )}
               </View>
               <Text style={styles.cardMessage}>{prayer.personalMessage}</Text>
               <View style={styles.cardInfoRow}>
@@ -157,14 +103,12 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
                 <Text style={styles.cardInfo}>Ajoutée le : {formatDate(prayer.createdAt)}</Text>
                 <Text style={styles.cardInfo}>Prières : {prayer.prayerCount ?? 0}</Text>
               </View>
-              <TouchableOpacity
-                onPress={() => handleDelete(prayer.id!)}
-                style={[styles.deleteButton, deletingId === prayer.id && { opacity: 0.5 }]}
-                disabled={deletingId === prayer.id}
-              >
-                <Ionicons name="trash" size={18} color="#fff" style={{ marginRight: 4 }} />
-                <Text style={{ color: 'white', fontSize: 14 }}>Supprimer</Text>
-              </TouchableOpacity>
+              {prayer.creatorId === userId && (
+                <TouchableOpacity onPress={() => handleDelete(prayer.id!)} style={[styles.deleteButton, deletingId === prayer.id && { opacity: 0.5 }]} disabled={deletingId === prayer.id}>
+                  <Ionicons name="trash" size={18} color="#fff" style={{ marginRight: 4 }} />
+                  <Text style={{ color: 'white', fontSize: 14 }}>Supprimer</Text>
+                </TouchableOpacity>
+              )}
             </View>
           ))
         )}
@@ -271,26 +215,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 11,
     fontWeight: 'bold',
-  },
-  refreshButton: {
-    padding: 8,
-    borderRadius: 8,
-    marginLeft: 8,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 32,
-  },
-  emptyStateText: {
-    fontSize: 20,
-    marginTop: 16,
-    textAlign: 'center',
-  },
-  emptyStateSubtext: {
-    fontSize: 14,
-    marginTop: 8,
-    textAlign: 'center',
   },
 });

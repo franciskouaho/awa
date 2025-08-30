@@ -24,12 +24,10 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
   const colorScheme = useColorScheme();
   const { streakData, getWeeklyProgress, refreshStreak } = useStreak();
   const { settings, saveSetting, error } = useUserSettings();
-  const { loadPrayers } = usePrayers();
 
   const [remindersDrawerVisible, setRemindersDrawerVisible] = useState(false);
   const [generalDrawerVisible, setGeneralDrawerVisible] = useState(false);
   const [userPrayersDrawerVisible, setUserPrayersDrawerVisible] = useState(false);
-  const [debugDrawerVisible, setDebugDrawerVisible] = useState(false);
   const [currentSubScreen, setCurrentSubScreen] = useState<string | null>(null);
   const router = useRouter();
 
@@ -72,17 +70,6 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
       }
     } catch (err) {
       console.error('Error saving setting:', err);
-    }
-  };
-
-  // Fonction pour tester le chargement des prières
-  const handleTestLoadPrayers = async () => {
-    console.log('🔍 DEBUG: Test de chargement des prières');
-    try {
-      await loadPrayers();
-      console.log('✅ DEBUG: Chargement des prières terminé');
-    } catch (error) {
-      console.error('❌ DEBUG: Erreur lors du chargement:', error);
     }
   };
 
@@ -296,7 +283,11 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
         >
           <TouchableOpacity
             style={styles.menuItem}
-            onPress={handleTestLoadPrayers}
+            onPress={async () => {
+              console.log('🔍 DEBUG: Test de chargement des prières');
+              const { loadPrayers } = usePrayers();
+              await loadPrayers();
+            }}
             activeOpacity={0.7}
           >
             <IconSymbol name="bug" size={20} color={Colors[colorScheme ?? 'light'].text} />

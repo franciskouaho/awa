@@ -175,42 +175,27 @@ export class PrayerService {
     creatorId: string
   ): Promise<{ success: boolean; data?: PrayerData[]; error?: string }> {
     try {
-      console.log('🔍 PrayerService.getPrayersByCreator: Début avec creatorId:', creatorId);
-
-      // Solution alternative : récupérer toutes les prières et filtrer côté client
-      // Cela évite d'avoir besoin d'un index composite
-      const q = query(collection(db, PRAYERS_COLLECTION), orderBy('createdAt', 'desc'));
-      console.log(
-        '🔍 PrayerService.getPrayersByCreator: Query créée (sans filtre), récupération des documents...'
+      const q = query(
+        collection(db, PRAYERS_COLLECTION),
+        where('creatorId', '==', creatorId),
+        orderBy('createdAt', 'desc')
       );
 
       const querySnapshot = await getDocs(q);
-      console.log('🔍 PrayerService.getPrayersByCreator: Documents récupérés:', querySnapshot.size);
+      const prayers: PrayerData[] = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          deathDate: new Date(data.deathDate),
+          createdAt: data.createdAt ? new Date(data.createdAt) : undefined,
+          updatedAt: data.updatedAt ? new Date(data.updatedAt) : undefined,
+        } as PrayerData;
+      });
 
-      // Filtrer côté client pour éviter l'index composite
-      const prayers: PrayerData[] = querySnapshot.docs
-        .map(doc => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            deathDate: new Date(data.deathDate),
-            createdAt: data.createdAt ? new Date(data.createdAt) : undefined,
-            updatedAt: data.updatedAt ? new Date(data.updatedAt) : undefined,
-          } as PrayerData;
-        })
-        .filter(prayer => prayer.creatorId === creatorId); // Filtrage côté client
-
-      console.log(
-        "🔍 PrayerService.getPrayersByCreator: Prières filtrées pour l'utilisateur:",
-        prayers.length
-      );
       return { success: true, data: prayers };
     } catch (error: any) {
-      console.error(
-        "💥 PrayerService.getPrayersByCreator: Erreur lors de la récupération des prières de l'utilisateur:",
-        error
-      );
+      console.error("Erreur lors de la récupération des prières de l'utilisateur:", error);
       return { success: false, error: error.message };
     }
   }

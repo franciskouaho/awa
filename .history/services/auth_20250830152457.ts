@@ -74,14 +74,12 @@ class AuthService {
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        const docSnapshot = querySnapshot.docs[0];
-        if (docSnapshot) {
-          const data = docSnapshot.data();
-          return {
-            ...data,
-            createdAt: data.createdAt?.toDate() || new Date(),
-          } as UserProfile;
-        }
+        const doc = querySnapshot.docs[0];
+        const data = doc.data();
+        return {
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+        } as UserProfile;
       }
 
       return null;

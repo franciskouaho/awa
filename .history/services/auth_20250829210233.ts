@@ -1,9 +1,9 @@
 import { auth, db } from '@/config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  signOut as firebaseSignOut,
   onAuthStateChanged,
   signInAnonymously,
+  signOut as firebaseSignOut,
   User,
 } from 'firebase/auth';
 import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
@@ -53,11 +53,10 @@ class AuthService {
       // Initialiser les paramètres généraux avec le nom fourni
       await userService.initializeGeneralSettings(name);
 
-      // Sauvegarder localement avec l'ID Firebase
+      // Sauvegarder localement
       await AsyncStorage.setItem('user', JSON.stringify(userProfile));
       await AsyncStorage.setItem('onboardingCompleted', 'false');
       await AsyncStorage.setItem('userEmail', email);
-      await AsyncStorage.setItem('firebaseUid', user.uid); // Stocker l'ID Firebase
 
       return userProfile;
     } catch (error: any) {
@@ -74,14 +73,12 @@ class AuthService {
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        const docSnapshot = querySnapshot.docs[0];
-        if (docSnapshot) {
-          const data = docSnapshot.data();
-          return {
-            ...data,
-            createdAt: data.createdAt?.toDate() || new Date(),
-          } as UserProfile;
-        }
+        const doc = querySnapshot.docs[0];
+        const data = doc.data();
+        return {
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+        } as UserProfile;
       }
 
       return null;
@@ -104,10 +101,9 @@ class AuthService {
       // Se connecter anonymement (nouveau session)
       await signInAnonymously(auth);
 
-      // Sauvegarder le profil localement avec l'ID Firebase correct
+      // Sauvegarder le profil localement
       await AsyncStorage.setItem('user', JSON.stringify(userProfile));
       await AsyncStorage.setItem('userEmail', email);
-      await AsyncStorage.setItem('firebaseUid', userProfile.uid); // Stocker l'ID Firebase
 
       // Initialiser les paramètres généraux si ce n'est pas déjà fait
       await userService.initializeGeneralSettings(userProfile.name);
@@ -207,13 +203,7 @@ class AuthService {
     try {
       await firebaseSignOut(auth);
       await userService.clearCache(); // Nettoyer le cache des paramètres utilisateur
-      await AsyncStorage.multiRemove([
-        'user',
-        'onboardingCompleted',
-        'userName',
-        'userEmail',
-        'firebaseUid',
-      ]);
+      await AsyncStorage.multiRemove(['user', 'onboardingCompleted', 'userName', 'userEmail']);
     } catch (error) {
       console.error('Error signing out:', error);
       throw error;
@@ -242,44 +232,6 @@ class AuthService {
       return null;
     } catch (error) {
       console.error('Error getting current user:', error);
-      return null;
-    }
-  }
-
-  // Obtenir l'ID Firebase de l'utilisateur actuel
-  async getCurrentFirebaseUid(): Promise<string | null> {
-    try {
-      // D'abord essayer de récupérer depuis le cache
-      const cachedUid = await AsyncStorage.getItem('firebaseUid');
-      if (cachedUid) {
-        return cachedUid;
-      }
-
-      // Si pas de cache, vérifier l'utilisateur Firebase actuel
-      if (auth.currentUser) {
-        const uid = auth.currentUser.uid;
-        await AsyncStorage.setItem('firebaseUid', uid);
-        return uid;
-      }
-
-      return null;
-    } catch (error) {
-      console.error('Error getting current Firebase UID:', error);
-      return null;
-    }
-  }
-
-  // Synchroniser l'ID Firebase avec le cache local
-  async syncFirebaseUid(): Promise<string | null> {
-    try {
-      if (auth.currentUser) {
-        const uid = auth.currentUser.uid;
-        await AsyncStorage.setItem('firebaseUid', uid);
-        return uid;
-      }
-      return null;
-    } catch (error) {
-      console.error('Error syncing Firebase UID:', error);
       return null;
     }
   }

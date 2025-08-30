@@ -10,7 +10,6 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useStreak } from '@/hooks/useStreak';
 
-import { usePrayers } from '@/hooks/usePrayers';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -24,12 +23,10 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
   const colorScheme = useColorScheme();
   const { streakData, getWeeklyProgress, refreshStreak } = useStreak();
   const { settings, saveSetting, error } = useUserSettings();
-  const { loadPrayers } = usePrayers();
 
   const [remindersDrawerVisible, setRemindersDrawerVisible] = useState(false);
   const [generalDrawerVisible, setGeneralDrawerVisible] = useState(false);
   const [userPrayersDrawerVisible, setUserPrayersDrawerVisible] = useState(false);
-  const [debugDrawerVisible, setDebugDrawerVisible] = useState(false);
   const [currentSubScreen, setCurrentSubScreen] = useState<string | null>(null);
   const router = useRouter();
 
@@ -72,17 +69,6 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
       }
     } catch (err) {
       console.error('Error saving setting:', err);
-    }
-  };
-
-  // Fonction pour tester le chargement des prières
-  const handleTestLoadPrayers = async () => {
-    console.log('🔍 DEBUG: Test de chargement des prières');
-    try {
-      await loadPrayers();
-      console.log('✅ DEBUG: Chargement des prières terminé');
-    } catch (error) {
-      console.error('❌ DEBUG: Erreur lors du chargement:', error);
     }
   };
 
@@ -278,30 +264,6 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
             <IconSymbol name="globe" size={20} color={Colors[colorScheme ?? 'light'].text} />
             <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
               Nous contacter
-            </Text>
-            <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
-              ›
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* DEBUG Section */}
-        <Text
-          style={[styles.sectionTitle, { color: Colors[colorScheme ?? 'light'].textSecondary }]}
-        >
-          DÉBOGAGE
-        </Text>
-        <View
-          style={[styles.menuSection, { backgroundColor: Colors[colorScheme ?? 'light'].surface }]}
-        >
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={handleTestLoadPrayers}
-            activeOpacity={0.7}
-          >
-            <IconSymbol name="bug" size={20} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Test Chargement Prières
             </Text>
             <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
               ›

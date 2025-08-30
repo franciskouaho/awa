@@ -29,7 +29,6 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
   const [remindersDrawerVisible, setRemindersDrawerVisible] = useState(false);
   const [generalDrawerVisible, setGeneralDrawerVisible] = useState(false);
   const [userPrayersDrawerVisible, setUserPrayersDrawerVisible] = useState(false);
-  const [debugDrawerVisible, setDebugDrawerVisible] = useState(false);
   const [currentSubScreen, setCurrentSubScreen] = useState<string | null>(null);
   const router = useRouter();
 

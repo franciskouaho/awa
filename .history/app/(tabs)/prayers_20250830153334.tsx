@@ -117,34 +117,53 @@ export default function PrayersScreen() {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-      // Incrémenter le compteur global
-      const countResult = await incrementPrayerCount(prayerId);
+      // Marquer la prière comme effectuée par l'utilisateur
+      const userPrayerResult = await togglePrayerCompleted(prayerId);
 
-      if (!countResult.success) {
-        Alert.alert('Erreur', countResult.error || "Impossible d'enregistrer la prière");
-        return;
+      // Incrémenter le compteur global seulement si la prière est nouvellement effectuée
+      if (userPrayerResult.success && userPrayerResult.isCompleted) {
+        const countResult = await incrementPrayerCount(prayerId);
+
+        if (!countResult.success) {
+          Alert.alert('Erreur', countResult.error || "Impossible d'enregistrer la prière");
+          return;
+        }
       }
 
-      console.log('✅ Prière enregistrée avec succès');
+      if (!userPrayerResult.success) {
+        Alert.alert('Erreur', userPrayerResult.error || "Impossible d'enregistrer votre prière");
+      }
     } catch (error) {
       console.warn('Haptic feedback not available:', error);
 
-      // Incrémenter le compteur global
-      const countResult = await incrementPrayerCount(prayerId);
+      // Marquer la prière comme effectuée par l'utilisateur
+      const userPrayerResult = await togglePrayerCompleted(prayerId);
 
-      if (!countResult.success) {
-        Alert.alert('Erreur', countResult.error || "Impossible d'enregistrer la prière");
-        return;
+      // Incrémenter le compteur global seulement si la prière est nouvellement effectuée
+      if (userPrayerResult.success && userPrayerResult.isCompleted) {
+        const countResult = await incrementPrayerCount(prayerId);
+
+        if (!countResult.success) {
+          Alert.alert('Erreur', countResult.error || "Impossible d'enregistrer la prière");
+          return;
+        }
       }
 
-      console.log('✅ Prière enregistrée avec succès');
+      if (!userPrayerResult.success) {
+        Alert.alert('Erreur', userPrayerResult.error || "Impossible d'enregistrer votre prière");
+      }
     }
   };
 
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      await Promise.all([refreshPrayers(), loadPrayerFormulas(), loadUserLikes()]);
+      await Promise.all([
+        refreshPrayers(),
+        loadPrayerFormulas(),
+        loadUserLikes(),
+        loadUserPrayers(),
+      ]);
     } catch (error) {
       console.error('Erreur lors du rafraîchissement:', error);
     } finally {
@@ -375,9 +394,13 @@ export default function PrayersScreen() {
             activeOpacity={0.8}
           >
             <Ionicons
-              name="hand-left-outline"
+              name={isPrayerCompleted(prayer.id || '') ? 'hand-left' : 'hand-left-outline'}
               size={36}
-              color={Colors[colorScheme ?? 'light'].text}
+              color={
+                isPrayerCompleted(prayer.id || '')
+                  ? Colors[colorScheme ?? 'light'].primary
+                  : Colors[colorScheme ?? 'light'].text
+              }
             />
           </TouchableOpacity>
 

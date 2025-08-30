@@ -177,34 +177,35 @@ export class PrayerService {
     try {
       console.log('🔍 PrayerService.getPrayersByCreator: Début avec creatorId:', creatorId);
 
-      // Solution alternative : récupérer toutes les prières et filtrer côté client
-      // Cela évite d'avoir besoin d'un index composite
-      const q = query(collection(db, PRAYERS_COLLECTION), orderBy('createdAt', 'desc'));
+      const q = query(
+        collection(db, PRAYERS_COLLECTION),
+        where('creatorId', '==', creatorId),
+        orderBy('createdAt', 'desc')
+      );
       console.log(
-        '🔍 PrayerService.getPrayersByCreator: Query créée (sans filtre), récupération des documents...'
+        '🔍 PrayerService.getPrayersByCreator: Query créée, récupération des documents...'
       );
 
       const querySnapshot = await getDocs(q);
       console.log('🔍 PrayerService.getPrayersByCreator: Documents récupérés:', querySnapshot.size);
 
-      // Filtrer côté client pour éviter l'index composite
-      const prayers: PrayerData[] = querySnapshot.docs
-        .map(doc => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            deathDate: new Date(data.deathDate),
-            createdAt: data.createdAt ? new Date(data.createdAt) : undefined,
-            updatedAt: data.updatedAt ? new Date(data.updatedAt) : undefined,
-          } as PrayerData;
-        })
-        .filter(prayer => prayer.creatorId === creatorId); // Filtrage côté client
+      const prayers: PrayerData[] = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        console.log('🔍 PrayerService.getPrayersByCreator: Document data:', {
+          id: doc.id,
+          creatorId: data.creatorId,
+          name: data.name,
+        });
+        return {
+          id: doc.id,
+          ...data,
+          deathDate: new Date(data.deathDate),
+          createdAt: data.createdAt ? new Date(data.createdAt) : undefined,
+          updatedAt: data.updatedAt ? new Date(data.updatedAt) : undefined,
+        } as PrayerData;
+      });
 
-      console.log(
-        "🔍 PrayerService.getPrayersByCreator: Prières filtrées pour l'utilisateur:",
-        prayers.length
-      );
+      console.log('🔍 PrayerService.getPrayersByCreator: Prières transformées:', prayers.length);
       return { success: true, data: prayers };
     } catch (error: any) {
       console.error(

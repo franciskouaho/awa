@@ -1,6 +1,5 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
-import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { usePrayers } from '@/hooks/usePrayers';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -40,7 +39,6 @@ interface FormErrors {
 export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
   const colorScheme = useColorScheme();
   const { addPrayer } = usePrayers();
-  const { user, firebaseUser } = useAuth();
   const [currentView, setCurrentView] = useState<'menu' | 'prayer-form'>('menu');
 
   const [formData, setFormData] = useState<FormData>({
@@ -99,13 +97,6 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
 
   const handleSubmit = async () => {
     if (validateForm()) {
-      // Vérifier que l'utilisateur est connecté
-      const currentUserId = user?.uid || firebaseUser?.uid;
-      if (!currentUserId) {
-        Alert.alert('Erreur', 'Vous devez être connecté pour créer une prière');
-        return;
-      }
-
       setIsLoading(true);
       try {
         // Préparer les données pour Firebase
@@ -116,7 +107,6 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
           location: formData.location.trim(),
           personalMessage: formData.personalMessage.trim(),
           prayerCount: 0, // Commence à 0
-          creatorId: currentUserId, // Ajouter l'ID de l'utilisateur connecté
         };
 
         // Sauvegarder dans Firebase
@@ -146,7 +136,7 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
         }
       } catch (error) {
         console.error('Erreur lors de la sauvegarde:', error);
-        Alert.alert('Erreur', "Une erreur inattendue s'est produite lors de la sauvegarde.");
+        Alert.alert('Erreur', 'Une erreur inattendue s\'est produite lors de la sauvegarde.');
       } finally {
         setIsLoading(false);
       }
@@ -344,10 +334,10 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
             <TouchableOpacity
               style={[
                 styles.submitButton,
-                {
-                  backgroundColor: isLoading
-                    ? Colors[colorScheme ?? 'light'].textSecondary
-                    : Colors[colorScheme ?? 'light'].primary,
+                { 
+                  backgroundColor: isLoading 
+                    ? Colors[colorScheme ?? 'light'].textSecondary 
+                    : Colors[colorScheme ?? 'light'].primary 
                 },
               ]}
               onPress={handleSubmit}

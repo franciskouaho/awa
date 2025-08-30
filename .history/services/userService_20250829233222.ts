@@ -1,6 +1,6 @@
 import { auth, db } from '@/config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 export interface UserGeneralSettings {
   firstName: string;
@@ -23,47 +23,20 @@ export interface UserProfileExtended {
 }
 
 class UserService {
-  // Obtenir l'ID Firebase actuel de manière sécurisée
-  private async getCurrentUid(): Promise<string | null> {
-    try {
-      // D'abord essayer de récupérer depuis le cache
-      const cachedUid = await AsyncStorage.getItem('firebaseUid');
-      if (cachedUid) {
-        return cachedUid;
-      }
-
-      // Si pas de cache, vérifier l'utilisateur Firebase actuel
-      if (auth.currentUser) {
-        const uid = auth.currentUser.uid;
-        await AsyncStorage.setItem('firebaseUid', uid);
-        return uid;
-      }
-
-      return null;
-    } catch (error) {
-      console.error('Error getting current UID:', error);
-      return null;
-    }
-  }
-
   // Sauvegarder les paramètres de notifications dans Firestore ou local si pas connecté
   async saveNotificationSettings(settings: any): Promise<void> {
     try {
-      const uid = await this.getCurrentUid();
-      if (!uid) {
+      if (!auth.currentUser) {
         // Stocker en local si pas encore connecté
         await AsyncStorage.setItem('notificationSettings_pending', JSON.stringify(settings));
         await AsyncStorage.setItem('notificationSettings', JSON.stringify(settings));
         return;
       }
       // Mettre à jour Firestore (crée le doc si absent)
-      await setDoc(
-        doc(db, 'users', uid),
-        {
-          notificationSettings: settings,
-        },
-        { merge: true }
-      );
+      const { setDoc, doc } = await import('firebase/firestore');
+      await setDoc(doc(db, 'users', auth.currentUser.uid), {
+        notificationSettings: settings
+      }, { merge: true });
       await AsyncStorage.setItem('notificationSettings', JSON.stringify(settings));
       // Nettoyer le pending si existait
       await AsyncStorage.removeItem('notificationSettings_pending');
@@ -72,21 +45,16 @@ class UserService {
       throw error;
     }
   }
-
   // À appeler après création du user pour synchroniser les settings en attente
   async syncPendingNotificationSettings(): Promise<void> {
     try {
       const pending = await AsyncStorage.getItem('notificationSettings_pending');
-      const uid = await this.getCurrentUid();
-      if (pending && uid) {
+      if (pending && auth.currentUser) {
         const settings = JSON.parse(pending);
-        await setDoc(
-          doc(db, 'users', uid),
-          {
-            notificationSettings: settings,
-          },
-          { merge: true }
-        );
+        const { setDoc, doc } = await import('firebase/firestore');
+        await setDoc(doc(db, 'users', auth.currentUser.uid), {
+          notificationSettings: settings
+        }, { merge: true });
         await AsyncStorage.setItem('notificationSettings', JSON.stringify(settings));
         await AsyncStorage.removeItem('notificationSettings_pending');
       }
@@ -102,17 +70,12 @@ class UserService {
       const cached = await AsyncStorage.getItem('notificationSettings');
       if (cached) return JSON.parse(cached);
 
-      const uid = await this.getCurrentUid();
-      if (!uid) return null;
-
-      const userDoc = await getDoc(doc(db, 'users', uid));
+      if (!auth.currentUser) return null;
+      const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
       if (userDoc.exists()) {
         const data = userDoc.data();
         if (data.notificationSettings) {
-          await AsyncStorage.setItem(
-            'notificationSettings',
-            JSON.stringify(data.notificationSettings)
-          );
+          await AsyncStorage.setItem('notificationSettings', JSON.stringify(data.notificationSettings));
           return data.notificationSettings;
         }
       }
@@ -122,7 +85,6 @@ class UserService {
       return null;
     }
   }
-
   // Récupérer les paramètres généraux de l'utilisateur
   async getUserGeneralSettings(): Promise<UserGeneralSettings | null> {
     try {
@@ -133,16 +95,16 @@ class UserService {
       }
 
       // Si pas de cache, récupérer depuis Firebase
-      const uid = await this.getCurrentUid();
-      if (!uid) {
+      const userEmail = await AsyncStorage.getItem('userEmail');
+      if (!userEmail || !auth.currentUser) {
         return null;
       }
 
-      const userDoc = await getDoc(doc(db, 'users', uid));
+      const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
         const settings = userData.generalSettings;
-
+        
         if (settings) {
           // Mettre en cache pour les prochaines fois
           await AsyncStorage.setItem('userGeneralSettings', JSON.stringify(settings));
@@ -154,7 +116,7 @@ class UserService {
       const defaultSettings: UserGeneralSettings = {
         firstName: 'Utilisateur',
         gender: 'Autre',
-        language: 'Français',
+        language: 'Français'
       };
 
       return defaultSettings;
@@ -167,8 +129,7 @@ class UserService {
   // Sauvegarder les paramètres généraux de l'utilisateur
   async saveUserGeneralSettings(settings: Partial<UserGeneralSettings>): Promise<void> {
     try {
-      const uid = await this.getCurrentUid();
-      if (!uid) {
+      if (!auth.currentUser) {
         throw new Error('Utilisateur non connecté');
       }
 
@@ -176,12 +137,12 @@ class UserService {
       const currentSettings = await this.getUserGeneralSettings();
       const updatedSettings = {
         ...currentSettings,
-        ...settings,
+        ...settings
       };
 
       // Sauvegarder dans Firebase
-      await updateDoc(doc(db, 'users', uid), {
-        generalSettings: updatedSettings,
+      await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+        generalSettings: updatedSettings
       });
 
       // Mettre à jour le cache local
@@ -200,7 +161,7 @@ class UserService {
       const currentSettings = await this.getUserGeneralSettings();
       const updatedSettings = {
         ...currentSettings,
-        [key]: value,
+        [key]: value
       } as UserGeneralSettings;
 
       await this.saveUserGeneralSettings(updatedSettings);
@@ -214,7 +175,7 @@ class UserService {
   async initializeGeneralSettings(firstName?: string): Promise<void> {
     try {
       const existingSettings = await this.getUserGeneralSettings();
-
+      
       // Si les paramètres existent déjà, ne pas les écraser
       if (existingSettings && existingSettings.firstName !== 'Utilisateur') {
         return;
@@ -223,7 +184,7 @@ class UserService {
       const defaultSettings: UserGeneralSettings = {
         firstName: firstName || 'Utilisateur',
         gender: 'Autre',
-        language: 'Français',
+        language: 'Français'
       };
 
       await this.saveUserGeneralSettings(defaultSettings);
@@ -245,16 +206,15 @@ class UserService {
   // Synchroniser avec Firebase (utile en cas de problème de synchronisation)
   async syncWithFirebase(): Promise<UserGeneralSettings | null> {
     try {
-      const uid = await this.getCurrentUid();
-      if (!uid) {
+      if (!auth.currentUser) {
         return null;
       }
 
-      const userDoc = await getDoc(doc(db, 'users', uid));
+      const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
         const settings = userData.generalSettings;
-
+        
         if (settings) {
           // Mettre à jour le cache
           await AsyncStorage.setItem('userGeneralSettings', JSON.stringify(settings));

@@ -101,7 +101,7 @@ export function useLikes(): UseLikesResult {
   // Obtenir le nombre de likes d'une prière
   const getLikeCount = useCallback(async (prayerId: string) => {
     try {
-      const result = await LikeService.getPrayerLikes(prayerId);
+      const result = await LikeService.getLikeCount(prayerId);
       return result;
     } catch (err: any) {
       return {

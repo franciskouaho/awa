@@ -144,7 +144,12 @@ export default function PrayersScreen() {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      await Promise.all([refreshPrayers(), loadPrayerFormulas(), loadUserLikes()]);
+      await Promise.all([
+        refreshPrayers(),
+        loadPrayerFormulas(),
+        loadUserLikes(),
+        loadUserPrayers(),
+      ]);
     } catch (error) {
       console.error('Erreur lors du rafraîchissement:', error);
     } finally {
@@ -375,9 +380,13 @@ export default function PrayersScreen() {
             activeOpacity={0.8}
           >
             <Ionicons
-              name="hand-left-outline"
+              name={isPrayerCompleted(prayer.id || '') ? 'hand-left' : 'hand-left-outline'}
               size={36}
-              color={Colors[colorScheme ?? 'light'].text}
+              color={
+                isPrayerCompleted(prayer.id || '')
+                  ? Colors[colorScheme ?? 'light'].primary
+                  : Colors[colorScheme ?? 'light'].text
+              }
             />
           </TouchableOpacity>
 
