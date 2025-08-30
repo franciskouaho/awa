@@ -14,6 +14,7 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
   const { prayers, deletePrayer, loading, error } = useUserPrayers();
   // On suppose que l'ID utilisateur est stocké dans useUserPrayers
   const [userId, setUserId] = React.useState<string>('');
+
   React.useEffect(() => {
     // Récupérer l'ID utilisateur depuis AsyncStorage (même logique que useUserPrayers)
     import('@react-native-async-storage/async-storage').then(AsyncStorage => {

@@ -1,5 +1,5 @@
-import { StreakService } from '@/services/streakService';
 import { PrayerData, PrayerService } from '@/services/prayerService';
+import { StreakService } from '@/services/streakService';
 import { UserPrayerService } from '@/services/userPrayerService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Application from 'expo-application';
