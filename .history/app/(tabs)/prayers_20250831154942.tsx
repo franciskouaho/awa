@@ -207,8 +207,8 @@ export default function PrayersScreen() {
     setCurrentIndex(index);
   };
 
-  const handleShare = async (item: PrayerData | any) => {
-    setSelectedPrayerForShare(item);
+  const handleShare = async (prayer: PrayerData) => {
+    setSelectedPrayerForShare(prayer);
     setShareDrawerVisible(true);
   };
 
@@ -317,10 +317,10 @@ export default function PrayersScreen() {
           onPress={() => reminder.id && handleLike(reminder.id)}
           activeOpacity={0.8}
         >
-          <Ionicons
-            name={isLiked(reminder.id || '') ? 'heart' : 'heart-outline'}
-            size={36}
-            color={isLiked(reminder.id || '') ? '#FF0000' : Colors[colorScheme ?? 'light'].text}
+          <Ionicons 
+            name={isLiked(reminder.id || '') ? 'heart' : 'heart-outline'} 
+            size={36} 
+            color={isLiked(reminder.id || '') ? '#FF0000' : Colors[colorScheme ?? 'light'].text} 
           />
         </TouchableOpacity>
 
@@ -532,9 +532,7 @@ export default function PrayersScreen() {
             <Ionicons
               name="hand-left-outline"
               size={36}
-              color={
-                isPrayerCompleted(prayer.id || '') ? 'green' : Colors[colorScheme ?? 'light'].text
-              }
+              color={isPrayerCompleted(prayer.id || '') ? 'green' : Colors[colorScheme ?? 'light'].text}
             />
           </TouchableOpacity>
 

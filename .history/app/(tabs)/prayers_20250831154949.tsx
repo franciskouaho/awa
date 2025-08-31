@@ -207,8 +207,8 @@ export default function PrayersScreen() {
     setCurrentIndex(index);
   };
 
-  const handleShare = async (item: PrayerData | any) => {
-    setSelectedPrayerForShare(item);
+  const handleShare = async (prayer: PrayerData) => {
+    setSelectedPrayerForShare(prayer);
     setShareDrawerVisible(true);
   };
 

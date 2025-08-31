@@ -207,8 +207,8 @@ export default function PrayersScreen() {
     setCurrentIndex(index);
   };
 
-  const handleShare = async (item: PrayerData | any) => {
-    setSelectedPrayerForShare(item);
+  const handleShare = async (prayer: PrayerData) => {
+    setSelectedPrayerForShare(prayer);
     setShareDrawerVisible(true);
   };
 
@@ -742,7 +742,10 @@ export default function PrayersScreen() {
       >
         {selectedPrayerForShare && (
           <ShareDrawerContent
-            prayer={selectedPrayerForShare}
+            prayer={selectedPrayerForShare.hasOwnProperty('name') ? selectedPrayerForShare : undefined}
+            reminder={
+              selectedPrayerForShare.hasOwnProperty('title') ? selectedPrayerForShare : undefined
+            }
             onClose={() => {
               setShareDrawerVisible(false);
               setSelectedPrayerForShare(null);

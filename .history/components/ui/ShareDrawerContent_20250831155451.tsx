@@ -8,11 +8,18 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as MediaLibrary from 'expo-media-library';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+    Alert,
+    Share,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import ViewShot from 'react-native-view-shot';
 
 interface ShareDrawerContentProps {
-  prayer: PrayerData | any;
+  prayer: PrayerData;
   onClose: () => void;
 }
 
@@ -81,7 +88,7 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
       if (status !== 'granted') {
         Alert.alert(
           'Permission requise',
-          "Nous avons besoin d'accéder à votre galerie pour sauvegarder l'image."
+          'Nous avons besoin d\'accéder à votre galerie pour sauvegarder l\'image.'
         );
         return;
       }
@@ -89,19 +96,19 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
       // Capturer la vue comme image
       if (viewShotRef.current?.capture) {
         const uri = await viewShotRef.current.capture();
-
+        
         // Sauvegarder dans la galerie
         const asset = await MediaLibrary.createAssetAsync(uri);
         await MediaLibrary.createAlbumAsync('AWA Prayers', asset, false);
-
-        Alert.alert('Succès', "L'image a été sauvegardée dans votre galerie");
+        
+        Alert.alert('Succès', 'L\'image a été sauvegardée dans votre galerie');
         onClose();
       } else {
-        Alert.alert('Erreur', "Impossible de capturer l'image");
+        Alert.alert('Erreur', 'Impossible de capturer l\'image');
       }
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      Alert.alert('Erreur', "Impossible de sauvegarder l'image");
+      Alert.alert('Erreur', 'Impossible de sauvegarder l\'image');
     }
   };
 
@@ -109,7 +116,7 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
     // Cette fonctionnalité nécessiterait une implémentation native spécifique
     Alert.alert(
       'Widget',
-      "Cette fonctionnalité sera disponible dans une prochaine mise à jour.\n\nElle permettra d'ajouter vos prières favorites directement sur l'écran d'accueil de votre téléphone.",
+      'Cette fonctionnalité sera disponible dans une prochaine mise à jour.\n\nElle permettra d\'ajouter vos prières favorites directement sur l\'écran d\'accueil de votre téléphone.',
       [{ text: 'Compris', style: 'default' }]
     );
   };
@@ -119,42 +126,64 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
       {/* Header avec fermeture */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-          <Ionicons name="close" size={24} color={Colors[colorScheme ?? 'light'].text} />
+          <Ionicons 
+            name="close" 
+            size={24} 
+            color={Colors[colorScheme ?? 'light'].text} 
+          />
         </TouchableOpacity>
       </View>
 
       {/* Contenu de la prière dans un cadre */}
-      <ViewShot
+      <ViewShot 
         ref={viewShotRef}
-        options={{
-          format: 'png',
+        options={{ 
+          format: 'png', 
           quality: 1.0,
-          result: 'tmpfile',
+          result: 'tmpfile'
         }}
         style={styles.viewShotContainer}
       >
-        <View
-          style={[styles.prayerCard, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}
-        >
+        <View style={[
+          styles.prayerCard,
+          { backgroundColor: Colors[colorScheme ?? 'light'].primary }
+        ]}>
           {/* Informations du défunt */}
           <View style={styles.deceasedInfo}>
-            <Text style={[styles.deceasedName, { color: 'white' }]}>
+            <Text style={[
+              styles.deceasedName,
+              { color: 'white' }
+            ]}>
               {isPrayer ? prayer.name : prayer.title}
             </Text>
-
+            
             {isPrayer ? (
               // Affichage pour les prières
               <>
                 <View style={styles.detailsRow}>
-                  <Ionicons name="calendar-outline" size={14} color="rgba(255, 255, 255, 0.8)" />
-                  <Text style={[styles.details, { color: 'rgba(255, 255, 255, 0.8)' }]}>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={14}
+                    color="rgba(255, 255, 255, 0.8)"
+                  />
+                  <Text style={[
+                    styles.details,
+                    { color: 'rgba(255, 255, 255, 0.8)' }
+                  ]}>
                     {prayer.age} ans • {formatDate(prayer.deathDate)}
                   </Text>
                 </View>
-
+                
                 <View style={styles.detailsRow}>
-                  <Ionicons name="location-outline" size={14} color="rgba(255, 255, 255, 0.8)" />
-                  <Text style={[styles.details, { color: 'rgba(255, 255, 255, 0.8)' }]}>
+                  <Ionicons
+                    name="location-outline"
+                    size={14}
+                    color="rgba(255, 255, 255, 0.8)"
+                  />
+                  <Text style={[
+                    styles.details,
+                    { color: 'rgba(255, 255, 255, 0.8)' }
+                  ]}>
                     {prayer.location}
                   </Text>
                 </View>
@@ -163,19 +192,29 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
               // Affichage pour les rappels
               <>
                 <View style={styles.detailsRow}>
-                  <Ionicons name="time-outline" size={14} color="rgba(255, 255, 255, 0.8)" />
-                  <Text style={[styles.details, { color: 'rgba(255, 255, 255, 0.8)' }]}>
+                  <Ionicons
+                    name="time-outline"
+                    size={14}
+                    color="rgba(255, 255, 255, 0.8)"
+                  />
+                  <Text style={[
+                    styles.details,
+                    { color: 'rgba(255, 255, 255, 0.8)' }
+                  ]}>
                     {prayer.time || ''}
                   </Text>
                 </View>
-
+                
                 <View style={styles.detailsRow}>
                   <Ionicons
                     name="information-circle-outline"
                     size={14}
                     color="rgba(255, 255, 255, 0.8)"
                   />
-                  <Text style={[styles.details, { color: 'rgba(255, 255, 255, 0.8)' }]}>
+                  <Text style={[
+                    styles.details,
+                    { color: 'rgba(255, 255, 255, 0.8)' }
+                  ]}>
                     {prayer.description || ''}
                   </Text>
                 </View>
@@ -183,51 +222,37 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
             )}
           </View>
 
-          {/* Formule de prière si disponible (seulement pour les prières) */}
-          {isPrayer && prayerFormula && (
+          {/* Formule de prière si disponible */}
+          {prayerFormula && (
             <>
               <View style={styles.separator} />
               <View style={styles.formulaSection}>
-                <Text style={[styles.formulaTitle, { color: 'rgba(255, 255, 255, 0.9)' }]}>
+                <Text style={[
+                  styles.formulaTitle,
+                  { color: 'rgba(255, 255, 255, 0.9)' }
+                ]}>
                   Prière pour le défunt
                 </Text>
-
-                <Text style={[styles.arabicFormula, { color: 'white' }]}>
+                
+                <Text style={[
+                  styles.arabicFormula,
+                  { color: 'white' }
+                ]}>
                   {prayerFormula.arabic}
                 </Text>
-
-                <Text
-                  style={[styles.transliterationFormula, { color: 'rgba(255, 255, 255, 0.8)' }]}
-                >
+                
+                <Text style={[
+                  styles.transliterationFormula,
+                  { color: 'rgba(255, 255, 255, 0.8)' }
+                ]}>
                   {prayerFormula.transliteration}
                 </Text>
-
-                <Text style={[styles.translationFormula, { color: 'rgba(255, 255, 255, 0.8)' }]}>
+                
+                <Text style={[
+                  styles.translationFormula,
+                  { color: 'rgba(255, 255, 255, 0.8)' }
+                ]}>
                   {prayerFormula.translation}
-                </Text>
-              </View>
-            </>
-          )}
-
-          {/* Contenu du rappel si c'est un rappel */}
-          {isReminder && (
-            <>
-              <View style={styles.separator} />
-              <View style={styles.formulaSection}>
-                <Text style={[styles.formulaTitle, { color: 'rgba(255, 255, 255, 0.9)' }]}>
-                  {prayer.title}
-                </Text>
-
-                <Text style={[styles.arabicFormula, { color: 'white' }]}>{prayer.arabic}</Text>
-
-                <Text
-                  style={[styles.transliterationFormula, { color: 'rgba(255, 255, 255, 0.8)' }]}
-                >
-                  {prayer.transliteration}
-                </Text>
-
-                <Text style={[styles.translationFormula, { color: 'rgba(255, 255, 255, 0.8)' }]}>
-                  {prayer.translation}
                 </Text>
               </View>
             </>
@@ -235,7 +260,12 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
 
           {/* Hashtag */}
           <View style={styles.hashtagContainer}>
-            <Text style={[styles.hashtag, { color: 'rgba(255, 255, 255, 0.7)' }]}>#awaprayers</Text>
+            <Text style={[
+              styles.hashtag,
+              { color: 'rgba(255, 255, 255, 0.7)' }
+            ]}>
+              #awaprayers
+            </Text>
           </View>
         </View>
       </ViewShot>
@@ -243,36 +273,72 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
       {/* Options de partage */}
       <View style={styles.actionsContainer}>
         <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.actionButton} onPress={handleSaveImage}>
-            <Ionicons
-              name="download-outline"
-              size={24}
-              color={Colors[colorScheme ?? 'light'].text}
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={handleSaveImage}
+          >
+            <Ionicons 
+              name="download-outline" 
+              size={24} 
+              color={Colors[colorScheme ?? 'light'].text} 
             />
-            <Text style={[styles.actionText, { color: Colors[colorScheme ?? 'light'].text }]}>
+            <Text style={[
+              styles.actionText,
+              { color: Colors[colorScheme ?? 'light'].text }
+            ]}>
               Sauvegarder l'image
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton} onPress={handleNativeShare}>
-            <Ionicons name="share-outline" size={24} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.actionText, { color: Colors[colorScheme ?? 'light'].text }]}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={handleNativeShare}
+          >
+            <Ionicons 
+              name="share-outline" 
+              size={24} 
+              color={Colors[colorScheme ?? 'light'].text} 
+            />
+            <Text style={[
+              styles.actionText,
+              { color: Colors[colorScheme ?? 'light'].text }
+            ]}>
               Partager
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton} onPress={handleCopyText}>
-            <Ionicons name="copy-outline" size={24} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.actionText, { color: Colors[colorScheme ?? 'light'].text }]}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={handleCopyText}
+          >
+            <Ionicons 
+              name="copy-outline" 
+              size={24} 
+              color={Colors[colorScheme ?? 'light'].text} 
+            />
+            <Text style={[
+              styles.actionText,
+              { color: Colors[colorScheme ?? 'light'].text }
+            ]}>
               Copier le texte
             </Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.actionButton} onPress={handleAddToWidget}>
-            <Ionicons name="apps-outline" size={24} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.actionText, { color: Colors[colorScheme ?? 'light'].text }]}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={handleAddToWidget}
+          >
+            <Ionicons 
+              name="apps-outline" 
+              size={24} 
+              color={Colors[colorScheme ?? 'light'].text} 
+            />
+            <Text style={[
+              styles.actionText,
+              { color: Colors[colorScheme ?? 'light'].text }
+            ]}>
               Mettre dans le widget
             </Text>
           </TouchableOpacity>

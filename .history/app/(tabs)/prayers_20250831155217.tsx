@@ -51,7 +51,7 @@ export default function PrayersScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [shareDrawerVisible, setShareDrawerVisible] = useState(false);
-  const [selectedPrayerForShare, setSelectedPrayerForShare] = useState<PrayerData | null>(null);
+  const [selectedItemForShare, setSelectedItemForShare] = useState<PrayerData | null>(null);
 
   // Utiliser le contexte des catégories
   const { selectedCategories } = useCategories();
@@ -208,7 +208,7 @@ export default function PrayersScreen() {
   };
 
   const handleShare = async (item: PrayerData | any) => {
-    setSelectedPrayerForShare(item);
+    setSelectedItemForShare(item);
     setShareDrawerVisible(true);
   };
 
@@ -736,16 +736,17 @@ export default function PrayersScreen() {
         isVisible={shareDrawerVisible}
         onClose={() => {
           setShareDrawerVisible(false);
-          setSelectedPrayerForShare(null);
+          setSelectedItemForShare(null);
         }}
         height={Dimensions.get('window').height * 0.85}
       >
-        {selectedPrayerForShare && (
+        {selectedItemForShare && (
           <ShareDrawerContent
-            prayer={selectedPrayerForShare}
+            prayer={selectedItemForShare.hasOwnProperty('name') ? selectedItemForShare : undefined}
+            reminder={selectedItemForShare.hasOwnProperty('title') ? selectedItemForShare : undefined}
             onClose={() => {
               setShareDrawerVisible(false);
-              setSelectedPrayerForShare(null);
+              setSelectedItemForShare(null);
             }}
           />
         )}
