@@ -100,20 +100,22 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Statistics Card */}
-        <View
-          style={[styles.statsCard, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}
-        >
+        <View style={[styles.statsCard, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}>
           <View style={styles.statsCardBackground}>
             <View style={styles.statContainer}>
               <View style={styles.heartIconContainer}>
                 <IconSymbol name="heart" size={28} color="#FFFFFF" />
               </View>
               <View style={styles.statTextContainer}>
-                <Text style={styles.statNumber}>{totalPrayerCount.toLocaleString()}</Text>
+                <Text style={styles.statNumber}>
+                  {totalPrayerCount.toLocaleString()}
+                </Text>
                 <Text style={styles.statLabel}>
                   {totalPrayerCount === 1 ? 'personne a prié' : 'personnes ont prié'}
                 </Text>
-                <Text style={styles.statSubtitle}>dans la communauté AWA</Text>
+                <Text style={styles.statSubtitle}>
+                  dans la communauté AWA
+                </Text>
               </View>
             </View>
             <View style={styles.decorativeElements}>
@@ -299,9 +301,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+    fontSize: 28,
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
   content: {
     flex: 1,

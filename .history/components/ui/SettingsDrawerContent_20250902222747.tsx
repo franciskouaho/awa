@@ -8,9 +8,8 @@ import RemindersDrawerContent from '@/components/ui/RemindersDrawerContent';
 import UserPrayersDrawerContent from '@/components/ui/UserPrayersDrawerContent';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { usePrayers } from '@/hooks/usePrayers';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface SettingsDrawerContentProps {
@@ -19,27 +18,23 @@ interface SettingsDrawerContentProps {
 
 export default function SettingsDrawerContent({ onClose }: SettingsDrawerContentProps) {
   const colorScheme = useColorScheme();
+  const { streakData, getWeeklyProgress, refreshStreak } = useStreak();
   const { settings, saveSetting, error } = useUserSettings();
-  const { prayers, loadPrayers } = usePrayers();
+  const { loadPrayers } = usePrayers();
 
   const [remindersDrawerVisible, setRemindersDrawerVisible] = useState(false);
   const [generalDrawerVisible, setGeneralDrawerVisible] = useState(false);
   const [userPrayersDrawerVisible, setUserPrayersDrawerVisible] = useState(false);
+  const [debugDrawerVisible, setDebugDrawerVisible] = useState(false);
   const [currentSubScreen, setCurrentSubScreen] = useState<string | null>(null);
-  const [totalPrayerCount, setTotalPrayerCount] = useState(0);
+  const router = useRouter();
 
-  // Charger les prières et calculer le total
-  useEffect(() => {
-    loadPrayers();
-  }, []);
+  // Obtenir les données de progression de la semaine
+  const weeklyProgress = getWeeklyProgress();
 
-  // Calculer le nombre total de personnes qui ont prié
-  useEffect(() => {
-    if (prayers && prayers.length > 0) {
-      const total = prayers.reduce((sum, prayer) => sum + (prayer.prayerCount || 0), 0);
-      setTotalPrayerCount(total);
-    }
-  }, [prayers]);
+  React.useEffect(() => {
+    refreshStreak();
+  }, [refreshStreak]);
 
   const handleItemPress = (itemId: string) => {
     console.log(`Pressed ${itemId}`);
@@ -99,31 +94,6 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Statistics Card */}
-        <View
-          style={[styles.statsCard, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}
-        >
-          <View style={styles.statsCardBackground}>
-            <View style={styles.statContainer}>
-              <View style={styles.heartIconContainer}>
-                <IconSymbol name="heart" size={28} color="#FFFFFF" />
-              </View>
-              <View style={styles.statTextContainer}>
-                <Text style={styles.statNumber}>{totalPrayerCount.toLocaleString()}</Text>
-                <Text style={styles.statLabel}>
-                  {totalPrayerCount === 1 ? 'personne a prié' : 'personnes ont prié'}
-                </Text>
-                <Text style={styles.statSubtitle}>dans la communauté AWA</Text>
-              </View>
-            </View>
-            <View style={styles.decorativeElements}>
-              <View style={styles.decorativeCircle1} />
-              <View style={styles.decorativeCircle2} />
-              <View style={styles.decorativeCircle3} />
-            </View>
-          </View>
-        </View>
-
         {/* SETTINGS Section */}
         <Text
           style={[styles.sectionTitle, { color: Colors[colorScheme ?? 'light'].textSecondary }]}
@@ -179,6 +149,10 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
         <View
           style={[styles.menuSection, { backgroundColor: Colors[colorScheme ?? 'light'].surface }]}
         >
+          <View
+            style={[styles.separator, { backgroundColor: Colors[colorScheme ?? 'light'].border }]}
+          />
+
           <TouchableOpacity
             style={styles.menuItem}
             onPress={() => handleItemPress('userPrayers')}
@@ -192,6 +166,13 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
               ›
             </Text>
           </TouchableOpacity>
+
+          <View
+            style={[styles.separator, { backgroundColor: Colors[colorScheme ?? 'light'].border }]}
+          />
+          <View
+            style={[styles.separator, { backgroundColor: Colors[colorScheme ?? 'light'].border }]}
+          />
         </View>
 
         {/* FEEDBACK Section */}
@@ -288,7 +269,7 @@ const styles = StyleSheet.create({
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 32, // Augmenté de 16 à 32 pour plus d'espace
   },
   backIcon: {
     fontSize: 18,
@@ -299,102 +280,62 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+    fontSize: 28,
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
   content: {
     flex: 1,
   },
-  statsCard: {
-    borderRadius: 20,
-    marginBottom: 24,
-    shadowColor: 'rgba(45, 90, 74, 0.3)',
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 8,
-    overflow: 'hidden',
-  },
-  statsCardBackground: {
-    position: 'relative',
-    padding: 24,
-    paddingVertical: 28,
-  },
-  statContainer: {
+  streakCard: {
     flexDirection: 'row',
+    padding: 20,
+    marginBottom: 24,
+    borderRadius: 16,
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    zIndex: 2,
   },
-  heartIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
+  streakLeft: {
     alignItems: 'center',
     marginRight: 20,
   },
-  statTextContainer: {
-    flex: 1,
-    alignItems: 'flex-start',
-  },
-  statNumber: {
-    fontSize: 36,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    lineHeight: 40,
+  streakNumberContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 4,
   },
-  statLabel: {
+  streakNumber: {
+    fontSize: 32,
+    fontWeight: 'bold',
+  },
+  fireEmoji: {
+    fontSize: 20,
+    marginLeft: 4,
+  },
+  streakLabel: {
     fontSize: 16,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: 2,
-  },
-  statSubtitle: {
-    fontSize: 13,
     fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.7)',
   },
-  decorativeElements: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    zIndex: 1,
+  streakDays: {
+    flexDirection: 'row',
+    flex: 1,
+    justifyContent: 'space-between',
   },
-  decorativeCircle1: {
-    position: 'absolute',
-    top: -20,
-    right: -30,
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  dayColumn: {
+    alignItems: 'center',
   },
-  decorativeCircle2: {
-    position: 'absolute',
-    bottom: -15,
-    right: 20,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  dayText: {
+    fontSize: 12,
+    marginBottom: 8,
   },
-  decorativeCircle3: {
-    position: 'absolute',
-    top: 30,
-    right: 10,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+  dayCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkmark: {
+    textAlign: 'center',
   },
   sectionTitle: {
     fontSize: 13,
@@ -422,8 +363,41 @@ const styles = StyleSheet.create({
     height: 0.5,
     marginLeft: 56,
   },
-
+  heartIcon: {
+    fontSize: 18,
+  },
+  settingsIcon: {
+    fontSize: 20,
+  },
+  bellIcon: {
+    fontSize: 20,
+  },
+  widgetIcon: {
+    fontSize: 20,
+  },
+  leafIcon: {
+    fontSize: 20,
+  },
+  clockIcon: {
+    fontSize: 20,
+  },
+  globeIcon: {
+    fontSize: 20,
+  },
   chevron: {
     fontSize: 16,
+  },
+  prayerButton: {
+    marginTop: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  prayerButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'white',
   },
 });

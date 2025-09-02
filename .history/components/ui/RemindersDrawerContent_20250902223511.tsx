@@ -166,6 +166,8 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     setTimeModalVisible(false);
   };
 
+
+
   const handleSave = async () => {
     if (!permissions?.granted && enableReminders) {
       Alert.alert(

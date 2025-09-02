@@ -37,6 +37,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
   const [isSaving, setIsSaving] = useState(false);
 
   // États pour les modales
+  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
   const [timeModalVisible, setTimeModalVisible] = useState(false);
   const [timeModalType, setTimeModalType] = useState<'start' | 'end'>('start');
 
@@ -164,6 +165,11 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       setEndTime(time);
     }
     setTimeModalVisible(false);
+  };
+
+  const handleCategorySelect = (category: string) => {
+    setSelectedFeed(category);
+    setCategoryModalVisible(false);
   };
 
   const handleSave = async () => {
@@ -590,6 +596,12 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       </ScrollView>
 
       {/* Modales */}
+      <CategorySelectionModal
+        isVisible={categoryModalVisible}
+        onClose={() => setCategoryModalVisible(false)}
+        onSelect={handleCategorySelect}
+        selectedCategory={selectedFeed}
+      />
       <TimeSelectionModal
         isVisible={timeModalVisible}
         onClose={() => setTimeModalVisible(false)}

@@ -1,18 +1,16 @@
-import { Tabs } from 'expo-router';
-import React, { useState } from 'react';
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import BottomDrawer from '@/components/ui/BottomDrawer';
-import BasicsDrawerContent from '@/components/ui/BasicsDrawerContent';
-import SettingsDrawerContent from '@/components/ui/SettingsDrawerContent';
 import AddDrawerContent from '@/components/ui/AddDrawerContent';
+import BottomDrawer from '@/components/ui/BottomDrawer';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import SettingsDrawerContent from '@/components/ui/SettingsDrawerContent';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { Tabs } from 'expo-router';
+import React, { useState } from 'react';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
-  const [basicsDrawerVisible, setBasicsDrawerVisible] = useState(false);
   const [settingsDrawerVisible, setSettingsDrawerVisible] = useState(false);
   const [addDrawerVisible, setAddDrawerVisible] = useState(false);
 
@@ -20,23 +18,6 @@ export default function TabLayout() {
     return (
       <>
         <View style={styles.customTabBar}>
-          {/* Bouton The Basics */}
-          <TouchableOpacity
-            style={[
-              styles.mainButton,
-              {
-                backgroundColor: basicsDrawerVisible
-                  ? 'rgba(69, 90, 100, 0.9)'
-                  : 'rgba(69, 90, 100, 0.7)',
-              },
-            ]}
-            onPress={() => setBasicsDrawerVisible(true)}
-            activeOpacity={0.8}
-          >
-            <IconSymbol size={24} name="square.grid.2x2" color="white" />
-            <Text style={styles.mainButtonText}>Bases</Text>
-          </TouchableOpacity>
-
           {/* Bouton Add */}
           <TouchableOpacity
             style={[
@@ -70,11 +51,6 @@ export default function TabLayout() {
           </TouchableOpacity>
         </View>
 
-        {/* Drawer The Basics */}
-        <BottomDrawer isVisible={basicsDrawerVisible} onClose={() => setBasicsDrawerVisible(false)}>
-          <BasicsDrawerContent onClose={() => setBasicsDrawerVisible(false)} />
-        </BottomDrawer>
-
         {/* Drawer Add */}
         <BottomDrawer isVisible={addDrawerVisible} onClose={() => setAddDrawerVisible(false)}>
           <AddDrawerContent onClose={() => setAddDrawerVisible(false)} />
@@ -96,14 +72,12 @@ export default function TabLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarStyle: { display: 'none' }, // Masquer la tab bar par défaut
+          tabBarStyle: { display: 'none' },
         }}
       >
         <Tabs.Screen name="prayers" />
         <Tabs.Screen name="add" />
-        <Tabs.Screen name="stats" />
         <Tabs.Screen name="settings" />
-        <Tabs.Screen name="basics" />
       </Tabs>
       <CustomTabBar />
     </>

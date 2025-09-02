@@ -878,7 +878,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 140, // Position en bas au lieu d'en haut
     left: '50%',
-    transform: [{ translateX: -56 }], // Centrer horizontalement pour 2 boutons (largeur totale des 2 boutons + espacement)
+    transform: [{ translateX: -88 }], // Centrer horizontalement pour 3 boutons (largeur totale des 3 boutons + espacement)
     flexDirection: 'row', // Alignement horizontal
     alignItems: 'center',
   },

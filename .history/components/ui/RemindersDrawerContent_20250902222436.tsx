@@ -1,3 +1,4 @@
+import CategorySelectionModal from '@/components/ui/CategorySelectionModal';
 import TimeSelectionModal from '@/components/ui/TimeSelectionModal';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -37,6 +38,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
   const [isSaving, setIsSaving] = useState(false);
 
   // États pour les modales
+  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
   const [timeModalVisible, setTimeModalVisible] = useState(false);
   const [timeModalType, setTimeModalType] = useState<'start' | 'end'>('start');
 
@@ -164,6 +166,11 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       setEndTime(time);
     }
     setTimeModalVisible(false);
+  };
+
+  const handleCategorySelect = (category: string) => {
+    setSelectedFeed(category);
+    setCategoryModalVisible(false);
   };
 
   const handleSave = async () => {
@@ -494,9 +501,23 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
               thumbColor={enableDeceasedReminder ? colors.surface : colors.textSecondary}
             />
           </View>
+          {/* Enable Reminders */}
+          <View style={styles.row}>
+            <Text style={styles.label}>Activer les rappels</Text>
+            <Switch
+              style={styles.switch}
+              value={enableReminders}
+              onValueChange={handleEnableRemindersChange}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor={enableReminders ? colors.surface : colors.textSecondary}
+              disabled={isLoading}
+            />
+          </View>
+
+
 
           {/* Hours */}
-          <View style={[styles.row, styles.lastRow]}>
+          <View style={styles.row}>
             <Text style={styles.label}>Heures</Text>
             <View style={styles.timeContainer}>
               <TouchableOpacity style={styles.timeButton} onPress={() => openTimeModal('start')}>
@@ -510,6 +531,8 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
               </TouchableOpacity>
             </View>
           </View>
+
+
 
           {/* Days of the week */}
           <View style={{ marginTop: 16 }}>
@@ -590,6 +613,12 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       </ScrollView>
 
       {/* Modales */}
+      <CategorySelectionModal
+        isVisible={categoryModalVisible}
+        onClose={() => setCategoryModalVisible(false)}
+        onSelect={handleCategorySelect}
+        selectedCategory={selectedFeed}
+      />
       <TimeSelectionModal
         isVisible={timeModalVisible}
         onClose={() => setTimeModalVisible(false)}

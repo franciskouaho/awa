@@ -1,3 +1,4 @@
+import CategorySelectionModal from '@/components/ui/CategorySelectionModal';
 import TimeSelectionModal from '@/components/ui/TimeSelectionModal';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -16,12 +17,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
   const colors = Colors[colorScheme ?? 'light'];
 
   // Services et hooks
-  const {
-    scheduleReminders,
-    cancelAllReminders,
-    sendTestNotification,
-    sendTestDeceasedPrayerNotification,
-  } = useNotifications();
+  const { scheduleReminders, cancelAllReminders, sendTestNotification, sendTestDeceasedPrayerNotification } = useNotifications();
   const { permissions, requestPermission, isLoading } = useNotificationPermissions();
 
   const [enableReminders, setEnableReminders] = useState(true);
@@ -37,32 +33,30 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
   const [isSaving, setIsSaving] = useState(false);
 
   // États pour les modales
+  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
   const [timeModalVisible, setTimeModalVisible] = useState(false);
   const [timeModalType, setTimeModalType] = useState<'start' | 'end'>('start');
 
   const days = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
 
-  // Handler for test deceased prayer notification
-  const handleTestDeceasedPrayerNotification = async () => {
-    if (!permissions?.granted) {
-      Alert.alert(
-        'Permissions requises',
-        'Veuillez autoriser les notifications pour tester cette fonctionnalité.'
-      );
-      return;
-    }
+    // Handler for test deceased prayer notification
+    const handleTestDeceasedPrayerNotification = async () => {
+      if (!permissions?.granted) {
+        Alert.alert(
+          'Permissions requises',
+          'Veuillez autoriser les notifications pour tester cette fonctionnalité.'
+        );
+        return;
+      }
 
-    try {
-      await sendTestDeceasedPrayerNotification();
-      Alert.alert(
-        'Test envoyé',
-        'Une notification de prière pour le défunt va apparaître dans quelques secondes.'
-      );
-    } catch (error) {
-      console.error('Erreur lors du test:', error);
-      Alert.alert('Erreur', "Impossible d'envoyer la notification de test pour le défunt.");
-    }
-  };
+      try {
+        await sendTestDeceasedPrayerNotification();
+        Alert.alert('Test envoyé', 'Une notification de prière pour le défunt va apparaître dans quelques secondes.');
+      } catch (error) {
+        console.error('Erreur lors du test:', error);
+        Alert.alert('Erreur', "Impossible d'envoyer la notification de test pour le défunt.");
+      }
+    };
   // Charger les paramètres de notifications depuis Firebase au montage
   useEffect(() => {
     (async () => {
@@ -164,6 +158,11 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       setEndTime(time);
     }
     setTimeModalVisible(false);
+  };
+
+  const handleCategorySelect = (category: string) => {
+    setSelectedFeed(category);
+    setCategoryModalVisible(false);
   };
 
   const handleSave = async () => {
@@ -483,20 +482,58 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Main Settings Card */}
         <View style={styles.card}>
-          {/* Switch pour les rappels de prière pour les défunts */}
+        {/* Switch pour les rappels de prière pour les défunts */}
+        <View style={styles.row}>
+          <Text style={styles.label}>Activer les rappels pour les défunts</Text>
+          <Switch
+            style={styles.switch}
+            value={enableDeceasedReminder}
+            onValueChange={setEnableDeceasedReminder}
+            trackColor={{ false: colors.border, true: colors.info }}
+            thumbColor={enableDeceasedReminder ? colors.surface : colors.textSecondary}
+          />
+        </View>
+          {/* Enable Reminders */}
           <View style={styles.row}>
-            <Text style={styles.label}>Activer les rappels pour les défunts</Text>
+            <Text style={styles.label}>Activer les rappels</Text>
             <Switch
               style={styles.switch}
-              value={enableDeceasedReminder}
-              onValueChange={setEnableDeceasedReminder}
-              trackColor={{ false: colors.border, true: colors.info }}
-              thumbColor={enableDeceasedReminder ? colors.surface : colors.textSecondary}
+              value={enableReminders}
+              onValueChange={handleEnableRemindersChange}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor={enableReminders ? colors.surface : colors.textSecondary}
+              disabled={isLoading}
             />
           </View>
 
+          {/* Selection */}
+          <View style={styles.row}>
+            <Text style={styles.label}>Sélection</Text>
+            <TouchableOpacity
+              style={styles.selectionButton}
+              onPress={() => setCategoryModalVisible(true)}
+            >
+              <Text style={styles.selectionText}>{getFeedDisplayName(selectedFeed)}</Text>
+              <Text style={styles.arrow}>›</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* How many per day */}
+          <View style={styles.row}>
+            <Text style={styles.label}>Combien par jour</Text>
+            <View style={styles.counterContainer}>
+              <TouchableOpacity style={styles.counterButton} onPress={() => adjustCounter(false)}>
+                <Text style={styles.counterButtonText}>−</Text>
+              </TouchableOpacity>
+              <Text style={styles.counterValue}>{dailyCount}x</Text>
+              <TouchableOpacity style={styles.counterButton} onPress={() => adjustCounter(true)}>
+                <Text style={styles.counterButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           {/* Hours */}
-          <View style={[styles.row, styles.lastRow]}>
+          <View style={styles.row}>
             <Text style={styles.label}>Heures</Text>
             <View style={styles.timeContainer}>
               <TouchableOpacity style={styles.timeButton} onPress={() => openTimeModal('start')}>
@@ -509,6 +546,18 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
                 <Text style={styles.arrow}>›</Text>
               </TouchableOpacity>
             </View>
+          </View>
+
+          {/* Sound */}
+          <View style={[styles.row, styles.lastRow]}>
+            <Text style={styles.label}>Son</Text>
+            <Switch
+              style={styles.switch}
+              value={sound}
+              onValueChange={setSound}
+              trackColor={{ false: colors.border, true: colors.info }}
+              thumbColor={sound ? colors.surface : colors.textSecondary}
+            />
           </View>
 
           {/* Days of the week */}
@@ -549,13 +598,8 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
             </View>
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>Test notification prière pour le défunt</Text>
-              <TouchableOpacity
-                style={styles.testButton}
-                onPress={handleTestDeceasedPrayerNotification}
-              >
-                <Text style={styles.testButtonText}>
-                  🕊️ Envoyer une notification de prière pour le défunt
-                </Text>
+              <TouchableOpacity style={styles.testButton} onPress={handleTestDeceasedPrayerNotification}>
+                <Text style={styles.testButtonText}>🕊️ Envoyer une notification de prière pour le défunt</Text>
               </TouchableOpacity>
             </View>
           </>
@@ -590,6 +634,12 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       </ScrollView>
 
       {/* Modales */}
+      <CategorySelectionModal
+        isVisible={categoryModalVisible}
+        onClose={() => setCategoryModalVisible(false)}
+        onSelect={handleCategorySelect}
+        selectedCategory={selectedFeed}
+      />
       <TimeSelectionModal
         isVisible={timeModalVisible}
         onClose={() => setTimeModalVisible(false)}

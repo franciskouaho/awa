@@ -12,7 +12,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 export default function NameScreen() {
@@ -25,7 +25,7 @@ export default function NameScreen() {
       try {
         // Sauvegarder le nom localement
         await AsyncStorage.setItem('userName', name.trim());
-        
+
         // Continuer vers l'étape suivante de l'onboarding
         router.push('./affirmation');
       } catch (error: any) {
@@ -36,8 +36,13 @@ export default function NameScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: Colors[colorScheme ?? 'light'].onboarding.backgroundColor }]}>
-      <KeyboardAvoidingView 
+    <SafeAreaView
+      style={[
+        styles.container,
+        { backgroundColor: Colors[colorScheme ?? 'light'].onboarding.backgroundColor },
+      ]}
+    >
+      <KeyboardAvoidingView
         style={styles.content}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
@@ -50,9 +55,11 @@ export default function NameScreen() {
 
         {/* Title */}
         <Text style={styles.title}>Quel est votre prénom ?</Text>
-        
+
         {/* Subtitle */}
-        <Text style={styles.subtitle}>Cela nous aide à personnaliser votre expérience spirituelle</Text>
+        <Text style={styles.subtitle}>
+          Cela nous aide à personnaliser votre expérience spirituelle
+        </Text>
 
         {/* Input */}
         <TextInput
@@ -69,17 +76,16 @@ export default function NameScreen() {
 
         {/* Continue Button */}
         <TouchableOpacity
-          style={[
-            styles.button,
-            name.trim() ? styles.buttonActive : styles.buttonInactive
-          ]}
+          style={[styles.button, name.trim() ? styles.buttonActive : styles.buttonInactive]}
           disabled={!name.trim()}
           onPress={handleContinue}
         >
-          <Text style={[
-            styles.buttonText,
-            name.trim() ? styles.buttonTextActive : styles.buttonTextInactive
-          ]}>
+          <Text
+            style={[
+              styles.buttonText,
+              name.trim() ? styles.buttonTextActive : styles.buttonTextInactive,
+            ]}
+          >
             Continuer
           </Text>
         </TouchableOpacity>

@@ -487,6 +487,26 @@ export default function PrayersScreen() {
               </View>
             </View>
 
+            {/* Compteur de personnes qui ont prié */}
+            <View style={styles.prayerCountContainer}>
+              <Ionicons
+                name="heart"
+                size={16}
+                color={Colors[colorScheme ?? 'light'].primary}
+                style={{ marginRight: 6 }}
+              />
+              <Text
+                style={[
+                  styles.prayerCountText,
+                  {
+                    color: Colors[colorScheme ?? 'light'].textSecondary,
+                  },
+                ]}
+              >
+                {prayer.prayerCount || 0} {(prayer.prayerCount || 0) === 1 ? 'personne a prié' : 'personnes ont prié'} pour {prayer.name?.split(' ')[0] || 'cette personne'}
+              </Text>
+            </View>
+
             <Text
               style={[
                 styles.arabicFormula,

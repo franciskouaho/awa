@@ -2,8 +2,11 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import React from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { usePrayers } from '@/hooks/usePrayers';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AddDrawerContent from '@/components/ui/AddDrawerContent';
 
 interface GeneralDrawerContentProps {
   onClose: () => void;
@@ -23,6 +26,10 @@ export default function GeneralDrawerContent({
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const { settings, loading } = useUserSettings();
+  const { user, firebaseUser } = useAuth();
+
+  // Ajout de l'état pour afficher le formulaire ou le menu
+  const [currentView, setCurrentView] = useState<'menu' | 'prayer-form'>('menu');
 
   // Utiliser les données de Firebase en priorité, puis les valeurs passées en props ou des valeurs par défaut
   const firstName = settings?.firstName || currentValues?.firstName || 'Utilisateur';
@@ -132,6 +139,10 @@ export default function GeneralDrawerContent({
     },
   });
 
+  if (currentView === 'prayer-form') {
+    return <AddDrawerContent onClose={() => setCurrentView('menu')} />;
+  }
+
   return (
     <View style={styles.container}>
       {/* Header avec bouton Back et titre */}
@@ -156,66 +167,77 @@ export default function GeneralDrawerContent({
             {/* PERSONAL INFORMATION Section */}
             <Text style={styles.sectionTitle}>INFORMATIONS PERSONNELLES</Text>
             <View style={styles.card}>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => handleItemPress('firstName')}
-            activeOpacity={0.7}
-          >
-            <View style={styles.iconContainer}>
-              <IconSymbol name="person.fill" size={20} color={colors.text} />
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => setCurrentView('prayer-form')}
+                activeOpacity={0.7}
+              >
+                <View style={styles.iconContainer}>
+                  <IconSymbol name="plus.circle.fill" size={20} color={colors.primary} />
+                </View>
+                <Text style={styles.menuItemText}>Ajouter une prière</Text>
+                <Text style={styles.chevron}>›</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleItemPress('firstName')}
+                activeOpacity={0.7}
+              >
+                <View style={styles.iconContainer}>
+                  <IconSymbol name="person.fill" size={20} color={colors.text} />
+                </View>
+                <Text style={styles.menuItemText}>Prénom</Text>
+                <Text style={styles.menuItemValue}>{firstName}</Text>
+                <Text style={styles.chevron}>›</Text>
+              </TouchableOpacity>
+
+              <View style={styles.separator} />
+
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleItemPress('gender')}
+                activeOpacity={0.7}
+              >
+                <View style={styles.iconContainer}>
+                  <IconSymbol name="person.2.fill" size={20} color={colors.text} />
+                </View>
+                <Text style={styles.menuItemText}>Genre</Text>
+                <Text style={styles.menuItemValue}>{gender}</Text>
+                <Text style={styles.chevron}>›</Text>
+              </TouchableOpacity>
+
+              <View style={styles.separator} />
+
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleItemPress('language')}
+                activeOpacity={0.7}
+              >
+                <View style={styles.iconContainer}>
+                  <IconSymbol name="textformat" size={20} color={colors.text} />
+                </View>
+                <Text style={styles.menuItemText}>Langue</Text>
+                <Text style={styles.menuItemValue}>{language}</Text>
+                <Text style={styles.chevron}>›</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.menuItemText}>Prénom</Text>
-            <Text style={styles.menuItemValue}>{firstName}</Text>
-            <Text style={styles.chevron}>›</Text>
-          </TouchableOpacity>
 
-          <View style={styles.separator} />
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => handleItemPress('gender')}
-            activeOpacity={0.7}
-          >
-            <View style={styles.iconContainer}>
-              <IconSymbol name="person.2.fill" size={20} color={colors.text} />
+            {/* Legal Section */}
+            <Text style={styles.sectionTitle}>Légal</Text>
+            <View style={styles.card}>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleItemPress('privacy')}
+                activeOpacity={0.7}
+              >
+                <View style={styles.iconContainer}>
+                  <IconSymbol name="doc.text" size={20} color={colors.text} />
+                </View>
+                <Text style={styles.menuItemText}>Politique de confidentialité</Text>
+                <Text style={styles.chevron}>›</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.menuItemText}>Genre</Text>
-            <Text style={styles.menuItemValue}>{gender}</Text>
-            <Text style={styles.chevron}>›</Text>
-          </TouchableOpacity>
-
-          <View style={styles.separator} />
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => handleItemPress('language')}
-            activeOpacity={0.7}
-          >
-            <View style={styles.iconContainer}>
-              <IconSymbol name="textformat" size={20} color={colors.text} />
-            </View>
-            <Text style={styles.menuItemText}>Langue</Text>
-            <Text style={styles.menuItemValue}>{language}</Text>
-            <Text style={styles.chevron}>›</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Legal Section */}
-        <Text style={styles.sectionTitle}>Légal</Text>
-        <View style={styles.card}>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => handleItemPress('privacy')}
-            activeOpacity={0.7}
-          >
-            <View style={styles.iconContainer}>
-              <IconSymbol name="doc.text" size={20} color={colors.text} />
-            </View>
-            <Text style={styles.menuItemText}>Politique de confidentialité</Text>
-            <Text style={styles.chevron}>›</Text>
-          </TouchableOpacity>
-        </View>
-        </>
+          </>
         )}
       </ScrollView>
     </View>

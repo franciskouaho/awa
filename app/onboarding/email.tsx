@@ -4,15 +4,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 export default function EmailScreen() {
@@ -34,17 +34,26 @@ export default function EmailScreen() {
     try {
       // Sauvegarder l'email localement pour l'utiliser plus tard
       await AsyncStorage.setItem('userEmail', email);
-      
+
       // Aller à l'écran nom
       router.push('/onboarding/name');
     } catch (error: any) {
-      Alert.alert('Erreur', 'Impossible de sauvegarder l\'email');
+      Alert.alert('Erreur', "Impossible de sauvegarder l'email");
     }
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: Colors[colorScheme ?? 'light'].onboarding?.backgroundColor || Colors[colorScheme ?? 'light'].background }]}>
-      <KeyboardAvoidingView 
+    <SafeAreaView
+      style={[
+        styles.container,
+        {
+          backgroundColor:
+            Colors[colorScheme ?? 'light'].onboarding?.backgroundColor ||
+            Colors[colorScheme ?? 'light'].background,
+        },
+      ]}
+    >
+      <KeyboardAvoidingView
         style={styles.content}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
@@ -57,9 +66,11 @@ export default function EmailScreen() {
 
         {/* Title */}
         <Text style={styles.title}>Quelle est votre adresse email ?</Text>
-        
+
         {/* Subtitle */}
-        <Text style={styles.subtitle}>Cela nous permet de synchroniser vos données en toute sécurité</Text>
+        <Text style={styles.subtitle}>
+          Cela nous permet de synchroniser vos données en toute sécurité
+        </Text>
 
         {/* Input */}
         <TextInput
@@ -77,24 +88,24 @@ export default function EmailScreen() {
 
         {/* Continue Button */}
         <TouchableOpacity
-          style={[
-            styles.button,
-            isValidEmail(email) ? styles.buttonActive : styles.buttonInactive
-          ]}
+          style={[styles.button, isValidEmail(email) ? styles.buttonActive : styles.buttonInactive]}
           disabled={!isValidEmail(email)}
           onPress={handleContinue}
         >
-          <Text style={[
-            styles.buttonText,
-            isValidEmail(email) ? styles.buttonTextActive : styles.buttonTextInactive
-          ]}>
+          <Text
+            style={[
+              styles.buttonText,
+              isValidEmail(email) ? styles.buttonTextActive : styles.buttonTextInactive,
+            ]}
+          >
             Continuer
           </Text>
         </TouchableOpacity>
 
         {/* Information Text */}
         <Text style={styles.infoText}>
-          Aucun mot de passe requis. Nous utilisons votre email uniquement pour sauvegarder vos prières.
+          Aucun mot de passe requis. Nous utilisons votre email uniquement pour sauvegarder vos
+          prières.
         </Text>
       </KeyboardAvoidingView>
     </SafeAreaView>

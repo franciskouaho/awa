@@ -476,9 +476,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+    fontSize: 28,
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
   content: {
     flex: 1,

@@ -189,14 +189,24 @@ export default function PrayersScreen() {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       const result = await toggleLike(prayerId);
 
-      if (!result.success) {
+      if (result.success) {
+        // Si le like a été ajouté (pas retiré), incrémenter le compteur de prières
+        if (result.isLiked) {
+          await incrementPrayerCount(prayerId);
+        }
+      } else {
         Alert.alert('Erreur', result.error || 'Impossible de mettre à jour le like');
       }
     } catch (error) {
       console.warn('Haptic feedback not available:', error);
       const result = await toggleLike(prayerId);
 
-      if (!result.success) {
+      if (result.success) {
+        // Si le like a été ajouté (pas retiré), incrémenter le compteur de prières
+        if (result.isLiked) {
+          await incrementPrayerCount(prayerId);
+        }
+      } else {
         Alert.alert('Erreur', result.error || 'Impossible de mettre à jour le like');
       }
     }
@@ -485,6 +495,26 @@ export default function PrayersScreen() {
                   {prayer.location}
                 </Text>
               </View>
+            </View>
+
+            {/* Compteur de personnes qui ont prié */}
+            <View style={styles.prayerCountContainer}>
+              <Ionicons
+                name="heart"
+                size={16}
+                color={Colors[colorScheme ?? 'light'].primary}
+                style={{ marginRight: 6 }}
+              />
+              <Text
+                style={[
+                  styles.prayerCountText,
+                  {
+                    color: Colors[colorScheme ?? 'light'].textSecondary,
+                  },
+                ]}
+              >
+                {prayer.prayerCount || 0} {(prayer.prayerCount || 0) === 1 ? 'personne a prié' : 'personnes ont prié'} pour {prayer.name?.split(' ')[0] || 'cette personne'}
+              </Text>
             </View>
 
             <Text
@@ -837,6 +867,23 @@ const styles = StyleSheet.create({
   location: {
     fontSize: 15,
     marginLeft: 6,
+  },
+  prayerCountContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+    marginBottom: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(45, 90, 74, 0.05)',
+    borderRadius: 12,
+    alignSelf: 'center',
+  },
+  prayerCountText: {
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   prayerSection: {
     alignItems: 'center',

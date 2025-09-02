@@ -10,7 +10,7 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { usePrayers } from '@/hooks/usePrayers';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface SettingsDrawerContentProps {
@@ -100,26 +100,16 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Statistics Card */}
-        <View
-          style={[styles.statsCard, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}
-        >
-          <View style={styles.statsCardBackground}>
-            <View style={styles.statContainer}>
-              <View style={styles.heartIconContainer}>
-                <IconSymbol name="heart" size={28} color="#FFFFFF" />
-              </View>
-              <View style={styles.statTextContainer}>
-                <Text style={styles.statNumber}>{totalPrayerCount.toLocaleString()}</Text>
-                <Text style={styles.statLabel}>
-                  {totalPrayerCount === 1 ? 'personne a prié' : 'personnes ont prié'}
-                </Text>
-                <Text style={styles.statSubtitle}>dans la communauté AWA</Text>
-              </View>
-            </View>
-            <View style={styles.decorativeElements}>
-              <View style={styles.decorativeCircle1} />
-              <View style={styles.decorativeCircle2} />
-              <View style={styles.decorativeCircle3} />
+        <View style={[styles.statsCard, { backgroundColor: Colors[colorScheme ?? 'light'].surface }]}>
+          <View style={styles.statContainer}>
+            <IconSymbol name="heart" size={24} color={Colors[colorScheme ?? 'light'].primary} />
+            <View style={styles.statTextContainer}>
+              <Text style={[styles.statNumber, { color: Colors[colorScheme ?? 'light'].primary }]}>
+                {totalPrayerCount}
+              </Text>
+              <Text style={[styles.statLabel, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
+                {totalPrayerCount === 1 ? 'personne a prié' : 'personnes ont prié'}
+              </Text>
             </View>
           </View>
         </View>
@@ -299,103 +289,14 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+    fontSize: 28,
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
   content: {
     flex: 1,
   },
-  statsCard: {
-    borderRadius: 20,
-    marginBottom: 24,
-    shadowColor: 'rgba(45, 90, 74, 0.3)',
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 8,
-    overflow: 'hidden',
-  },
-  statsCardBackground: {
-    position: 'relative',
-    padding: 24,
-    paddingVertical: 28,
-  },
-  statContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    zIndex: 2,
-  },
-  heartIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 20,
-  },
-  statTextContainer: {
-    flex: 1,
-    alignItems: 'flex-start',
-  },
-  statNumber: {
-    fontSize: 36,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    lineHeight: 40,
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: 2,
-  },
-  statSubtitle: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.7)',
-  },
-  decorativeElements: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    zIndex: 1,
-  },
-  decorativeCircle1: {
-    position: 'absolute',
-    top: -20,
-    right: -30,
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  decorativeCircle2: {
-    position: 'absolute',
-    bottom: -15,
-    right: 20,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-  },
-  decorativeCircle3: {
-    position: 'absolute',
-    top: 30,
-    right: 10,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-  },
+
   sectionTitle: {
     fontSize: 13,
     fontWeight: '600',

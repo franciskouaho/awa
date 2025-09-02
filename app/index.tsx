@@ -1,6 +1,9 @@
 import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 import { useStreak } from '@/hooks/useStreak';
-import { requestNotificationPermissions, scheduleReminderNotification } from '@/utils/notifications';
+import {
+  requestNotificationPermissions,
+  scheduleReminderNotification,
+} from '@/utils/notifications';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Image, StyleSheet, Text, View } from 'react-native';
@@ -21,33 +24,34 @@ export default function IndexScreen() {
     }).start();
   }, [fadeAnim]);
 
-    // Mettre à jour le streak et notifier si un nouveau jour est rempli
-    useEffect(() => {
-      async function updateStreakAndNotify() {
-        await refreshStreak();
-        if (streakData && streakData.streakHistory && streakData.streakHistory.length > 0) {
-          const lastEntry = streakData.streakHistory[streakData.streakHistory.length - 1];
-          if (lastEntry) {
-            const lastDate = new Date(lastEntry.date);
-            const today = new Date();
-            // On compare uniquement l'année, le mois et le jour
-            const isToday = lastDate.getFullYear() === today.getFullYear() &&
-                           lastDate.getMonth() === today.getMonth() &&
-                           lastDate.getDate() === today.getDate();
-            if (!isToday && lastEntry.completed) {
-              // L'utilisateur n'a pas encore validé aujourd'hui
-              await requestNotificationPermissions();
-              await scheduleReminderNotification({
-                title: 'Bravo !',
-                body: `Tu as accompli ta prière aujourd'hui et ta série de jours continue !`,
-                seconds: 2,
-              });
-            }
+  // Mettre à jour le streak et notifier si un nouveau jour est rempli
+  useEffect(() => {
+    async function updateStreakAndNotify() {
+      await refreshStreak();
+      if (streakData && streakData.streakHistory && streakData.streakHistory.length > 0) {
+        const lastEntry = streakData.streakHistory[streakData.streakHistory.length - 1];
+        if (lastEntry) {
+          const lastDate = new Date(lastEntry.date);
+          const today = new Date();
+          // On compare uniquement l'année, le mois et le jour
+          const isToday =
+            lastDate.getFullYear() === today.getFullYear() &&
+            lastDate.getMonth() === today.getMonth() &&
+            lastDate.getDate() === today.getDate();
+          if (!isToday && lastEntry.completed) {
+            // L'utilisateur n'a pas encore validé aujourd'hui
+            await requestNotificationPermissions();
+            await scheduleReminderNotification({
+              title: 'Bravo !',
+              body: `Tu as accompli ta prière aujourd'hui et ta série de jours continue !`,
+              seconds: 2,
+            });
           }
         }
       }
-      updateStreakAndNotify();
-    }, [refreshStreak, streakData]);
+    }
+    updateStreakAndNotify();
+  }, [refreshStreak, streakData]);
 
   useEffect(() => {
     if (!navigationReady) return;

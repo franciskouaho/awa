@@ -136,6 +136,7 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
                   personalMessage: '',
                 });
                 setErrors({});
+                setCurrentView('menu');
                 onClose();
               },
             },
@@ -174,7 +175,7 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
             <Text
               style={[styles.backIcon, { color: Colors[colorScheme ?? 'light'].textSecondary }]}
             >
-              ✕
+              ←
             </Text>
             <Text style={[styles.backText, { color: Colors[colorScheme ?? 'light'].text }]}>
               Retour
@@ -182,7 +183,7 @@ export default function AddDrawerContent({ onClose }: AddDrawerContentProps) {
           </TouchableOpacity>
 
           <Text style={[styles.title, { color: Colors[colorScheme ?? 'light'].text }]}>
-            Ajouter une prière
+            NOUVELLE PRIÈRE
           </Text>
         </View>
 
@@ -476,9 +477,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+    fontSize: 28,
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
   content: {
     flex: 1,

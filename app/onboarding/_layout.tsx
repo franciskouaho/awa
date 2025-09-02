@@ -6,11 +6,6 @@ export default function OnboardingLayout() {
       <Stack.Screen name="email" />
       <Stack.Screen name="name" />
       <Stack.Screen name="affirmation" />
-      <Stack.Screen name="time" />
-      <Stack.Screen name="notification" />
-      <Stack.Screen name="personalize" />
-      <Stack.Screen name="calculating" />
-      <Stack.Screen name="plan" />
     </Stack>
   );
 }
