@@ -50,3 +50,5 @@ app-example
 *.sublime-project
 *.sublime-workspace
 *.komodoproject
+
+.history/
