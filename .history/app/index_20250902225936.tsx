@@ -1,4 +1,8 @@
 import { useAuthNavigation } from '@/hooks/useAuthNavigation';
+import {
+  requestNotificationPermissions,
+  scheduleReminderNotification,
+} from '@/utils/notifications';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Image, StyleSheet, Text, View } from 'react-native';

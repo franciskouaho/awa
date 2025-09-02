@@ -72,7 +72,7 @@ export function useLikes(): UseLikesResult {
     async (prayerId: string) => {
       const userId = getCurrentUserId();
       if (!userId) {
-        return { success: false, error: 'Utilisateur non connecté' };
+        return { success: false, error: 'Authentification requise pour aimer une prière' };
       }
 
       try {

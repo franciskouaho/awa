@@ -1,17 +1,14 @@
 import { Colors } from '@/constants/Colors';
-import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function AffirmationScreen() {
   const [selectedAffirmation, setSelectedAffirmation] = useState<string>('');
-  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const router = useRouter();
   const colorScheme = useColorScheme();
-  const { signUp, completeOnboarding } = useAuth();
 
   const affirmations = [
     {
@@ -27,50 +24,13 @@ export default function AffirmationScreen() {
   ];
 
   const handleContinue = async () => {
-    if (!selectedAffirmation) {
-      Alert.alert('Sélection requise', 'Veuillez choisir une affirmation avant de continuer.');
-      return;
-    }
-
-    setIsCreatingAccount(true);
-    try {
-      // Sauvegarder l'affirmation
-      await AsyncStorage.setItem('userAffirmation', selectedAffirmation);
-
-      // Récupérer les données d'onboarding
-      const userEmail = await AsyncStorage.getItem('userEmail');
-      const userName = await AsyncStorage.getItem('userName');
-
-      if (!userEmail || !userName) {
-        Alert.alert('Erreur', "Informations manquantes. Veuillez recommencer l'onboarding.");
-        router.push('/onboarding/email');
-        return;
+    if (selectedAffirmation) {
+      try {
+        await AsyncStorage.setItem('userAffirmation', selectedAffirmation);
+        router.push('/onboarding/plan');
+      } catch (error) {
+        console.error('Error saving affirmation:', error);
       }
-
-      console.log('🚀 Création du compte Firebase...', { userEmail, userName });
-
-      // Créer le compte Firebase
-      await signUp(userEmail, userName);
-
-      console.log("✅ Compte créé, finalisation de l'onboarding...");
-
-      // Marquer l'onboarding comme terminé
-      await completeOnboarding({
-        affirmation: selectedAffirmation,
-      });
-
-      console.log("🎉 Onboarding terminé ! Redirection vers l'app...");
-
-      // Rediriger vers l'app
-      router.replace('/(tabs)/prayers');
-    } catch (error: any) {
-      console.error('❌ Erreur lors de la création du compte:', error);
-      Alert.alert(
-        'Erreur',
-        error.message || 'Impossible de créer votre compte. Veuillez réessayer.'
-      );
-    } finally {
-      setIsCreatingAccount(false);
     }
   };
 
@@ -113,28 +73,18 @@ export default function AffirmationScreen() {
 
         {/* Continue Button */}
         <TouchableOpacity
-          style={[
-            styles.button,
-            selectedAffirmation && !isCreatingAccount ? styles.buttonActive : styles.buttonInactive
-          ]}
-          disabled={!selectedAffirmation || isCreatingAccount}
+          style={[styles.button, selectedAffirmation ? styles.buttonActive : styles.buttonInactive]}
+          disabled={!selectedAffirmation}
           onPress={handleContinue}
         >
-          {isCreatingAccount ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator color="white" size="small" />
-              <Text style={styles.buttonTextActive}>Création du compte...</Text>
-            </View>
-          ) : (
-            <Text
-              style={[
-                styles.buttonText,
-                selectedAffirmation ? styles.buttonTextActive : styles.buttonTextInactive,
-              ]}
-            >
-              Continuer
-            </Text>
-          )}
+          <Text
+            style={[
+              styles.buttonText,
+              selectedAffirmation ? styles.buttonTextActive : styles.buttonTextInactive,
+            ]}
+          >
+            Continuer
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -236,10 +186,5 @@ const styles = StyleSheet.create({
   },
   buttonTextInactive: {
     color: '#A0A0A0',
-  },
-  loadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
   },
 });
