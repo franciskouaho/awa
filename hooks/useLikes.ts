@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 export interface UseLikesResult {
   likedPrayers: Set<string>;
+  likeCounts: { [prayerId: string]: number };
   loading: boolean;
   error: string | null;
   toggleLike: (
@@ -12,11 +13,13 @@ export interface UseLikesResult {
   isLiked: (prayerId: string) => boolean;
   loadUserLikes: () => Promise<void>;
   getLikeCount: (prayerId: string) => Promise<{ success: boolean; count?: number; error?: string }>;
+  refreshLikeCount: (prayerId: string) => Promise<void>;
 }
 
 export function useLikes(): UseLikesResult {
   const { user, firebaseUser, isLoading } = useAuth();
   const [likedPrayers, setLikedPrayers] = useState<Set<string>>(new Set());
+  const [likeCounts, setLikeCounts] = useState<{ [prayerId: string]: number }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,7 +36,7 @@ export function useLikes(): UseLikesResult {
     if (isLoading) {
       return; // Ne rien faire si l'auth est encore en cours
     }
-    
+
     const userId = getCurrentUserId();
     if (!userId) {
       // Ne pas afficher d'erreur si l'auth n'est simplement pas encore prête
@@ -89,6 +92,12 @@ export function useLikes(): UseLikesResult {
             }
             return newSet;
           });
+
+          // Mettre à jour le compteur de likes
+          setLikeCounts(current => ({
+            ...current,
+            [prayerId]: (current[prayerId] || 0) + (result.isLiked ? 1 : -1),
+          }));
         }
 
         return result;
@@ -120,13 +129,30 @@ export function useLikes(): UseLikesResult {
     }
   }, []);
 
+  // Rafraîchir le compteur de likes pour une prière spécifique
+  const refreshLikeCount = useCallback(async (prayerId: string) => {
+    try {
+      const result = await LikeService.getPrayerLikes(prayerId);
+      if (result.success && typeof result.count === 'number') {
+        setLikeCounts(current => ({
+          ...current,
+          [prayerId]: result.count || 0,
+        }));
+      }
+    } catch (err: any) {
+      console.error('Error refreshing like count:', err);
+    }
+  }, []);
+
   return {
     likedPrayers,
+    likeCounts,
     loading,
     error,
     toggleLike,
     isLiked,
     loadUserLikes,
     getLikeCount,
+    refreshLikeCount,
   };
 }

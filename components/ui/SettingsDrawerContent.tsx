@@ -8,6 +8,7 @@ import RemindersDrawerContent from '@/components/ui/RemindersDrawerContent';
 import UserPrayersDrawerContent from '@/components/ui/UserPrayersDrawerContent';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useLikes } from '@/hooks/useLikes';
 import { usePrayers } from '@/hooks/usePrayers';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import React, { useEffect, useState } from 'react';
@@ -21,25 +22,40 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
   const colorScheme = useColorScheme();
   const { settings, saveSetting, error } = useUserSettings();
   const { prayers, loadPrayers } = usePrayers();
+  const { likeCounts, refreshLikeCount } = useLikes();
 
   const [remindersDrawerVisible, setRemindersDrawerVisible] = useState(false);
   const [generalDrawerVisible, setGeneralDrawerVisible] = useState(false);
   const [userPrayersDrawerVisible, setUserPrayersDrawerVisible] = useState(false);
   const [currentSubScreen, setCurrentSubScreen] = useState<string | null>(null);
-  const [totalPrayerCount, setTotalPrayerCount] = useState(0);
+  const [totalLikesCount, setTotalLikesCount] = useState(0);
 
-  // Charger les prières et calculer le total
+  // Charger les prières et les likes
   useEffect(() => {
     loadPrayers();
   }, []);
 
-  // Calculer le nombre total de personnes qui ont prié
+  // Charger les compteurs de likes pour toutes les prières
   useEffect(() => {
     if (prayers && prayers.length > 0) {
-      const total = prayers.reduce((sum, prayer) => sum + (prayer.prayerCount || 0), 0);
-      setTotalPrayerCount(total);
+      prayers.forEach(prayer => {
+        if (prayer.id) {
+          refreshLikeCount(prayer.id);
+        }
+      });
     }
-  }, [prayers]);
+  }, [prayers, refreshLikeCount]);
+
+  // Calculer le nombre total de likes
+  useEffect(() => {
+    if (prayers && prayers.length > 0) {
+      const total = prayers.reduce((sum, prayer) => {
+        const prayerId = prayer.id || '';
+        return sum + (likeCounts[prayerId] || 0);
+      }, 0);
+      setTotalLikesCount(total);
+    }
+  }, [prayers, likeCounts]);
 
   const handleItemPress = (itemId: string) => {
     console.log(`Pressed ${itemId}`);
@@ -109,9 +125,9 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
                 <IconSymbol name="heart" size={28} color="#FFFFFF" />
               </View>
               <View style={styles.statTextContainer}>
-                <Text style={styles.statNumber}>{totalPrayerCount.toLocaleString()}</Text>
+                <Text style={styles.statNumber}>{totalLikesCount.toLocaleString()}</Text>
                 <Text style={styles.statLabel}>
-                  {totalPrayerCount === 1 ? 'personne a prié' : 'personnes ont prié'}
+                  {totalLikesCount === 1 ? 'like reçu' : 'likes reçus'}
                 </Text>
                 <Text style={styles.statSubtitle}>dans la communauté AWA</Text>
               </View>

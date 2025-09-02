@@ -75,11 +75,13 @@ export default function PrayersScreen() {
   // Utiliser le hook Firebase pour les likes
   const {
     likedPrayers,
+    likeCounts,
     loading: likesLoading,
     error: likesError,
     toggleLike,
     isLiked,
     loadUserLikes,
+    refreshLikeCount,
   } = useLikes();
 
   // Mémoriser les formules assignées à chaque prière
@@ -104,6 +106,18 @@ export default function PrayersScreen() {
     };
     loadData();
   }, [loadPrayers, loadPrayerFormulas, selectedCategories]);
+
+  // Charger les compteurs de likes pour les prières
+  useEffect(() => {
+    if (prayers.length > 0 && selectedCategories.includes('prayers')) {
+      console.log('💖 Chargement des compteurs de likes...');
+      prayers.forEach(prayer => {
+        if (prayer.id) {
+          refreshLikeCount(prayer.id);
+        }
+      });
+    }
+  }, [prayers, refreshLikeCount, selectedCategories]);
 
   // Assigner des formules aléatoires aux prières
   useEffect(() => {
@@ -175,6 +189,10 @@ export default function PrayersScreen() {
       const promises = [loadPrayerFormulas(), loadUserLikes()];
       if (selectedCategories.includes('prayers')) {
         promises.push(refreshPrayers());
+        // Rafraîchir les compteurs de likes aussi
+        prayers.forEach(prayer => {
+          if (prayer.id) refreshLikeCount(prayer.id);
+        });
       }
       await Promise.all(promises);
     } catch (error) {
@@ -543,7 +561,6 @@ export default function PrayersScreen() {
               size={36}
               color={isLiked(prayer.id || '') ? '#FF0000' : Colors[colorScheme ?? 'light'].text}
             />
-            {/* Affichage optionnel du nombre de likes - peut être activé plus tard */}
           </TouchableOpacity>
 
           <TouchableOpacity
