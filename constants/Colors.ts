@@ -82,39 +82,39 @@ export const Colors = {
     },
   },
   dark: {
-    text: '#ECEDEE',
-    textSecondary: '#CCCCCC',
+    text: '#1A1A1A',
+    textSecondary: '#666666',
     textOnPrimary: '#FFFFFF',
-    textArabic: '#4A7C69',
-    background: '#1E2D28',
-    surface: '#2A3B35',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#666666',
-    tabIconSelected: tintColorDark,
+    textArabic: '#2D5A4A',
+    background: '#F8FBF9',
+    surface: '#FFFFFF',
+    tint: tintColorLight,
+    icon: '#687076',
+    tabIconDefault: '#999999',
+    tabIconSelected: tintColorLight,
 
-    // Couleurs principales AWA (mode sombre)
-    primary: '#4A7C69',
-    primaryLight: '#6B9C85',
+    // Couleurs principales AWA
+    primary: '#2D5A4A',
+    primaryLight: '#4A7C69',
     primaryDark: '#1A3D30',
 
     // Couleurs d'accentuation
-    accent: '#33D374',
-    accentLight: '#66E599',
+    accent: '#00C851',
+    accentLight: '#33D374',
 
     // Couleurs utilitaires
-    success: '#33D374',
-    warning: '#FFB84D',
-    error: '#FF6B6B',
-    info: '#66D9EF',
+    success: '#00C851',
+    warning: '#FF8F00',
+    error: '#FF4444',
+    info: '#33B5E5',
 
     // Couleurs de bordure
-    border: '#404040',
+    border: '#E0E0E0',
     borderDark: '#4A7C69',
 
     // Couleurs d'ombre
-    shadow: 'rgba(0, 0, 0, 0.3)',
-    overlay: 'rgba(0, 0, 0, 0.7)',
+    shadow: 'rgba(45, 90, 74, 0.1)',
+    overlay: 'rgba(26, 61, 48, 0.5)',
 
     // Couleurs des composants UI
     drawer: {
@@ -123,36 +123,36 @@ export const Colors = {
 
     // Couleurs de l'onboarding
     onboarding: {
-      backgroundColor: '#1E2D28',
+      backgroundColor: '#D0E8D0',
     },
 
     // Couleurs spécifiques aux prières
     prayer: {
-      cardBackground: '#2A3B35',
-      cardShadow: 'rgba(0, 0, 0, 0.3)',
+      cardBackground: '#FFFFFF',
+      cardShadow: 'rgba(45, 90, 74, 0.08)',
       avatarBackground: '#4A7C69',
-      dateText: '#CCCCCC',
-      formulaBackground: '#1E2D28',
-      formulaArabic: '#4A7C69',
-      formulaTranslation: '#CCCCCC',
+      dateText: '#666666',
+      formulaBackground: '#F8FBF9',
+      formulaArabic: '#2D5A4A',
+      formulaTranslation: '#666666',
     },
 
     // Couleurs des statistiques
     stats: {
-      blockBackground: '#2A3B35',
-      blockShadow: 'rgba(0, 0, 0, 0.3)',
-      numberText: '#4A7C69',
-      labelText: '#CCCCCC',
-      accentBar: '#33D374',
+      blockBackground: '#FFFFFF',
+      blockShadow: 'rgba(45, 90, 74, 0.08)',
+      numberText: '#2D5A4A',
+      labelText: '#666666',
+      accentBar: '#00C851',
     },
 
     // Navigation
     navigation: {
-      tabBarBackground: '#2A3B35',
-      tabBarBorder: '#404040',
-      activeTab: '#4A7C69',
-      inactiveTab: '#666666',
-      tabShadow: 'rgba(0, 0, 0, 0.3)',
+      tabBarBackground: '#FFFFFF',
+      tabBarBorder: '#E0E0E0',
+      activeTab: '#2D5A4A',
+      inactiveTab: '#999999',
+      tabShadow: 'rgba(0, 0, 0, 0.05)',
     },
   },
 };
