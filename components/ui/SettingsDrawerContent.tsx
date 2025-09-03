@@ -103,9 +103,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
       {/* Header avec bouton Back et titre */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onClose} activeOpacity={0.7}>
-          <Text style={[styles.backIcon, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
-            ✕
-          </Text>
+          <IconSymbol name="chevron.left" size={20} color={Colors[colorScheme ?? 'light'].textSecondary} />
           <Text style={[styles.backText, { color: Colors[colorScheme ?? 'light'].text }]}>
             Retour
           </Text>
@@ -306,10 +304,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  backIcon: {
-    fontSize: 18,
-    marginRight: 4,
-  },
+
   backText: {
     fontSize: 16,
     fontWeight: '500',

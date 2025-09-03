@@ -21,6 +21,7 @@ export interface PrayerData {
   personalMessage: string;
   prayerCount: number;
   creatorId: string;
+  isPinned?: boolean; // Pour épingler une prière en première position
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -87,8 +88,21 @@ export class PrayerService {
         } as PrayerData;
       });
 
-      console.log('🔍 PrayerService: Prières transformées:', prayers.length);
-      return { success: true, data: prayers };
+      // Trier les prières : les épinglées en premier, puis par date de création
+      const sortedPrayers = prayers.sort((a, b) => {
+        // Si une prière est épinglée et pas l'autre, la priorité va à l'épinglée
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
+        
+        // Si les deux ont le même statut d'épinglage, trier par date de création
+        if (a.createdAt && b.createdAt) {
+          return b.createdAt.getTime() - a.createdAt.getTime();
+        }
+        return 0;
+      });
+
+      console.log('🔍 PrayerService: Prières triées:', sortedPrayers.length);
+      return { success: true, data: sortedPrayers };
     } catch (error: any) {
       console.error('💥 PrayerService: Erreur lors de la récupération des prières:', error);
       return { success: false, error: error.message };
@@ -109,6 +123,25 @@ export class PrayerService {
       return { success: true };
     } catch (error: any) {
       console.error("Erreur lors de l'incrémentation du compteur:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Épingler/désépingler une prière
+  static async togglePinPrayer(
+    prayerId: string,
+    isPinned: boolean
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const prayerRef = doc(db, PRAYERS_COLLECTION, prayerId);
+      await updateDoc(prayerRef, {
+        isPinned: isPinned,
+        updatedAt: new Date().toISOString(),
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      console.error("Erreur lors de l'épinglage/désépinglage de la prière:", error);
       return { success: false, error: error.message };
     }
   }

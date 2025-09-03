@@ -17,6 +17,7 @@ export interface UsePrayersResult {
     prayerId: string,
     updates: Partial<PrayerData>
   ) => Promise<{ success: boolean; error?: string }>;
+  togglePinPrayer: (prayerId: string, isPinned: boolean) => Promise<{ success: boolean; error?: string }>;
   refreshPrayers: () => Promise<void>;
 }
 
@@ -102,6 +103,18 @@ export function usePrayers(): UsePrayersResult {
     return result;
   }, []);
 
+  // Épingler/désépingler une prière
+  const togglePinPrayer = useCallback(async (prayerId: string, isPinned: boolean) => {
+    const result = await PrayerService.togglePinPrayer(prayerId, isPinned);
+
+    if (result.success) {
+      // Mettre à jour localement et recharger pour réorganiser
+      await loadPrayers();
+    }
+
+    return result;
+  }, [loadPrayers]);
+
   // Actualiser les prières (alias pour loadPrayers)
   const refreshPrayers = useCallback(async () => {
     await loadPrayers();
@@ -116,6 +129,7 @@ export function usePrayers(): UsePrayersResult {
     incrementPrayerCount,
     searchPrayers,
     updatePrayer,
+    togglePinPrayer,
     refreshPrayers,
   };
 }

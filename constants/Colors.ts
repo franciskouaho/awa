@@ -44,7 +44,7 @@ export const Colors = {
 
     // Couleurs des composants UI
     drawer: {
-      backgroundColor: '#D0E8D0', // Vert plus foncé que l'original #E8F5E8
+      backgroundColor: '#D0E8D0',
     },
 
     // Couleurs de l'onboarding
@@ -118,7 +118,7 @@ export const Colors = {
 
     // Couleurs des composants UI
     drawer: {
-      backgroundColor: '#1E2D28', // Plus foncé que l'original #2A3B35
+      backgroundColor: '#D0E8D0',
     },
 
     // Couleurs de l'onboarding

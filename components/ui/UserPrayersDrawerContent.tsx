@@ -1,3 +1,4 @@
+import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserCreatedPrayers } from '@/hooks/useUserCreatedPrayers';
@@ -53,9 +54,7 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
       {/* Header avec bouton Back et titre */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onClose} activeOpacity={0.7}>
-          <Text style={[styles.backIcon, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
-            ✕
-          </Text>
+          <IconSymbol name="chevron.left" size={20} color={Colors[colorScheme ?? 'light'].textSecondary} />
           <Text style={[styles.backText, { color: Colors[colorScheme ?? 'light'].text }]}>
             Retour
           </Text>
@@ -85,7 +84,7 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
         </Text>
       )}
 
-      {error && <Text style={{ color: 'red', textAlign: 'center', marginTop: 16 }}>{error}</Text>}
+      {error && <Text style={{ color: Colors[colorScheme ?? 'light'].error, textAlign: 'center', marginTop: 16 }}>{error}</Text>}
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 32 }}>
         {prayers.length === 0 && !loading ? (
@@ -131,39 +130,39 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
                   color={Colors[colorScheme ?? 'light'].tint}
                   style={{ marginRight: 8 }}
                 />
-                <Text style={styles.cardTitle}>{prayer.name}</Text>
+                <Text style={[styles.cardTitle, { color: Colors[colorScheme ?? 'light'].text }]}>{prayer.name}</Text>
                 {prayer.prayerCount > 10 && (
-                  <View style={styles.badgePopular}>
-                    <Text style={styles.badgeText}>Populaire</Text>
+                  <View style={[styles.badgePopular, { backgroundColor: Colors[colorScheme ?? 'light'].warning }]}>
+                    <Text style={[styles.badgeText, { color: Colors[colorScheme ?? 'light'].textOnPrimary }]}>Populaire</Text>
                   </View>
                 )}
                 {prayer.createdAt &&
                   new Date().getTime() - new Date(prayer.createdAt).getTime() <
                     7 * 24 * 3600 * 1000 && (
-                    <View style={styles.badgeRecent}>
-                      <Text style={styles.badgeText}>Nouveau</Text>
+                    <View style={[styles.badgeRecent, { backgroundColor: Colors[colorScheme ?? 'light'].success }]}>
+                      <Text style={[styles.badgeText, { color: Colors[colorScheme ?? 'light'].textOnPrimary }]}>Nouveau</Text>
                     </View>
                   )}
               </View>
-              <Text style={styles.cardMessage}>{prayer.personalMessage}</Text>
+              <Text style={[styles.cardMessage, { color: Colors[colorScheme ?? 'light'].text }]}>{prayer.personalMessage}</Text>
               <View style={styles.cardInfoRow}>
-                {prayer.age && <Text style={styles.cardInfo}>Âge : {prayer.age}</Text>}
-                {prayer.location && <Text style={styles.cardInfo}>Lieu : {prayer.location}</Text>}
+                {prayer.age && <Text style={[styles.cardInfo, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>Âge : {prayer.age}</Text>}
+                {prayer.location && <Text style={[styles.cardInfo, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>Lieu : {prayer.location}</Text>}
                 {prayer.deathDate && (
-                  <Text style={styles.cardInfo}>Décès : {formatDate(prayer.deathDate)}</Text>
+                  <Text style={[styles.cardInfo, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>Décès : {formatDate(prayer.deathDate)}</Text>
                 )}
               </View>
               <View style={styles.cardInfoRow}>
-                <Text style={styles.cardInfo}>Ajoutée le : {formatDate(prayer.createdAt)}</Text>
-                <Text style={styles.cardInfo}>Prières : {prayer.prayerCount ?? 0}</Text>
+                <Text style={[styles.cardInfo, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>Ajoutée le : {formatDate(prayer.createdAt)}</Text>
+                <Text style={[styles.cardInfo, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>Prières : {prayer.prayerCount ?? 0}</Text>
               </View>
               <TouchableOpacity
                 onPress={() => handleDelete(prayer.id!)}
-                style={[styles.deleteButton, deletingId === prayer.id && { opacity: 0.5 }]}
+                style={[styles.deleteButton, { backgroundColor: Colors[colorScheme ?? 'light'].error }, deletingId === prayer.id && { opacity: 0.5 }]}
                 disabled={deletingId === prayer.id}
               >
-                <Ionicons name="trash" size={18} color="#fff" style={{ marginRight: 4 }} />
-                <Text style={{ color: 'white', fontSize: 14 }}>Supprimer</Text>
+                <Ionicons name="trash" size={18} color={Colors[colorScheme ?? 'light'].textOnPrimary} style={{ marginRight: 4 }} />
+                <Text style={{ color: Colors[colorScheme ?? 'light'].textOnPrimary, fontSize: 14 }}>Supprimer</Text>
               </TouchableOpacity>
             </View>
           ))
@@ -202,10 +201,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 8,
   },
-  backIcon: {
-    fontSize: 18,
-    marginRight: 4,
-  },
+
   backText: {
     fontSize: 16,
     fontWeight: '500',
@@ -239,7 +235,6 @@ const styles = StyleSheet.create({
   },
   cardInfo: {
     fontSize: 13,
-    color: '#666',
     marginRight: 16,
     marginBottom: 2,
   },
@@ -250,25 +245,24 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingVertical: 7,
     paddingHorizontal: 16,
-    backgroundColor: '#e74c3c',
+
     borderRadius: 8,
   },
   badgePopular: {
-    backgroundColor: '#f1c40f',
+
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
     marginLeft: 8,
   },
   badgeRecent: {
-    backgroundColor: '#2ecc71',
+
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
     marginLeft: 8,
   },
   badgeText: {
-    color: '#fff',
     fontSize: 11,
     fontWeight: 'bold',
   },

@@ -18,6 +18,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
+    Animated,
     Dimensions,
     Platform,
     RefreshControl,
@@ -52,6 +53,9 @@ export default function PrayersScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [shareDrawerVisible, setShareDrawerVisible] = useState(false);
   const [selectedPrayerForShare, setSelectedPrayerForShare] = useState<PrayerData | null>(null);
+  
+  // Animation pour l'icône de scroll
+  const scrollIconAnimation = useRef(new Animated.Value(0)).current;
 
   // Utiliser le contexte des catégories
   const { selectedCategories } = useCategories();
@@ -118,6 +122,31 @@ export default function PrayersScreen() {
       });
     }
   }, [prayers, refreshLikeCount, selectedCategories]);
+
+  // Démarrer l'animation de l'icône de scroll
+  useEffect(() => {
+    const startScrollAnimation = () => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(scrollIconAnimation, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scrollIconAnimation, {
+            toValue: 0,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    };
+
+    // Démarrer l'animation seulement si on a des prières
+    if (prayers.length > 0) {
+      startScrollAnimation();
+    }
+  }, [prayers.length, scrollIconAnimation]);
 
   // Assigner des formules aléatoires aux prières
   useEffect(() => {
@@ -571,6 +600,38 @@ export default function PrayersScreen() {
             <Ionicons name="share-outline" size={36} color={Colors[colorScheme ?? 'light'].text} />
           </TouchableOpacity>
         </View>
+
+        {/* Icône de scroll animée - seulement sur la première prière */}
+        {index === 0 && prayers.length > 1 && (
+          <Animated.View
+            style={[
+              styles.scrollIndicator,
+              {
+                transform: [
+                  {
+                    translateY: scrollIconAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 10],
+                    }),
+                  },
+                ],
+                opacity: scrollIconAnimation.interpolate({
+                  inputRange: [0, 0.5, 1],
+                  outputRange: [0.7, 1, 0.7],
+                }),
+              },
+            ]}
+          >
+            <Ionicons
+              name="chevron-down"
+              size={24}
+              color={Colors[colorScheme ?? 'light'].text}
+            />
+            <Text style={[styles.scrollText, { color: Colors[colorScheme ?? 'light'].text }]}>
+              Glissez pour voir plus
+            </Text>
+          </Animated.View>
+        )}
       </View>
     );
   };
@@ -1027,5 +1088,19 @@ const styles = StyleSheet.create({
   },
   boldText: {
     fontWeight: '700',
+  },
+  scrollIndicator: {
+    position: 'absolute',
+    bottom: 40,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scrollText: {
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '500',
+    opacity: 0.8,
   },
 });

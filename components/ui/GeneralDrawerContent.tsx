@@ -1,12 +1,12 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
+import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import { useAuth } from '@/contexts/AuthContext';
-import { usePrayers } from '@/hooks/usePrayers';
-import React, { useState } from 'react';
+import { router } from 'expo-router';
+import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import AddDrawerContent from '@/components/ui/AddDrawerContent';
+
 
 interface GeneralDrawerContentProps {
   onClose: () => void;
@@ -28,8 +28,7 @@ export default function GeneralDrawerContent({
   const { settings, loading } = useUserSettings();
   const { user, firebaseUser } = useAuth();
 
-  // Ajout de l'état pour afficher le formulaire ou le menu
-  const [currentView, setCurrentView] = useState<'menu' | 'prayer-form'>('menu');
+
 
   // Utiliser les données de Firebase en priorité, puis les valeurs passées en props ou des valeurs par défaut
   const firstName = settings?.firstName || currentValues?.firstName || 'Utilisateur';
@@ -55,11 +54,7 @@ export default function GeneralDrawerContent({
       alignItems: 'center',
       marginBottom: 32,
     },
-    backIcon: {
-      fontSize: 20,
-      marginRight: 8,
-      color: colors.textSecondary,
-    },
+
     backText: {
       fontSize: 16,
       fontWeight: '500',
@@ -139,17 +134,15 @@ export default function GeneralDrawerContent({
     },
   });
 
-  if (currentView === 'prayer-form') {
-    return <AddDrawerContent onClose={() => setCurrentView('menu')} />;
-  }
+
 
   return (
     <View style={styles.container}>
       {/* Header avec bouton Back et titre */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onClose} activeOpacity={0.7}>
-          <Text style={styles.backIcon}>←</Text>
-          <Text style={styles.backText}>Retour</Text>
+          <IconSymbol name="chevron.left" size={20} color={colors.textSecondary} />
+          <Text style={[styles.backText, { color: colors.text }]}>Retour</Text>
         </TouchableOpacity>
 
         <Text style={styles.title}>Général</Text>
@@ -169,7 +162,10 @@ export default function GeneralDrawerContent({
             <View style={styles.card}>
               <TouchableOpacity
                 style={styles.menuItem}
-                onPress={() => setCurrentView('prayer-form')}
+                onPress={() => {
+                  onClose();
+                  router.push('/add-prayer');
+                }}
                 activeOpacity={0.7}
               >
                 <View style={styles.iconContainer}>

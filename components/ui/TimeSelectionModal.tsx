@@ -51,7 +51,6 @@ export default function TimeSelectionModal({
       justifyContent: 'flex-end',
     },
     modalContent: {
-      backgroundColor: '#FFFFFF',
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
       height: 300,
@@ -63,12 +62,10 @@ export default function TimeSelectionModal({
       paddingHorizontal: 20,
       paddingVertical: 16,
       borderBottomWidth: 0.5,
-      borderBottomColor: '#E5E5E5',
     },
     title: {
       fontSize: 17,
       fontWeight: '600',
-      color: '#000000',
     },
     doneButton: {
       paddingHorizontal: 4,
@@ -76,7 +73,6 @@ export default function TimeSelectionModal({
     },
     doneText: {
       fontSize: 17,
-      color: '#007AFF',
       fontWeight: '600',
     },
     content: {
@@ -97,16 +93,13 @@ export default function TimeSelectionModal({
       fontWeight: '400',
     },
     timeTextSelected: {
-      color: '#000000',
       fontWeight: '600',
       fontSize: 28,
     },
     timeTextUnselected: {
-      color: '#666666',
       fontSize: 20,
     },
     timeTextFaded: {
-      color: '#C7C7CC',
       fontSize: 18,
     },
   });
@@ -122,7 +115,7 @@ export default function TimeSelectionModal({
     <Modal visible={isVisible} transparent={true} animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalContainer}>
         <TouchableOpacity style={{ flex: 1 }} onPress={onClose} activeOpacity={1} />
-        <View style={styles.modalContent}>
+        <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
           <View style={styles.header}>
             <Text style={styles.title}>Jusqu'à</Text>
             <TouchableOpacity style={styles.doneButton} onPress={onClose}>

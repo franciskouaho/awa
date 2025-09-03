@@ -2,6 +2,7 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { ContentService } from './contentService';
 
 export interface NotificationSettings {
   enableReminders: boolean;
@@ -32,11 +33,15 @@ class NotificationService {
     if (!permissions.granted) {
       throw new Error('Notification permissions not granted');
     }
+
+    // Obtenir du contenu enrichi pour la prière du défunt
+    const deceasedPrayerContent = await this.getDeceasedPrayerContent();
+
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: '🕊️ Prière pour le défunt',
-        body: 'Ceci est une notification de test pour la prière du défunt.',
-        data: { type: 'deceasedPrayer' },
+        title: deceasedPrayerContent.title,
+        body: deceasedPrayerContent.body,
+        data: deceasedPrayerContent.data,
         sound: 'default',
       },
       trigger: {
@@ -44,6 +49,38 @@ class NotificationService {
         seconds: 1,
       },
     });
+  }
+
+  /**
+   * Obtient le contenu enrichi pour les prières de défunts
+   */
+  private async getDeceasedPrayerContent(): Promise<{ title: string; body: string; data: any }> {
+    try {
+      // Récupérer une formule de prière appropriée pour les défunts
+      const result = await ContentService.getRandomPrayerFormula();
+      if (result.success && result.data) {
+        return {
+          title: '🕊️ Prière pour les défunts',
+          body: `${result.data.translation}\n\n"${result.data.arabic}"\n\nQue Dieu accorde Sa miséricorde à tous les défunts.`,
+          data: {
+            type: 'deceasedPrayer',
+            hasContent: true,
+          },
+        };
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du contenu pour les défunts:', error);
+    }
+
+    // Fallback
+    return {
+      title: '🕊️ Prière pour les défunts',
+      body: 'Prenez un moment pour prier pour les âmes des défunts. Que Dieu leur accorde Sa miséricorde.',
+      data: {
+        type: 'deceasedPrayer',
+        hasContent: false,
+      },
+    };
   }
 
   private isInitialized = false;
@@ -183,6 +220,10 @@ class NotificationService {
     const [startHourRaw, startMinuteRaw] = settings.startTime.split(':');
     const startHour = Number(startHourRaw) || 9;
     const startMinute = Number(startMinuteRaw) || 0;
+
+    // Obtenir le contenu enrichi pour les prières de défunts
+    const deceasedPrayerContent = await this.getDeceasedPrayerContent();
+
     for (const isEnabled of settings.selectedDays) {
       const dayIndex = settings.selectedDays.indexOf(isEnabled);
       if (!isEnabled) continue;
@@ -190,9 +231,9 @@ class NotificationService {
       const weekday = dayIndex === 0 ? 7 : dayIndex;
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: '🕊️ Prière pour les défunts',
-          body: 'Prenez un moment pour prier pour les âmes des défunts.',
-          data: { type: 'deceasedPrayer' },
+          title: deceasedPrayerContent.title,
+          body: deceasedPrayerContent.body,
+          data: deceasedPrayerContent.data,
           sound: settings.sound ? 'default' : undefined,
           categoryIdentifier: 'DECEASED_PRAYER_REMINDER',
         },
@@ -236,13 +277,15 @@ class NotificationService {
         // Convertir l'index (0 = dimanche) au format attendu (1 = lundi)
         const weekday = dayIndex === 0 ? 7 : dayIndex;
 
+        // Obtenir le contenu enrichi de la prière
+        const prayerContent = await this.getPrayerContent(settings.selectedFeed);
+
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: '🙏 Temps de prière',
-            body: this.getPrayerReminderMessage(settings.selectedFeed),
+            title: prayerContent.title,
+            body: prayerContent.body,
             data: {
-              type: 'prayer-reminder',
-              feed: settings.selectedFeed,
+              ...prayerContent.data,
               reminderIndex: i + 1,
               totalReminders: settings.dailyCount,
             },
@@ -336,11 +379,17 @@ class NotificationService {
       throw new Error('Notification permissions not granted');
     }
 
+    // Obtenir du contenu enrichi pour le test
+    const prayerContent = await this.getPrayerContent('Feed actuel');
+
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: '🔔 Notification de test',
-        body: 'Votre système de notifications fonctionne parfaitement !',
-        data: { type: 'test' },
+        title: prayerContent.title,
+        body: prayerContent.body,
+        data: {
+          ...prayerContent.data,
+          type: 'test',
+        },
         sound: 'default',
       },
       trigger: {
@@ -351,7 +400,139 @@ class NotificationService {
   }
 
   /**
-   * Obtient le message de rappel selon le feed sélectionné
+   * Obtient le contenu de prière enrichi selon le feed sélectionné
+   */
+  private async getPrayerContent(
+    feedName: string
+  ): Promise<{ title: string; body: string; data: any }> {
+    try {
+      // Récupérer du contenu aléatoire selon le feed
+      const content = await this.getRandomContentForFeed(feedName);
+
+      if (content) {
+        return {
+          title: '🙏 Temps de prière',
+          body: content,
+          data: {
+            type: 'prayer-reminder',
+            feed: feedName,
+            hasContent: true,
+          },
+        };
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du contenu:', error);
+    }
+
+    // Fallback vers les messages statiques si pas de contenu
+    return {
+      title: '🙏 Temps de prière',
+      body: this.getPrayerReminderMessage(feedName),
+      data: {
+        type: 'prayer-reminder',
+        feed: feedName,
+        hasContent: false,
+      },
+    };
+  }
+
+  /**
+   * Récupère du contenu aléatoire selon le feed sélectionné
+   */
+  private async getRandomContentForFeed(feedName: string): Promise<string | null> {
+    try {
+      const feedContentMap: { [key: string]: () => Promise<string | null> } = {
+        'Feed actuel': () => this.getRandomPrayerContent(),
+        'Current feed': () => this.getRandomPrayerContent(),
+        'Les bases': () => this.getRandomPrayerFormula(),
+        'The basics': () => this.getRandomPrayerFormula(),
+        'Paix mentale': () => this.getRandomVerse(),
+        'Mental Peace': () => this.getRandomVerse(),
+        'Feu matinal': () => this.getRandomHadith(),
+        'Morning Fire': () => this.getRandomHadith(),
+        'Abondance et richesse': () => this.getRandomVerse(),
+        'Abundance & Wealth': () => this.getRandomVerse(),
+        'Boost de confiance': () => this.getRandomHadith(),
+        'Confidence Boost': () => this.getRandomHadith(),
+        'Mes favoris': () => this.getRandomPrayerContent(),
+        'My favorites': () => this.getRandomPrayerContent(),
+        'Anti-dépression': () => this.getRandomVerse(),
+        'Anti-depression': () => this.getRandomVerse(),
+        'Nourrir votre foi': () => this.getRandomHadith(),
+        'Nurture your faith': () => this.getRandomHadith(),
+        'Brut et sans filtre': () => this.getRandomPrayerContent(),
+        'Unfiltered Raw': () => this.getRandomPrayerContent(),
+      };
+
+      const contentGetter = feedContentMap[feedName] || feedContentMap['Feed actuel'];
+      return await contentGetter();
+    } catch (error) {
+      console.error('Erreur lors de la récupération du contenu pour le feed:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Récupère une formule de prière aléatoire
+   */
+  private async getRandomPrayerFormula(): Promise<string | null> {
+    try {
+      const result = await ContentService.getRandomPrayerFormula();
+      if (result.success && result.data) {
+        return `${result.data.translation}\n\n"${result.data.arabic}"`;
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la formule:', error);
+    }
+    return null;
+  }
+
+  /**
+   * Récupère un verset aléatoire
+   */
+  private async getRandomVerse(): Promise<string | null> {
+    try {
+      const result = await ContentService.getRandomVerse();
+      if (result.success && result.data) {
+        return `${result.data.translation}\n\n${result.data.reference}`;
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du verset:', error);
+    }
+    return null;
+  }
+
+  /**
+   * Récupère un hadith aléatoire
+   */
+  private async getRandomHadith(): Promise<string | null> {
+    try {
+      const result = await ContentService.getRandomHadith();
+      if (result.success && result.data) {
+        return `${result.data.text}\n\n- ${result.data.source}`;
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du hadith:', error);
+    }
+    return null;
+  }
+
+  /**
+   * Récupère du contenu de prière mixte (formule, verset ou hadith)
+   */
+  private async getRandomPrayerContent(): Promise<string | null> {
+    const contentTypes = [
+      () => this.getRandomPrayerFormula(),
+      () => this.getRandomVerse(),
+      () => this.getRandomHadith(),
+    ];
+
+    const randomType = contentTypes[Math.floor(Math.random() * contentTypes.length)];
+    return await randomType();
+  }
+
+  /**
+   * Obtient le message de rappel selon le feed sélectionné (fallback)
    */
   private getPrayerReminderMessage(feedName: string): string {
     const messages: { [key: string]: string[] } = {
@@ -419,6 +600,47 @@ class NotificationService {
   }
 
   /**
+   * Envoie une notification personnalisée avec du contenu enrichi
+   */
+  async sendCustomPrayerNotification(feedName: string, customMessage?: string): Promise<void> {
+    await this.initializeNotifications();
+
+    const permissions = await this.getPermissions();
+    if (!permissions.granted) {
+      throw new Error('Notification permissions not granted');
+    }
+
+    let content;
+    if (customMessage) {
+      content = {
+        title: '🙏 Message de prière',
+        body: customMessage,
+        data: {
+          type: 'custom-prayer',
+          feed: feedName,
+          hasContent: true,
+        },
+      };
+    } else {
+      content = await this.getPrayerContent(feedName);
+    }
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: content.title,
+        body: content.body,
+        data: content.data,
+        sound: 'default',
+        categoryIdentifier: 'PRAYER_REMINDER',
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: 1,
+      },
+    });
+  }
+
+  /**
    * Configure les catégories de notifications interactives
    */
   async setupNotificationCategories(): Promise<void> {
@@ -442,6 +664,14 @@ class NotificationService {
         options: { opensAppToForeground: true },
       },
     ]);
+
+    await Notifications.setNotificationCategoryAsync('DECEASED_PRAYER_REMINDER', [
+      {
+        identifier: 'PRAY_FOR_DECEASED',
+        buttonTitle: 'Prier pour les défunts',
+        options: { opensAppToForeground: true },
+      },
+    ]);
   }
 }
 
@@ -459,7 +689,10 @@ export function useNotifications() {
     sendTestNotification: () => notificationService.sendTestNotification(),
     sendTestDeceasedPrayerNotification: () =>
       notificationService.sendTestDeceasedPrayerNotification(),
+    sendCustomPrayerNotification: (feedName: string, customMessage?: string) =>
+      notificationService.sendCustomPrayerNotification(feedName, customMessage),
     getScheduledReminders: () => notificationService.getScheduledReminders(),
     getExpoPushToken: () => notificationService.getExpoPushToken(),
+    setupNotificationCategories: () => notificationService.setupNotificationCategories(),
   };
 }

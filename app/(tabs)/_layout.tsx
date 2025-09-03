@@ -1,10 +1,10 @@
-import AddDrawerContent from '@/components/ui/AddDrawerContent';
+
 import BottomDrawer from '@/components/ui/BottomDrawer';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import SettingsDrawerContent from '@/components/ui/SettingsDrawerContent';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Tabs } from 'expo-router';
+import { Tabs, router } from 'expo-router';
 import React, { useState } from 'react';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -12,7 +12,6 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const [settingsDrawerVisible, setSettingsDrawerVisible] = useState(false);
-  const [addDrawerVisible, setAddDrawerVisible] = useState(false);
 
   const CustomTabBar = () => {
     return (
@@ -23,12 +22,10 @@ export default function TabLayout() {
             style={[
               styles.roundButton,
               {
-                backgroundColor: addDrawerVisible
-                  ? 'rgba(69, 90, 100, 0.9)'
-                  : 'rgba(69, 90, 100, 0.7)',
+                backgroundColor: 'rgba(69, 90, 100, 0.7)',
               },
             ]}
-            onPress={() => setAddDrawerVisible(true)}
+            onPress={() => router.push('/add-prayer')}
             activeOpacity={0.8}
           >
             <IconSymbol size={28} name="plus.circle.fill" color="white" />
@@ -51,10 +48,7 @@ export default function TabLayout() {
           </TouchableOpacity>
         </View>
 
-        {/* Drawer Add */}
-        <BottomDrawer isVisible={addDrawerVisible} onClose={() => setAddDrawerVisible(false)}>
-          <AddDrawerContent onClose={() => setAddDrawerVisible(false)} />
-        </BottomDrawer>
+
 
         {/* Drawer Settings */}
         <BottomDrawer
