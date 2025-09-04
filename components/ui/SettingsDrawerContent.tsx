@@ -237,6 +237,8 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
       <BottomDrawer
         isVisible={remindersDrawerVisible}
         onClose={() => setRemindersDrawerVisible(false)}
+        disableSwipeToClose={true}
+        disableOverlayClose={true}
       >
         <RemindersDrawerContent onClose={() => setRemindersDrawerVisible(false)} />
       </BottomDrawer>

@@ -22,7 +22,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     sendTestNotification,
     sendTestDeceasedPrayerNotification,
   } = useNotifications();
-  const { permissions, requestPermission, isLoading } = useNotificationPermissions();
+  const { permissions } = useNotificationPermissions();
 
   const [enableReminders, setEnableReminders] = useState(true);
   const [sound, setSound] = useState(true);
@@ -78,74 +78,10 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     })();
   }, []);
 
-  // Vérifier les permissions au chargement
-  useEffect(() => {
-    if (enableReminders && !permissions?.granted) {
-      checkAndRequestPermissions();
-    }
-  }, [enableReminders, permissions]);
-
-  const checkAndRequestPermissions = async () => {
-    if (!permissions?.granted && permissions?.canAskAgain) {
-      Alert.alert(
-        'Permissions requises',
-        'Cette application a besoin de permissions pour envoyer des notifications de rappel.',
-        [
-          { text: 'Plus tard', style: 'cancel' },
-          {
-            text: 'Autoriser',
-            onPress: async () => {
-              const granted = await requestPermission();
-              if (!granted) {
-                Alert.alert(
-                  'Permissions refusées',
-                  'Vous pouvez activer les notifications dans les paramètres de votre appareil.'
-                );
-              }
-            },
-          },
-        ]
-      );
-    }
-  };
-
-  const handleEnableRemindersChange = async (value: boolean) => {
-    setEnableReminders(value);
-
-    if (value && !permissions?.granted) {
-      const granted = await requestPermission();
-      if (!granted) {
-        setEnableReminders(false);
-        Alert.alert(
-          'Permissions requises',
-          'Les notifications sont nécessaires pour les rappels. Vous pouvez les activer dans les paramètres.'
-        );
-        return;
-      }
-    }
-
-    if (!value) {
-      // Annuler toutes les notifications si désactivé
-      try {
-        await cancelAllReminders();
-      } catch (error) {
-        console.error("Erreur lors de l'annulation des notifications:", error);
-      }
-    }
-  };
-
   const toggleDay = (index: number) => {
     const newSelectedDays = [...selectedDays];
     newSelectedDays[index] = !newSelectedDays[index];
     setSelectedDays(newSelectedDays);
-  };
-
-  const adjustCounter = (increment: boolean) => {
-    if (increment) {
-      setDailyCount(Math.min(dailyCount + 1, 10));
-    } else {
-      setDailyCount(Math.max(dailyCount - 1, 1));
-    }
   };
 
   const openTimeModal = (type: 'start' | 'end') => {
@@ -225,32 +161,6 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       console.error('Erreur lors du test:', error);
       Alert.alert('Erreur', "Impossible d'envoyer la notification de test.");
     }
-  };
-
-  const getFeedDisplayName = (feedName: string) => {
-    const feedTranslations: { [key: string]: string } = {
-      'Current feed': 'Feed actuel',
-      'Feed actuel': 'Feed actuel',
-      'The basics': 'Les bases',
-      'Les bases': 'Les bases',
-      'Unfiltered Raw': 'Brut et sans filtre',
-      'Brut et sans filtre': 'Brut et sans filtre',
-      'Mental Peace': 'Paix mentale',
-      'Paix mentale': 'Paix mentale',
-      'Abundance & Wealth': 'Abondance et richesse',
-      'Abondance et richesse': 'Abondance et richesse',
-      'Confidence Boost': 'Boost de confiance',
-      'Boost de confiance': 'Boost de confiance',
-      'Morning Fire': 'Feu matinal',
-      'Feu matinal': 'Feu matinal',
-      'My favorites': 'Mes favoris',
-      'Mes favoris': 'Mes favoris',
-      'Anti-depression': 'Anti-dépression',
-      'Anti-dépression': 'Anti-dépression',
-      'Nurture your faith': 'Nourrir votre foi',
-      'Nourrir votre foi': 'Nourrir votre foi',
-    };
-    return feedTranslations[feedName] || feedName;
   };
 
   const styles = StyleSheet.create({
@@ -554,66 +464,6 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
             </View>
           </>
         )}
-
-        {/* Prayer Reminders Card */}
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Rappels de prières</Text>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Activer les rappels</Text>
-            <Switch
-              style={styles.switch}
-              value={enableReminders}
-              onValueChange={handleEnableRemindersChange}
-              trackColor={{ false: colors.border, true: colors.info }}
-              thumbColor={enableReminders ? colors.surface : colors.textSecondary}
-            />
-          </View>
-
-          {enableReminders && (
-            <>
-              <View style={styles.row}>
-                <Text style={styles.label}>Son</Text>
-                <Switch
-                  style={styles.switch}
-                  value={sound}
-                  onValueChange={setSound}
-                  trackColor={{ false: colors.border, true: colors.info }}
-                  thumbColor={sound ? colors.surface : colors.textSecondary}
-                />
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Nombre par jour</Text>
-                <View style={styles.counterContainer}>
-                  <TouchableOpacity
-                    style={styles.counterButton}
-                    onPress={() => adjustCounter(false)}
-                  >
-                    <Text style={styles.counterButtonText}>−</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.counterValue}>{dailyCount}</Text>
-                  <TouchableOpacity
-                    style={styles.counterButton}
-                    onPress={() => adjustCounter(true)}
-                  >
-                    <Text style={styles.counterButtonText}>+</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={[styles.row, styles.lastRow]}>
-                <Text style={styles.label}>Feed sélectionné</Text>
-                <View style={styles.selectionButton}>
-                  <Text style={styles.selectionText}>
-                    {getFeedDisplayName(selectedFeed)}
-                  </Text>
-                  <Text style={styles.arrow}>›</Text>
-                </View>
-              </View>
-            </>
-          )}
-        </View>
       </ScrollView>
 
       {/* Modales */}
@@ -623,6 +473,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
         onSelect={handleTimeSelect}
         selectedTime={timeModalType === 'start' ? startTime : endTime}
         timeType={timeModalType}
+        disableOverlayClose={true}
       />
     </View>
   );

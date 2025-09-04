@@ -1,3 +1,5 @@
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import React, { useEffect, useRef } from 'react';
 import {
   Animated,
@@ -8,8 +10,6 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors } from '@/constants/Colors';
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -18,6 +18,8 @@ interface BottomDrawerProps {
   onClose: () => void;
   children: React.ReactNode;
   height?: number;
+  disableSwipeToClose?: boolean;
+  disableOverlayClose?: boolean;
 }
 
 export default function BottomDrawer({
@@ -25,6 +27,8 @@ export default function BottomDrawer({
   onClose,
   children,
   height = screenHeight * 0.9, // Augmenter la hauteur à 90% de l'écran
+  disableSwipeToClose = false,
+  disableOverlayClose = false,
 }: BottomDrawerProps) {
   const colorScheme = useColorScheme();
   const translateY = useRef(new Animated.Value(height)).current;
@@ -32,14 +36,17 @@ export default function BottomDrawer({
 
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (_, gestureState) => {
+      if (disableSwipeToClose) return false;
       return Math.abs(gestureState.dy) > 10;
     },
     onPanResponderMove: (_, gestureState) => {
+      if (disableSwipeToClose) return;
       if (gestureState.dy > 0) {
         translateY.setValue(gestureState.dy);
       }
     },
     onPanResponderRelease: (_, gestureState) => {
+      if (disableSwipeToClose) return;
       if (gestureState.dy > 50 || gestureState.vy > 0.5) {
         onClose();
       } else {
@@ -101,7 +108,7 @@ export default function BottomDrawer({
     >
       <View style={styles.container}>
         {/* Overlay */}
-        <TouchableWithoutFeedback onPress={onClose}>
+        <TouchableWithoutFeedback onPress={disableOverlayClose ? undefined : onClose}>
           <Animated.View
             style={[
               styles.overlay,
@@ -122,7 +129,7 @@ export default function BottomDrawer({
               transform: [{ translateY }],
             },
           ]}
-          {...panResponder.panHandlers}
+          {...(disableSwipeToClose ? {} : panResponder.panHandlers)}
         >
           {/* Handle */}
           <View style={styles.handleContainer}>

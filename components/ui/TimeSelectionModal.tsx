@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import React from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface TimeSelectionModalProps {
   isVisible: boolean;
@@ -9,6 +9,7 @@ interface TimeSelectionModalProps {
   timeType: 'start' | 'end';
   onSelect: (time: string) => void;
   onClose: () => void;
+  disableOverlayClose?: boolean;
 }
 
 export default function TimeSelectionModal({
@@ -17,23 +18,21 @@ export default function TimeSelectionModal({
   timeType,
   onSelect,
   onClose,
+  disableOverlayClose = false,
 }: TimeSelectionModalProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
-  // Générer les heures autour de l'heure sélectionnée
+  // Générer toutes les heures de la journée avec des intervalles de 30 minutes
   const generateTimes = () => {
-    const [hours, minutes] = selectedTime.split(':').map(Number);
     const times = [];
 
-    // Générer 3 heures avant et 3 heures après
-    for (let i = -3; i <= 3; i++) {
-      let newHours = hours + i;
-      if (newHours < 0) newHours += 24;
-      if (newHours >= 24) newHours -= 24;
-
-      const timeString = `${newHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-      times.push(timeString);
+    // Générer toutes les heures de 00:00 à 23:30 avec des intervalles de 30 minutes
+    for (let hours = 0; hours < 24; hours++) {
+      for (let minutes = 0; minutes < 60; minutes += 30) {
+        const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        times.push(timeString);
+      }
     }
 
     return times;
@@ -42,7 +41,6 @@ export default function TimeSelectionModal({
   if (!isVisible) return null;
 
   const times = generateTimes();
-  const centerIndex = Math.floor(times.length / 2);
 
   const styles = StyleSheet.create({
     modalContainer: {
@@ -53,7 +51,7 @@ export default function TimeSelectionModal({
     modalContent: {
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
-      height: 300,
+      height: 400,
     },
     header: {
       flexDirection: 'row',
@@ -81,12 +79,24 @@ export default function TimeSelectionModal({
       paddingHorizontal: 20,
     },
     timeContainer: {
+      flex: 1,
+    },
+    scrollContent: {
       alignItems: 'center',
+      paddingVertical: 20,
     },
     timeItem: {
       paddingVertical: 12,
+      paddingHorizontal: 20,
       alignItems: 'center',
       width: '100%',
+      borderRadius: 8,
+      marginVertical: 4,
+    },
+    timeItemSelected: {
+      backgroundColor: 'rgba(0, 122, 255, 0.1)',
+      borderWidth: 2,
+      borderColor: 'rgba(0, 122, 255, 0.3)',
     },
     timeText: {
       fontSize: 24,
@@ -97,39 +107,50 @@ export default function TimeSelectionModal({
       fontSize: 28,
     },
     timeTextUnselected: {
-      fontSize: 20,
-    },
-    timeTextFaded: {
       fontSize: 18,
     },
   });
 
-  const getTimeStyle = (index: number) => {
-    const distance = Math.abs(index - centerIndex);
-    if (distance === 0) return styles.timeTextSelected;
-    if (distance === 1) return styles.timeTextUnselected;
-    return styles.timeTextFaded;
+  const getTimeStyle = (time: string) => {
+    if (time === selectedTime) return styles.timeTextSelected;
+    return styles.timeTextUnselected;
   };
 
   return (
     <Modal visible={isVisible} transparent={true} animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalContainer}>
-        <TouchableOpacity style={{ flex: 1 }} onPress={onClose} activeOpacity={1} />
+        <TouchableOpacity 
+          style={{ flex: 1 }} 
+          onPress={disableOverlayClose ? undefined : onClose} 
+          activeOpacity={1} 
+        />
         <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
           <View style={styles.header}>
-            <Text style={styles.title}>Jusqu'à</Text>
+            <Text style={[styles.title, { color: colors.text }]}>
+              {timeType === 'start' ? 'Heure de début' : 'Heure de fin'}
+            </Text>
             <TouchableOpacity style={styles.doneButton} onPress={onClose}>
-              <Text style={styles.doneText}>Terminé</Text>
+              <Text style={[styles.doneText, { color: colors.primary }]}>Terminé</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.content}>
-            <View style={styles.timeContainer}>
-              {times.map((time, index) => (
-                <TouchableOpacity key={time} style={styles.timeItem} onPress={() => onSelect(time)}>
-                  <Text style={[styles.timeText, getTimeStyle(index)]}>{time}</Text>
+            <ScrollView
+              style={styles.timeContainer}
+              showsVerticalScrollIndicator={true}
+              contentContainerStyle={styles.scrollContent}
+            >
+              {times.map(time => (
+                <TouchableOpacity
+                  key={time}
+                  style={[styles.timeItem, time === selectedTime && styles.timeItemSelected]}
+                  onPress={() => onSelect(time)}
+                >
+                  <Text style={[styles.timeText, getTimeStyle(time), { color: colors.text }]}>
+                    {time}
+                  </Text>
                 </TouchableOpacity>
               ))}
-            </View>
+            </ScrollView>
           </View>
         </View>
       </View>
