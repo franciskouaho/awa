@@ -26,8 +26,6 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
 
   const [enableReminders, setEnableReminders] = useState(true);
   const [sound, setSound] = useState(true);
-  const [morningReminder, setMorningReminder] = useState(true);
-  const [eveningReminder, setEveningReminder] = useState(true);
   const [enableDeceasedReminder, setEnableDeceasedReminder] = useState(false);
   const [dailyCount, setDailyCount] = useState(3);
   const [startTime, setStartTime] = useState('09:00');
@@ -70,8 +68,6 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       if (saved) {
         setEnableReminders(saved.enableReminders ?? true);
         setSound(saved.sound ?? true);
-        setMorningReminder(saved.morningReminder ?? true);
-        setEveningReminder(saved.eveningReminder ?? true);
         setEnableDeceasedReminder(saved.enableDeceasedReminder ?? false);
         setDailyCount(saved.dailyCount ?? 3);
         setStartTime(saved.startTime ?? '09:00');
@@ -181,8 +177,6 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       const settings: NotificationSettings = {
         enableReminders,
         sound,
-        morningReminder,
-        eveningReminder,
         enableDeceasedReminder,
         dailyCount,
         startTime,
@@ -561,31 +555,64 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
           </>
         )}
 
-        {/* Daily Streak Reminders Card */}
+        {/* Prayer Reminders Card */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Rappels de série quotidienne</Text>
+          <Text style={styles.sectionTitle}>Rappels de prières</Text>
 
           <View style={styles.row}>
-            <Text style={styles.label}>Rappel matinal</Text>
+            <Text style={styles.label}>Activer les rappels</Text>
             <Switch
               style={styles.switch}
-              value={morningReminder}
-              onValueChange={setMorningReminder}
+              value={enableReminders}
+              onValueChange={handleEnableRemindersChange}
               trackColor={{ false: colors.border, true: colors.info }}
-              thumbColor={morningReminder ? colors.surface : colors.textSecondary}
+              thumbColor={enableReminders ? colors.surface : colors.textSecondary}
             />
           </View>
 
-          <View style={[styles.row, styles.lastRow]}>
-            <Text style={styles.label}>Rappel du soir</Text>
-            <Switch
-              style={styles.switch}
-              value={eveningReminder}
-              onValueChange={setEveningReminder}
-              trackColor={{ false: colors.border, true: colors.info }}
-              thumbColor={eveningReminder ? colors.surface : colors.textSecondary}
-            />
-          </View>
+          {enableReminders && (
+            <>
+              <View style={styles.row}>
+                <Text style={styles.label}>Son</Text>
+                <Switch
+                  style={styles.switch}
+                  value={sound}
+                  onValueChange={setSound}
+                  trackColor={{ false: colors.border, true: colors.info }}
+                  thumbColor={sound ? colors.surface : colors.textSecondary}
+                />
+              </View>
+
+              <View style={styles.row}>
+                <Text style={styles.label}>Nombre par jour</Text>
+                <View style={styles.counterContainer}>
+                  <TouchableOpacity
+                    style={styles.counterButton}
+                    onPress={() => adjustCounter(false)}
+                  >
+                    <Text style={styles.counterButtonText}>−</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.counterValue}>{dailyCount}</Text>
+                  <TouchableOpacity
+                    style={styles.counterButton}
+                    onPress={() => adjustCounter(true)}
+                  >
+                    <Text style={styles.counterButtonText}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={[styles.row, styles.lastRow]}>
+                <Text style={styles.label}>Feed sélectionné</Text>
+                <View style={styles.selectionButton}>
+                  <Text style={styles.selectionText}>
+                    {getFeedDisplayName(selectedFeed)}
+                  </Text>
+                  <Text style={styles.arrow}>›</Text>
+                </View>
+              </View>
+            </>
+          )}
         </View>
       </ScrollView>
 

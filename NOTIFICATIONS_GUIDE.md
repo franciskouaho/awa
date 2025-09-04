@@ -36,11 +36,12 @@ Le système de notifications a été configuré avec les éléments suivants :
 ### 1. Dans RemindersDrawerContent
 Le composant `RemindersDrawerContent` maintenant :
 - ✅ Demande automatiquement les permissions
-- ✅ Programme les notifications selon les paramètres
-- ✅ Gère les rappels de prière quotidiens
-- ✅ Gère les rappels de streak matin/soir
+- ✅ Programme les notifications selon les paramètres utilisateur
+- ✅ Gère les rappels de prière personnalisés (fréquence, horaires, jours)
+- ✅ Gère les rappels spéciaux pour les défunts
 - ✅ Permet de tester les notifications
 - ✅ Affiche le statut des permissions
+- ✅ Interface utilisateur intuitive pour configurer tous les paramètres
 
 ### 2. Service de notifications
 Le service `notificationService` offre :
@@ -52,16 +53,17 @@ Le service `notificationService` offre :
 
 ### 3. Fonctionnalités implémentées
 
-#### Rappels de prière
-- Fréquence configurable (1-10 par jour)
-- Horaires configurables (heure de début/fin)
-- Jours de la semaine sélectionnables
-- Messages adaptés au feed sélectionné
+#### Rappels pour les défunts
+- Prières spéciales pour les défunts
+- Contenu enrichi avec versets et formules appropriés
+- Configurable séparément des autres rappels
 
-#### Rappels de streak
-- Rappel matinal (8h00)
-- Rappel du soir (21h00)
-- Configurable individuellement
+#### Rappels de prière personnalisés
+- Fréquence configurable (1-10 notifications par jour)
+- Horaires personnalisables (heure de début et fin)
+- Jours de la semaine sélectionnables
+- Contenu adapté au feed sélectionné par l'utilisateur
+- Notifications intelligentes avec du contenu varié
 
 #### Gestion des permissions
 - Demande automatique des permissions

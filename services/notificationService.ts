@@ -7,8 +7,6 @@ import { ContentService } from './contentService';
 export interface NotificationSettings {
   enableReminders: boolean;
   sound: boolean;
-  morningReminder: boolean;
-  eveningReminder: boolean;
   enableDeceasedReminder: boolean;
   dailyCount: number;
   startTime: string;
@@ -114,15 +112,6 @@ class NotificationService {
         showBadge: true,
       });
 
-      await Notifications.setNotificationChannelAsync('daily-streaks', {
-        name: 'Daily Streak Reminders',
-        importance: Notifications.AndroidImportance.DEFAULT,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-        sound: 'default',
-        enableVibrate: true,
-        showBadge: true,
-      });
     }
 
     this.isInitialized = true;
@@ -270,11 +259,11 @@ class NotificationService {
       const notificationMinute = notificationMinutes % 60;
 
       // Pour chaque jour sélectionné
-      for (const isEnabled of settings.selectedDays) {
-        const dayIndex = settings.selectedDays.indexOf(isEnabled);
-        if (!isEnabled) continue;
+      for (let dayIndex = 0; dayIndex < settings.selectedDays.length; dayIndex++) {
+        if (!settings.selectedDays[dayIndex]) continue;
 
-        // Convertir l'index (0 = dimanche) au format attendu (1 = lundi)
+        // Convertir l'index des jours (0 = dimanche, 1 = lundi, ..., 6 = samedi)
+        // au format Expo Notifications (1 = lundi, ..., 7 = dimanche) 
         const weekday = dayIndex === 0 ? 7 : dayIndex;
 
         // Obtenir le contenu enrichi de la prière
@@ -288,6 +277,8 @@ class NotificationService {
               ...prayerContent.data,
               reminderIndex: i + 1,
               totalReminders: settings.dailyCount,
+              feedName: settings.selectedFeed,
+              type: 'prayer-reminder',
             },
             sound: settings.sound ? 'default' : undefined,
             categoryIdentifier: 'PRAYER_REMINDER',
@@ -304,48 +295,6 @@ class NotificationService {
     }
   }
 
-  /**
-   * Programme les rappels de streak quotidien
-   */
-  private async scheduleDailyStreakReminders(settings: NotificationSettings): Promise<void> {
-    // Rappel du matin
-    if (settings.morningReminder) {
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: '🌅 Bonjour !',
-          body: 'Commencez votre journée avec une prière pour maintenir votre streak !',
-          data: { type: 'morning-streak' },
-          sound: settings.sound ? 'default' : undefined,
-          categoryIdentifier: 'STREAK_REMINDER',
-        },
-        trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.DAILY,
-          hour: 8,
-          minute: 0,
-          channelId: 'daily-streaks',
-        },
-      });
-    }
-
-    // Rappel du soir
-    if (settings.eveningReminder) {
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: '🌙 Bonsoir !',
-          body: "N'oubliez pas de terminer votre journée en beauté. Maintenez votre streak !",
-          data: { type: 'evening-streak' },
-          sound: settings.sound ? 'default' : undefined,
-          categoryIdentifier: 'STREAK_REMINDER',
-        },
-        trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.DAILY,
-          hour: 21,
-          minute: 0,
-          channelId: 'daily-streaks',
-        },
-      });
-    }
-  }
 
   /**
    * Annule tous les rappels programmés
@@ -657,13 +606,6 @@ class NotificationService {
       },
     ]);
 
-    await Notifications.setNotificationCategoryAsync('STREAK_REMINDER', [
-      {
-        identifier: 'OPEN_APP',
-        buttonTitle: "Ouvrir l'app",
-        options: { opensAppToForeground: true },
-      },
-    ]);
 
     await Notifications.setNotificationCategoryAsync('DECEASED_PRAYER_REMINDER', [
       {
