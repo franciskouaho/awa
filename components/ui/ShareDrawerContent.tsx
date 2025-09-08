@@ -7,7 +7,7 @@ import { formatDate } from '@/utils';
 import { Ionicons } from '@expo/vector-icons';
 import * as MediaLibrary from 'expo-media-library';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ViewShot from 'react-native-view-shot';
 
 interface ShareDrawerContentProps {
@@ -63,7 +63,6 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
     }
   };
 
-
   const handleSaveImage = async () => {
     try {
       // Demander la permission d'accès aux médias
@@ -95,9 +94,8 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
     }
   };
 
-
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header avec fermeture */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -244,7 +242,7 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -344,6 +342,7 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     paddingHorizontal: 20,
+    paddingBottom: 40, // Ajouter de l'espace en bas pour le scroll
   },
   actionsRow: {
     flexDirection: 'row',
