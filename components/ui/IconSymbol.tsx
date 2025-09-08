@@ -39,6 +39,8 @@ const MAPPING = {
   heart: 'favorite-border',
   globe: 'language',
   checkmark: 'check',
+  trash: 'delete',
+  'exclamationmark.triangle': 'warning',
 } as IconMapping;
 
 /**

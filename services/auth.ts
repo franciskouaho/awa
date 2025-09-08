@@ -1,10 +1,10 @@
 import { auth, db } from '@/config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-    signOut as firebaseSignOut,
-    onAuthStateChanged,
-    signInAnonymously,
-    User,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+  signInAnonymously,
+  User,
 } from 'firebase/auth';
 import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
 import { userService } from './userService';
@@ -229,10 +229,14 @@ class AuthService {
       }
 
       // Supprimer le document utilisateur de Firestore
-      await setDoc(doc(db, 'users', currentUser.uid), {
-        deleted: true,
-        deletedAt: new Date(),
-      }, { merge: true });
+      await setDoc(
+        doc(db, 'users', currentUser.uid),
+        {
+          deleted: true,
+          deletedAt: new Date(),
+        },
+        { merge: true }
+      );
 
       // Supprimer l'utilisateur Firebase
       await currentUser.delete();
