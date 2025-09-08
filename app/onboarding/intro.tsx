@@ -25,9 +25,6 @@ export default function IntroScreen() {
   const handleChangeWorld = () => {
     router.push('/onboarding/email');
   };
-  const handleDoItTomorrow = () => {
-    // Optionally show a message or just stay on screen
-  };
   const openTerms = () => {
     Linking.openURL('https://your-app-url.com/terms');
   };
@@ -49,9 +46,6 @@ export default function IntroScreen() {
       <View style={styles.buttonsContainer}>
         <TouchableOpacity style={styles.changeWorldBtn} onPress={handleChangeWorld}>
           <Text style={styles.changeWorldText}>Commencer maintenant</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.doItTomorrowBtn} onPress={handleDoItTomorrow}>
-          <Text style={styles.doItTomorrowText}>Plus tard</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.termsContainer}>
@@ -128,26 +122,6 @@ const styles = StyleSheet.create({
   },
   changeWorldText: {
     color: '#fff',
-    fontSize: 22,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    fontFamily: 'System',
-    letterSpacing: 1,
-  },
-  doItTomorrowBtn: {
-    backgroundColor: '#F6FFF8', // blanc légèrement teinté vert
-    borderRadius: 16,
-    width: '90%',
-    paddingVertical: 18,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 1,
-    marginBottom: 8,
-  },
-  doItTomorrowText: {
-    color: '#2D5A4A', // vert foncé du thème
     fontSize: 22,
     fontWeight: 'bold',
     textAlign: 'center',

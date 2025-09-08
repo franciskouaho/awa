@@ -1,14 +1,15 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useDeviceType } from '@/hooks/useDeviceType';
 import React, { useEffect, useRef } from 'react';
 import {
-  Animated,
-  Dimensions,
-  Modal,
-  PanResponder,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  View,
+    Animated,
+    Dimensions,
+    Modal,
+    PanResponder,
+    StyleSheet,
+    TouchableWithoutFeedback,
+    View
 } from 'react-native';
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -31,8 +32,12 @@ export default function BottomDrawer({
   disableOverlayClose = false,
 }: BottomDrawerProps) {
   const colorScheme = useColorScheme();
+  const { isIPad } = useDeviceType();
   const translateY = useRef(new Animated.Value(height)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
+
+  // Ajuster la hauteur pour iPad
+  const adjustedHeight = isIPad ? Math.min(height, screenHeight * 0.8) : height;
 
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (_, gestureState) => {
@@ -80,7 +85,7 @@ export default function BottomDrawer({
       // Fermer le drawer
       Animated.parallel([
         Animated.spring(translateY, {
-          toValue: height,
+          toValue: adjustedHeight,
           useNativeDriver: true,
           tension: 65,
           friction: 8,
@@ -92,7 +97,7 @@ export default function BottomDrawer({
         }),
       ]).start();
     }
-  }, [isVisible, height, translateY, overlayOpacity]);
+  }, [isVisible, adjustedHeight, translateY, overlayOpacity]);
 
   if (!isVisible) {
     return null;
@@ -124,9 +129,15 @@ export default function BottomDrawer({
           style={[
             styles.drawer,
             {
-              height,
+              height: adjustedHeight,
               backgroundColor: Colors[colorScheme ?? 'light'].drawer.backgroundColor,
               transform: [{ translateY }],
+              // Améliorer l'apparence sur iPad
+              ...(isIPad && {
+                maxWidth: 600,
+                alignSelf: 'center',
+                width: '90%',
+              }),
             },
           ]}
           {...(disableSwipeToClose ? {} : panResponder.panHandlers)}

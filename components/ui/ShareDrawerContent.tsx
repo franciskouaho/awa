@@ -5,7 +5,6 @@ import { PrayerFormula } from '@/services/contentService';
 import { PrayerData } from '@/services/prayerService';
 import { formatDate } from '@/utils';
 import { Ionicons } from '@expo/vector-icons';
-import * as Clipboard from 'expo-clipboard';
 import * as MediaLibrary from 'expo-media-library';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -64,15 +63,6 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
     }
   };
 
-  const handleCopyText = async () => {
-    try {
-      await Clipboard.setStringAsync(shareText);
-      Alert.alert('Copié', 'Le texte a été copié dans le presse-papiers');
-      onClose();
-    } catch (error) {
-      Alert.alert('Erreur', 'Impossible de copier le texte');
-    }
-  };
 
   const handleSaveImage = async () => {
     try {
@@ -105,14 +95,6 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
     }
   };
 
-  const handleAddToWidget = () => {
-    // Cette fonctionnalité nécessiterait une implémentation native spécifique
-    Alert.alert(
-      'Widget',
-      "Cette fonctionnalité sera disponible dans une prochaine mise à jour.\n\nElle permettra d'ajouter vos prières favorites directement sur l'écran d'accueil de votre téléphone.",
-      [{ text: 'Compris', style: 'default' }]
-    );
-  };
 
   return (
     <View style={styles.container}>
@@ -258,22 +240,6 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
             <Ionicons name="share-outline" size={24} color={Colors[colorScheme ?? 'light'].text} />
             <Text style={[styles.actionText, { color: Colors[colorScheme ?? 'light'].text }]}>
               Partager
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton} onPress={handleCopyText}>
-            <Ionicons name="copy-outline" size={24} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.actionText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Copier le texte
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.actionButton} onPress={handleAddToWidget}>
-            <Ionicons name="apps-outline" size={24} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.actionText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Mettre dans le widget
             </Text>
           </TouchableOpacity>
         </View>

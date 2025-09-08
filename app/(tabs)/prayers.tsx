@@ -4,6 +4,7 @@ import { Colors } from '@/constants/Colors';
 import { useCategories } from '@/contexts/CategoryContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useContent } from '@/hooks/useContent';
+import { useDeviceType } from '@/hooks/useDeviceType';
 import { useLikes } from '@/hooks/useLikes';
 import { usePrayers } from '@/hooks/usePrayers';
 import { useReminders } from '@/hooks/useReminders';
@@ -16,18 +17,18 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Animated,
-    Dimensions,
-    Platform,
-    RefreshControl,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Animated,
+  Dimensions,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import { useAuth } from '../../contexts/AuthContext';
@@ -48,12 +49,13 @@ export default function PrayersScreen() {
     loadUserPrayers,
   } = useUserPrayers(userId);
   const colorScheme = useColorScheme();
+  const { isIPad } = useDeviceType();
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [shareDrawerVisible, setShareDrawerVisible] = useState(false);
   const [selectedPrayerForShare, setSelectedPrayerForShare] = useState<PrayerData | null>(null);
-  
+
   // Animation pour l'icône de scroll
   const scrollIconAnimation = useRef(new Animated.Value(0)).current;
 
@@ -234,10 +236,7 @@ export default function PrayersScreen() {
   const handleLike = async (prayerId: string) => {
     // Vérifier si l'utilisateur est connecté avant de permettre le like
     if (!user?.uid) {
-      Alert.alert(
-        'Connexion requise', 
-        'Vous devez être connecté pour aimer une prière.'
-      );
+      Alert.alert('Connexion requise', 'Vous devez être connecté pour aimer une prière.');
       return;
     }
 
@@ -622,11 +621,7 @@ export default function PrayersScreen() {
               },
             ]}
           >
-            <Ionicons
-              name="chevron-down"
-              size={24}
-              color={Colors[colorScheme ?? 'light'].text}
-            />
+            <Ionicons name="chevron-down" size={24} color={Colors[colorScheme ?? 'light'].text} />
             <Text style={[styles.scrollText, { color: Colors[colorScheme ?? 'light'].text }]}>
               Glissez pour voir plus
             </Text>
@@ -811,7 +806,9 @@ export default function PrayersScreen() {
           setShareDrawerVisible(false);
           setSelectedPrayerForShare(null);
         }}
-        height={Dimensions.get('window').height * 0.85}
+        height={
+          isIPad ? Dimensions.get('window').height * 0.7 : Dimensions.get('window').height * 0.85
+        }
       >
         {selectedPrayerForShare && (
           <ShareDrawerContent

@@ -1,10 +1,10 @@
 import { auth, db } from '@/config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  signOut as firebaseSignOut,
-  onAuthStateChanged,
-  signInAnonymously,
-  User,
+    signOut as firebaseSignOut,
+    onAuthStateChanged,
+    signInAnonymously,
+    User,
 } from 'firebase/auth';
 import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
 import { userService } from './userService';
@@ -217,6 +217,38 @@ class AuthService {
     } catch (error) {
       console.error('Error signing out:', error);
       throw error;
+    }
+  }
+
+  // Supprimer le compte utilisateur
+  async deleteAccount(): Promise<void> {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error('Aucun utilisateur connecté');
+      }
+
+      // Supprimer le document utilisateur de Firestore
+      await setDoc(doc(db, 'users', currentUser.uid), {
+        deleted: true,
+        deletedAt: new Date(),
+      }, { merge: true });
+
+      // Supprimer l'utilisateur Firebase
+      await currentUser.delete();
+
+      // Nettoyer le cache local
+      await userService.clearCache();
+      await AsyncStorage.multiRemove([
+        'user',
+        'onboardingCompleted',
+        'userName',
+        'userEmail',
+        'firebaseUid',
+      ]);
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      throw new Error(this.getErrorMessage(error.code));
     }
   }
 

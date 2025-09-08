@@ -11,6 +11,7 @@ interface AuthContextType {
   signUp: (email: string, name: string) => Promise<void>;
   signIn: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   completeOnboarding: (preferences?: any) => Promise<void>;
   refreshUser: () => Promise<void>;
   syncFirebaseUid: () => Promise<void>;
@@ -166,6 +167,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const deleteAccount = async () => {
+    try {
+      setIsLoading(true);
+      await authService.deleteAccount();
+      setUser(null);
+      setFirebaseUser(null);
+      setIsOnboardingCompleted(false);
+    } catch (error) {
+      console.error('Delete account error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const completeOnboarding = async (preferences?: any) => {
     try {
       if (user) {
@@ -213,6 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signUp,
     signIn,
     signOut,
+    deleteAccount,
     completeOnboarding,
     refreshUser,
     syncFirebaseUid,

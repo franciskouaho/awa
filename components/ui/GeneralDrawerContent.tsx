@@ -3,7 +3,6 @@ import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import { router } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -162,20 +161,6 @@ export default function GeneralDrawerContent({
             <View style={styles.card}>
               <TouchableOpacity
                 style={styles.menuItem}
-                onPress={() => {
-                  onClose();
-                  router.push('/add-prayer');
-                }}
-                activeOpacity={0.7}
-              >
-                <View style={styles.iconContainer}>
-                  <IconSymbol name="plus.circle.fill" size={20} color={colors.primary} />
-                </View>
-                <Text style={styles.menuItemText}>Ajouter une prière</Text>
-                <Text style={styles.chevron}>›</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.menuItem}
                 onPress={() => handleItemPress('firstName')}
                 activeOpacity={0.7}
               >
@@ -218,21 +203,6 @@ export default function GeneralDrawerContent({
               </TouchableOpacity>
             </View>
 
-            {/* Legal Section */}
-            <Text style={styles.sectionTitle}>Légal</Text>
-            <View style={styles.card}>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => handleItemPress('privacy')}
-                activeOpacity={0.7}
-              >
-                <View style={styles.iconContainer}>
-                  <IconSymbol name="doc.text" size={20} color={colors.text} />
-                </View>
-                <Text style={styles.menuItemText}>Politique de confidentialité</Text>
-                <Text style={styles.chevron}>›</Text>
-              </TouchableOpacity>
-            </View>
           </>
         )}
       </ScrollView>

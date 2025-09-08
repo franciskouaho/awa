@@ -1,4 +1,5 @@
 import BottomDrawer from '@/components/ui/BottomDrawer';
+import DeleteAccountScreen from '@/components/ui/DeleteAccountScreen';
 import FirstNameScreen from '@/components/ui/FirstNameScreen';
 import GenderScreen from '@/components/ui/GenderScreen';
 import GeneralDrawerContent from '@/components/ui/GeneralDrawerContent';
@@ -231,6 +232,39 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* ACCOUNT MANAGEMENT Section */}
+        <Text
+          style={[styles.sectionTitle, { color: Colors[colorScheme ?? 'light'].textSecondary }]}
+        >
+          GESTION DU COMPTE
+        </Text>
+        <View
+          style={[
+            styles.menuSection, 
+            { 
+              backgroundColor: Colors[colorScheme ?? 'light'].surface,
+              borderWidth: 1,
+              borderColor: 'rgba(255, 107, 107, 0.3)',
+            }
+          ]}
+        >
+          <TouchableOpacity
+            style={[styles.menuItem, { backgroundColor: 'rgba(255, 107, 107, 0.05)' }]}
+            onPress={() => handleItemPress('deleteAccount')}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.iconContainer, { backgroundColor: 'rgba(255, 107, 107, 0.2)' }]}>
+              <IconSymbol name="trash" size={20} color="#FF6B6B" />
+            </View>
+            <Text style={[styles.menuItemText, { color: '#FF6B6B', fontWeight: '600' }]}>
+              Supprimer le compte
+            </Text>
+            <Text style={[styles.chevron, { color: '#FF6B6B' }]}>
+              ›
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
       {/* Drawer Reminders */}
@@ -276,6 +310,9 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
                 initialValue={settings?.language || 'Français'}
                 onSave={value => handleSaveValue('language', value)}
               />
+            )}
+            {currentSubScreen === 'deleteAccount' && (
+              <DeleteAccountScreen onBack={handleBackFromSubScreen} />
             )}
           </>
         ) : (
@@ -438,5 +475,14 @@ const styles = StyleSheet.create({
 
   chevron: {
     fontSize: 16,
+  },
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
   },
 });
