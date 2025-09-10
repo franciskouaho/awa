@@ -134,7 +134,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
         selectedDays,
       };
 
-      // Sauvegarder dans Firestore
+      // Sauvegarder dans Firestore (avec fallback local)
       await userService.saveNotificationSettings(settings);
 
       if (enableReminders) {
@@ -212,10 +212,21 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
           errorMessage = "Vérifiez votre connexion internet et réessayez.";
         } else if (error.message.includes('firebase') || error.message.includes('firestore')) {
           errorMessage = "Erreur de connexion avec le serveur. Réessayez dans quelques instants.";
+        } else if (error.message.includes('Utilisateur non connecté')) {
+          errorMessage = "Vos paramètres ont été sauvegardés localement. Ils seront synchronisés lors de votre prochaine connexion.";
         }
       }
       
-      Alert.alert('Erreur', errorMessage);
+      // Si c'est une erreur de connexion Firebase, on peut quand même considérer que c'est un succès partiel
+      if (error instanceof Error && (error.message.includes('firebase') || error.message.includes('firestore') || error.message.includes('Utilisateur non connecté'))) {
+        Alert.alert(
+          'Paramètres sauvegardés localement', 
+          'Vos paramètres ont été sauvegardés sur votre appareil. Ils seront synchronisés avec le serveur dès que possible.',
+          [{ text: 'OK', onPress: onClose }]
+        );
+      } else {
+        Alert.alert('Erreur', errorMessage);
+      }
     } finally {
       setIsSaving(false);
     }

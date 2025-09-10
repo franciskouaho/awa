@@ -1,5 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { PrayerData, PrayerService } from '@/services/prayerService';
+import { PRAYER_EVENTS, prayerEventEmitter } from '@/utils/eventEmitter';
 import { useCallback, useEffect, useState } from 'react';
 
 export interface UseUserCreatedPrayersResult {
@@ -86,6 +87,10 @@ export function useUserCreatedPrayers(): UseUserCreatedPrayersResult {
         if (result.success) {
           // Mettre à jour localement
           setPrayers(current => current.filter(p => p.id !== prayerId));
+          
+          // Recharger la liste principale des prières pour mettre à jour prayers.tsx
+          // On utilise un événement personnalisé pour notifier les autres composants
+          prayerEventEmitter.emit(PRAYER_EVENTS.PRAYER_DELETED, { prayerId });
         }
 
         return result;

@@ -18,20 +18,21 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Dimensions,
-  Platform,
-  RefreshControl,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Animated,
+    Dimensions,
+    Platform,
+    RefreshControl,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
+import { PRAYER_EVENTS, prayerEventEmitter } from '@/utils/eventEmitter';
 import { useAuth } from '../../contexts/AuthContext';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const cardHeight = screenHeight; // Chaque carte prend toute la hauteur de l'écran
@@ -102,11 +103,9 @@ export default function PrayersScreen() {
     console.log('🚀 PrayersScreen - Démarrage du chargement des données');
     const loadData = async () => {
       try {
-        // Charger les prières seulement si la catégorie est sélectionnée
-        if (selectedCategories.includes('prayers')) {
-          console.log('📡 Chargement des prières...');
-          await loadPrayers();
-        }
+        // Toujours charger les prières en arrière-plan pour avoir les données disponibles
+        console.log('📡 Chargement des prières...');
+        await loadPrayers();
         console.log('📝 Chargement des formules...');
         await loadPrayerFormulas();
         console.log('✅ Chargement terminé');
@@ -115,7 +114,31 @@ export default function PrayersScreen() {
       }
     };
     loadData();
-  }, [loadPrayers, loadPrayerFormulas, selectedCategories]);
+  }, [loadPrayers, loadPrayerFormulas]);
+
+  // Recharger les prières quand les catégories changent
+  useEffect(() => {
+    if (selectedCategories.includes('prayers')) {
+      console.log('🔄 Catégorie prayers sélectionnée, rechargement des prières...');
+      loadPrayers();
+    }
+  }, [selectedCategories, loadPrayers]);
+
+  // Écouter les événements d'ajout de prière pour recharger la liste
+  useEffect(() => {
+    const handlePrayerAdded = () => {
+      console.log('🔄 PrayersScreen: Prière ajoutée détectée, rechargement de la liste...');
+      // Recharger les prières même si la catégorie n'est pas sélectionnée
+      loadPrayers();
+    };
+
+    // Écouter l'événement d'ajout
+    prayerEventEmitter.on(PRAYER_EVENTS.PRAYER_ADDED, handlePrayerAdded);
+    
+    return () => {
+      prayerEventEmitter.off(PRAYER_EVENTS.PRAYER_ADDED, handlePrayerAdded);
+    };
+  }, [loadPrayers]);
 
   // Charger les compteurs de likes pour les prières
   useEffect(() => {

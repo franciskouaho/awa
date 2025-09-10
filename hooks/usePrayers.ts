@@ -1,5 +1,6 @@
 import { PrayerData, PrayerService } from '@/services/prayerService';
-import { useCallback, useState } from 'react';
+import { PRAYER_EVENTS, prayerEventEmitter } from '@/utils/eventEmitter';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface UsePrayersResult {
   prayers: PrayerData[];
@@ -61,6 +62,9 @@ export function usePrayers(): UsePrayersResult {
       if (result.success) {
         // Recharger la liste après ajout
         await loadPrayers();
+        
+        // Émettre un événement pour notifier les autres composants
+        prayerEventEmitter.emit(PRAYER_EVENTS.PRAYER_ADDED, { prayerId: result.id });
       }
 
       return result;
@@ -118,6 +122,21 @@ export function usePrayers(): UsePrayersResult {
   // Actualiser les prières (alias pour loadPrayers)
   const refreshPrayers = useCallback(async () => {
     await loadPrayers();
+  }, [loadPrayers]);
+
+  // Écouter les événements de suppression de prière pour recharger la liste
+  useEffect(() => {
+    const handlePrayerDeleted = () => {
+      console.log('🔄 usePrayers: Prière supprimée détectée, rechargement de la liste...');
+      loadPrayers();
+    };
+
+    // Écouter l'événement de suppression
+    prayerEventEmitter.on(PRAYER_EVENTS.PRAYER_DELETED, handlePrayerDeleted);
+    
+    return () => {
+      prayerEventEmitter.off(PRAYER_EVENTS.PRAYER_DELETED, handlePrayerDeleted);
+    };
   }, [loadPrayers]);
 
   return {

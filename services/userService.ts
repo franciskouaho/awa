@@ -49,24 +49,35 @@ class UserService {
   // Sauvegarder les paramètres de notifications dans Firestore ou local si pas connecté
   async saveNotificationSettings(settings: any): Promise<void> {
     try {
+      // Toujours sauvegarder en local d'abord pour assurer la persistance
+      await AsyncStorage.setItem('notificationSettings', JSON.stringify(settings));
+
       const uid = await this.getCurrentUid();
       if (!uid) {
         // Stocker en local si pas encore connecté
         await AsyncStorage.setItem('notificationSettings_pending', JSON.stringify(settings));
-        await AsyncStorage.setItem('notificationSettings', JSON.stringify(settings));
+        console.log('Settings saved locally, will sync when user connects');
         return;
       }
-      // Mettre à jour Firestore (crée le doc si absent)
-      await setDoc(
-        doc(db, 'users', uid),
-        {
-          notificationSettings: settings,
-        },
-        { merge: true }
-      );
-      await AsyncStorage.setItem('notificationSettings', JSON.stringify(settings));
-      // Nettoyer le pending si existait
-      await AsyncStorage.removeItem('notificationSettings_pending');
+
+      try {
+        // Mettre à jour Firestore (crée le doc si absent)
+        await setDoc(
+          doc(db, 'users', uid),
+          {
+            notificationSettings: settings,
+          },
+          { merge: true }
+        );
+        // Nettoyer le pending si existait
+        await AsyncStorage.removeItem('notificationSettings_pending');
+        console.log('Settings saved to Firebase successfully');
+      } catch (firebaseError) {
+        console.error('Firebase save failed, but local save succeeded:', firebaseError);
+        // Ne pas faire échouer la sauvegarde si Firebase échoue
+        // Les paramètres sont déjà sauvegardés localement
+        await AsyncStorage.setItem('notificationSettings_pending', JSON.stringify(settings));
+      }
     } catch (error) {
       console.error('Error saving notification settings:', error);
       throw error;

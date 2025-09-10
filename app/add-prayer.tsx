@@ -1,28 +1,28 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import SimpleDateDrawer from '@/components/ui/SimpleDateDrawer';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { usePrayers } from '@/hooks/usePrayers';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 // Interface pour les données du formulaire
 interface FormData {
   name: string;
   age: string;
-  deathDate: Date;
+  deathDate: Date | null;
   location: string;
   personalMessage: string;
 }
@@ -31,6 +31,7 @@ interface FormData {
 interface FormErrors {
   name?: string;
   age?: string;
+  deathDate?: string;
   location?: string;
   personalMessage?: string;
 }
@@ -43,7 +44,7 @@ export default function AddPrayerPage() {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     age: '',
-    deathDate: new Date(),
+    deathDate: null,
     location: '',
     personalMessage: '',
   });
@@ -52,11 +53,13 @@ export default function AddPrayerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios');
-    if (selectedDate) {
-      setFormData(prev => ({ ...prev, deathDate: selectedDate }));
-    }
+  const handleDateChange = (selectedDate: Date) => {
+    setFormData(prev => ({ ...prev, deathDate: selectedDate }));
+    setShowDatePicker(false);
+  };
+
+  const handleClearDate = () => {
+    setFormData(prev => ({ ...prev, deathDate: null }));
   };
 
   const validateForm = (): boolean => {
@@ -68,6 +71,11 @@ export default function AddPrayerPage() {
 
     if (!formData.age || isNaN(parseInt(formData.age)) || parseInt(formData.age) <= 0) {
       newErrors.age = 'Veuillez entrer un âge valide';
+    }
+
+    // Validation de la date de décès (optionnelle)
+    if (formData.deathDate && formData.deathDate > new Date()) {
+      newErrors.deathDate = 'La date de décès ne peut pas être dans le futur';
     }
 
     if (!formData.location.trim()) {
@@ -97,7 +105,7 @@ export default function AddPrayerPage() {
         const prayerData = {
           name: formData.name.trim(),
           age: parseInt(formData.age),
-          deathDate: formData.deathDate,
+          deathDate: formData.deathDate || new Date(), // Utiliser la date actuelle si pas de date spécifiée
           location: formData.location.trim(),
           personalMessage: formData.personalMessage.trim(),
           prayerCount: 0, // Commence à 0
@@ -116,7 +124,7 @@ export default function AddPrayerPage() {
                 setFormData({
                   name: '',
                   age: '',
-                  deathDate: new Date(),
+                  deathDate: null,
                   location: '',
                   personalMessage: '',
                 });
@@ -250,28 +258,55 @@ export default function AddPrayerPage() {
                 styles.input,
                 {
                   backgroundColor: Colors[colorScheme ?? 'light'].surface,
-                  borderColor: Colors[colorScheme ?? 'light'].border,
-                  justifyContent: 'center',
+                  borderColor: errors.deathDate
+                    ? Colors[colorScheme ?? 'light'].error
+                    : Colors[colorScheme ?? 'light'].border,
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexDirection: 'row',
                 },
               ]}
               onPress={() => setShowDatePicker(true)}
             >
-              <Text style={[{ color: Colors[colorScheme ?? 'light'].text }, styles.dateText]}>
-                {formData.deathDate.toLocaleDateString('fr-FR', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })}
+              <Text style={[
+                { color: Colors[colorScheme ?? 'light'].text }, 
+                styles.dateText,
+                !formData.deathDate && { color: Colors[colorScheme ?? 'light'].textSecondary }
+              ]}>
+                {formData.deathDate 
+                  ? formData.deathDate.toLocaleDateString('fr-FR', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })
+                  : 'Sélectionner une date (optionnel)'
+                }
               </Text>
+              <View style={styles.dateActions}>
+                {formData.deathDate && (
+                  <TouchableOpacity
+                    onPress={handleClearDate}
+                    style={styles.clearDateButton}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <IconSymbol
+                      name="xmark.circle.fill"
+                      size={18}
+                      color={Colors[colorScheme ?? 'light'].textSecondary}
+                    />
+                  </TouchableOpacity>
+                )}
+                <IconSymbol
+                  name="calendar"
+                  size={20}
+                  color={Colors[colorScheme ?? 'light'].textSecondary}
+                />
+              </View>
             </TouchableOpacity>
-            {showDatePicker && (
-              <DateTimePicker
-                value={formData.deathDate}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={handleDateChange}
-                maximumDate={new Date()}
-              />
+            {errors.deathDate && (
+              <Text style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].error }]}>
+                {errors.deathDate}
+              </Text>
             )}
           </View>
 
@@ -361,6 +396,15 @@ export default function AddPrayerPage() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Drawer de sélection de date */}
+      <SimpleDateDrawer
+        visible={showDatePicker}
+        onClose={() => setShowDatePicker(false)}
+        onDateSelect={handleDateChange}
+        selectedDate={formData.deathDate}
+        maximumDate={new Date()}
+      />
     </KeyboardAvoidingView>
   );
 }
@@ -461,5 +505,13 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 16,
+  },
+  dateActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  clearDateButton: {
+    padding: 4,
   },
 });

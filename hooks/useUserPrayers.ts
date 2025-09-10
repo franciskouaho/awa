@@ -1,5 +1,6 @@
 import { PrayerData, PrayerService } from '@/services/prayerService';
 import { UserPrayerService } from '@/services/userPrayerService';
+import { PRAYER_EVENTS, prayerEventEmitter } from '@/utils/eventEmitter';
 import { useCallback, useEffect, useState } from 'react';
 
 export interface UserPrayerItem {
@@ -97,6 +98,23 @@ export function useUserPrayers(userId: string): UseUserPrayersResult {
       loadUserPrayers();
     }
   }, [userId, loadUserPrayers]);
+
+  // Écouter les événements de suppression de prière pour recharger la liste
+  useEffect(() => {
+    const handlePrayerDeleted = () => {
+      console.log('🔄 useUserPrayers: Prière supprimée détectée, rechargement de la liste...');
+      if (userId) {
+        loadUserPrayers();
+      }
+    };
+
+    // Écouter l'événement de suppression
+    prayerEventEmitter.on(PRAYER_EVENTS.PRAYER_DELETED, handlePrayerDeleted);
+    
+    return () => {
+      prayerEventEmitter.off(PRAYER_EVENTS.PRAYER_DELETED, handlePrayerDeleted);
+    };
+  }, [loadUserPrayers, userId]);
 
   // Basculer l'état d'une prière
   const togglePrayerCompleted = useCallback(

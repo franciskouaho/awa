@@ -17,42 +17,11 @@ const db = getFirestore(app);
 // Données des formules de prière à migrer
 const prayerFormulas = [
   {
-    arabic: 'اللَّهُمَّ اغْفِرْ لِـ [Name] وَارْفَعْ دَرَجَتَهُ فِي الْمَهْدِيِّينَ',
-    transliteration: "Allaahummaghfir li [Name] warfa' darajatahu fil-mahdiyyina",
-    translation: 'Ô Allah, pardonne à [nom de la personne] et élève son statut parmi les vertueux',
-    order: 1,
-  },
-  {
     arabic: 'اللَّهُمَّ اغْفِرْ لِـ [Name] وَارْحَمْهُ وَعَافِهِ وَاعْفُ عَنْهُ',
     transliteration: "Allahumma ighfir li [Name] warhamhu wa 'afihi wa'fu 'anhu",
     translation:
       'Ô Allah, pardonne à [nom de la personne], fais-lui miséricorde, accorde-lui le salut et pardonne-lui',
-    order: 2,
-  },
-  {
-    arabic:
-      'اللَّهُمَّ أَكْرِمْ نُزُلَ [Name] وَوَسِّعْ مُدْخَلَهُ وَاغْسِلْهُ بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ',
-    transliteration:
-      "Allahumma akrim nuzul [Name] wa wassi' mudkhalahu waghsilhu bil-ma'i wath-thalji wal-barad",
-    translation:
-      "Ô Allah, honore la demeure de [nom de la personne], élargis son entrée et lave-le avec l'eau, la neige et la grêle",
-    order: 3,
-  },
-  {
-    arabic:
-      'اللَّهُمَّ أَدْخِلْ [Name] الْجَنَّةَ وَأَعِذْهُ مِنْ عَذَابِ الْقَبْرِ وَعَذَابِ النَّارِ',
-    transliteration:
-      "Allahumma adkhil [Name] al-jannata wa a'idhhu min 'adhabil-qabri wa 'adhabin-nar",
-    translation:
-      'Ô Allah, fais entrer [nom de la personne] au Paradis et protège-le du châtiment de la tombe et du châtiment du Feu',
-    order: 4,
-  },
-  {
-    arabic: 'اللَّهُمَّ أَدْخِلْ [Name] فِي رَحْمَتِكَ وَاجْعَلْهُ مِنَ الْمُؤْمِنِينَ',
-    transliteration: "Allahumma adkhil [Name] fi rahmatika waj'alhu minal-mu'minin",
-    translation:
-      'Ô Allah, fais entrer [nom de la personne] dans Ta miséricorde et compte-le parmi les croyants',
-    order: 5,
+    order: 1,
   },
 ];
 
