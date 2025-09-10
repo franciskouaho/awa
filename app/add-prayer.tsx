@@ -7,15 +7,15 @@ import { usePrayers } from '@/hooks/usePrayers';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 // Interface pour les données du formulaire
@@ -33,7 +33,6 @@ interface FormErrors {
   age?: string;
   deathDate?: string;
   location?: string;
-  personalMessage?: string;
 }
 
 export default function AddPrayerPage() {
@@ -82,9 +81,7 @@ export default function AddPrayerPage() {
       newErrors.location = 'Le lieu est requis';
     }
 
-    if (!formData.personalMessage.trim()) {
-      newErrors.personalMessage = 'Le message personnel est requis';
-    }
+    // Le message personnel est maintenant optionnel
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -268,19 +265,20 @@ export default function AddPrayerPage() {
               ]}
               onPress={() => setShowDatePicker(true)}
             >
-              <Text style={[
-                { color: Colors[colorScheme ?? 'light'].text }, 
-                styles.dateText,
-                !formData.deathDate && { color: Colors[colorScheme ?? 'light'].textSecondary }
-              ]}>
-                {formData.deathDate 
+              <Text
+                style={[
+                  { color: Colors[colorScheme ?? 'light'].text },
+                  styles.dateText,
+                  !formData.deathDate && { color: Colors[colorScheme ?? 'light'].textSecondary },
+                ]}
+              >
+                {formData.deathDate
                   ? formData.deathDate.toLocaleDateString('fr-FR', {
                       day: 'numeric',
                       month: 'long',
                       year: 'numeric',
                     })
-                  : 'Sélectionner une date (optionnel)'
-                }
+                  : 'Sélectionner une date (optionnel)'}
               </Text>
               <View style={styles.dateActions}>
                 {formData.deathDate && (
@@ -341,32 +339,25 @@ export default function AddPrayerPage() {
           {/* Message personnel */}
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Message personnel *
+              Message personnel (optionnel)
             </Text>
             <TextInput
               style={[
                 styles.textArea,
                 {
                   backgroundColor: Colors[colorScheme ?? 'light'].surface,
-                  borderColor: errors.personalMessage
-                    ? Colors[colorScheme ?? 'light'].error
-                    : Colors[colorScheme ?? 'light'].border,
+                  borderColor: Colors[colorScheme ?? 'light'].border,
                   color: Colors[colorScheme ?? 'light'].text,
                 },
               ]}
               value={formData.personalMessage}
               onChangeText={text => setFormData(prev => ({ ...prev, personalMessage: text }))}
-              placeholder="Partagez un souvenir ou un message personnel..."
+              placeholder="Partagez un souvenir ou un message personnel (optionnel)..."
               placeholderTextColor={Colors[colorScheme ?? 'light'].textSecondary}
               multiline
               numberOfLines={3}
               textAlignVertical="top"
             />
-            {errors.personalMessage && (
-              <Text style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].error }]}>
-                {errors.personalMessage}
-              </Text>
-            )}
           </View>
 
           {/* Bouton de soumission */}
