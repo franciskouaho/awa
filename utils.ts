@@ -1,17 +1,10 @@
 // --- Interface pour les formules de prière ---
-export interface PrayerFormula {
-  id?: string;
-  arabic: string;
-  transliteration: string;
-  translation: string;
-  order?: number;
-}
 // --- Fonctions de récupération aléatoire avec fallback local ---
 
 // Données locales à utiliser en fallback (à adapter selon votre structure)
 
 // Toutes les fonctions doivent utiliser Firebase uniquement
-import { ContentService } from '@/services/contentService';
+import { ContentService, PrayerFormula } from '@/services/contentService';
 
 // Fonction pour obtenir une formule aléatoire avec fallback local
 export const getRandomFormula = async (): Promise<PrayerFormula> => {
@@ -107,4 +100,31 @@ export const formatDate = (date: string | Date): string => {
     month: 'long',
     year: 'numeric',
   });
+};
+
+// Fonction pour remplacer les placeholders de nom dans les formules de prière
+export const replaceNamePlaceholders = (
+  formula: PrayerFormula,
+  deceasedName: string
+): PrayerFormula => {
+  const replaceInText = (text: string): string => {
+    return text
+      .replace(/\[Name der Person\]/g, deceasedName)
+      .replace(/\[nom de la personne\]/g, deceasedName)
+      .replace(/\[NAME\]/g, deceasedName.toUpperCase())
+      .replace(/\[name\]/g, deceasedName.toLowerCase())
+      .replace(/\[Name\]/g, deceasedName)
+      .replace(/\[NOM\]/g, deceasedName.toUpperCase())
+      .replace(/\[nom\]/g, deceasedName.toLowerCase())
+      .replace(/\{name\}/g, deceasedName)
+      .replace(/\{NAME\}/g, deceasedName.toUpperCase())
+      .replace(/\{Name\}/g, deceasedName);
+  };
+
+  return {
+    ...formula,
+    arabic: replaceInText(formula.arabic),
+    transliteration: replaceInText(formula.transliteration),
+    translation: replaceInText(formula.translation),
+  };
 };

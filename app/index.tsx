@@ -4,7 +4,6 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, Image, StyleSheet, Text, View } from 'react-native';
 
 export default function IndexScreen() {
-  const previousStreakRef = useRef<number | null>(null);
   const router = useRouter();
   const { shouldShowIntro, shouldShowOnboarding, shouldShowApp, navigationReady } =
     useAuthNavigation();
@@ -17,8 +16,6 @@ export default function IndexScreen() {
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
-
-
 
   useEffect(() => {
     if (!navigationReady) return;

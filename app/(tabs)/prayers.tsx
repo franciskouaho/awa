@@ -6,13 +6,14 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useContent } from '@/hooks/useContent';
 import { useDeviceType } from '@/hooks/useDeviceType';
 import { useLikes } from '@/hooks/useLikes';
+import { useNotificationPermissions } from '@/hooks/useNotificationPermissions';
 import { usePrayers } from '@/hooks/usePrayers';
 import { useReminders } from '@/hooks/useReminders';
 import { useUserPrayers } from '@/hooks/useUserPrayers';
 
 import { PrayerFormula } from '@/services/contentService';
 import { PrayerData } from '@/services/prayerService';
-import { formatDate } from '@/utils';
+import { formatDate, replaceNamePlaceholders } from '@/utils';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useRef, useState } from 'react';
@@ -38,6 +39,9 @@ const cardHeight = screenHeight; // Chaque carte prend toute la hauteur de l'éc
 export default function PrayersScreen() {
   const { user } = useAuth();
   const userId = user?.uid || '';
+  const { permissions, requestPermission } = useNotificationPermissions();
+  const [showPermissionRequest, setShowPermissionRequest] = useState(false);
+  const [hasRequestedPermission, setHasRequestedPermission] = useState(false);
 
   // Utiliser le hook pour les prières utilisateur
   const {
@@ -124,6 +128,16 @@ export default function PrayersScreen() {
       });
     }
   }, [prayers, refreshLikeCount, selectedCategories]);
+
+  // Demande de permission des notifications après 2 secondes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!permissions?.granted && !hasRequestedPermission) {
+        setShowPermissionRequest(true);
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [permissions, hasRequestedPermission]);
 
   // Démarrer l'animation de l'icône de scroll
   useEffect(() => {
@@ -231,6 +245,31 @@ export default function PrayersScreen() {
     } finally {
       setRefreshing(false);
     }
+  };
+
+  // Gestion des permissions de notification
+  const handleRequestPermission = async () => {
+    setHasRequestedPermission(true);
+    const granted = await requestPermission();
+    if (granted) {
+      setShowPermissionRequest(false);
+      Alert.alert(
+        'Parfait !',
+        'Les notifications sont maintenant activées. Vous recevrez des rappels de prière personnalisés.',
+        [{ text: 'Continuer', onPress: () => setShowPermissionRequest(false) }]
+      );
+    } else {
+      Alert.alert(
+        'Notifications refusées',
+        "Vous pourrez activer les notifications plus tard dans les paramètres de l'appareil.",
+        [{ text: "D'accord", onPress: () => setShowPermissionRequest(false) }]
+      );
+    }
+  };
+
+  const handleSkipPermission = () => {
+    setShowPermissionRequest(false);
+    setHasRequestedPermission(true);
   };
 
   const handleLike = async (prayerId: string) => {
@@ -411,6 +450,9 @@ export default function PrayersScreen() {
       );
     }
 
+    // Remplacer les placeholders de nom dans la formule avec le nom du défunt
+    const personalizedFormula = replaceNamePlaceholders(formula, prayer.name);
+
     return (
       <View key={prayer.id} style={styles.card}>
         {/* Contenu principal centré */}
@@ -550,7 +592,7 @@ export default function PrayersScreen() {
                 },
               ]}
             >
-              {formula.arabic}
+              {personalizedFormula.arabic}
             </Text>
 
             <Text
@@ -561,7 +603,7 @@ export default function PrayersScreen() {
                 },
               ]}
             >
-              {formula.transliteration}
+              {personalizedFormula.transliteration}
             </Text>
 
             <Text
@@ -572,7 +614,7 @@ export default function PrayersScreen() {
                 },
               ]}
             >
-              {formula.translation}
+              {personalizedFormula.translation}
             </Text>
           </View>
         </View>
@@ -657,6 +699,27 @@ export default function PrayersScreen() {
       ]}
     >
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+
+      {/* Demande de permission des notifications */}
+      {showPermissionRequest && (
+        <View style={styles.permissionOverlay}>
+          <View style={styles.permissionCard}>
+            <Text style={styles.permissionTitle}>🔔 Notifications</Text>
+            <Text style={styles.permissionMessage}>
+              Activez les notifications pour recevoir des rappels de prière personnalisés et ne
+              jamais oublier vos moments spirituels.
+            </Text>
+            <View style={styles.permissionButtons}>
+              <TouchableOpacity style={styles.skipButton} onPress={handleSkipPermission}>
+                <Text style={styles.skipButtonText}>Plus tard</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.allowButton} onPress={handleRequestPermission}>
+                <Text style={styles.allowButtonText}>Autoriser</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
 
       {/* Fallback simple pour éviter l'écran blanc */}
       {loading && prayers.length === 0 && prayerFormulasLoading ? (
@@ -1099,5 +1162,76 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontWeight: '500',
     opacity: 0.8,
+  },
+  permissionOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  permissionCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    marginHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  permissionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1E2D28',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  permissionMessage: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  permissionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  skipButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    alignItems: 'center',
+  },
+  skipButtonText: {
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
+  },
+  allowButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    backgroundColor: '#1E2D28',
+    alignItems: 'center',
+  },
+  allowButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '600',
   },
 });

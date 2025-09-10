@@ -22,7 +22,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     sendTestNotification,
     sendTestDeceasedPrayerNotification,
   } = useNotifications();
-  const { permissions } = useNotificationPermissions();
+  const { permissions, requestPermission } = useNotificationPermissions();
 
   const [enableReminders, setEnableReminders] = useState(true);
   const [sound, setSound] = useState(true);
@@ -45,7 +45,28 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     if (!permissions?.granted) {
       Alert.alert(
         'Permissions requises',
-        'Veuillez autoriser les notifications pour tester cette fonctionnalité.'
+        'Veuillez autoriser les notifications pour tester cette fonctionnalité.',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            text: 'Autoriser',
+            onPress: async () => {
+              const granted = await requestPermission();
+              if (granted) {
+                // Relancer le test après avoir obtenu les permissions
+                handleTestDeceasedPrayerNotification();
+              } else {
+                Alert.alert(
+                  'Permissions refusées',
+                  'Les notifications sont nécessaires pour tester cette fonctionnalité. Vous pouvez les activer dans les paramètres de l\'appareil.'
+                );
+              }
+            },
+          },
+        ]
       );
       return;
     }
@@ -99,14 +120,6 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
   };
 
   const handleSave = async () => {
-    if (!permissions?.granted && enableReminders) {
-      Alert.alert(
-        'Permissions requises',
-        'Veuillez autoriser les notifications pour sauvegarder vos paramètres de rappel.'
-      );
-      return;
-    }
-
     setIsSaving(true);
 
     try {
@@ -125,10 +138,59 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       await userService.saveNotificationSettings(settings);
 
       if (enableReminders) {
-        await scheduleReminders(settings);
-        Alert.alert('Succès', 'Vos rappels ont été programmés avec succès !', [
-          { text: 'OK', onPress: onClose },
-        ]);
+        // Vérifier les permissions avant de programmer les rappels
+        if (!permissions?.granted) {
+          Alert.alert(
+            'Permissions requises',
+            'Les notifications sont nécessaires pour programmer vos rappels. Voulez-vous les autoriser maintenant ?',
+            [
+              {
+                text: 'Non',
+                style: 'cancel',
+                onPress: () => {
+                  Alert.alert(
+                    'Paramètres sauvegardés',
+                    'Vos paramètres ont été sauvegardés mais les rappels ne seront pas programmés sans les permissions de notification.',
+                    [{ text: 'OK', onPress: onClose }]
+                  );
+                },
+              },
+              {
+                text: 'Autoriser',
+                onPress: async () => {
+                  const granted = await requestPermission();
+                  if (granted) {
+                    try {
+                      await scheduleReminders(settings);
+                      Alert.alert('Succès', 'Vos rappels ont été programmés avec succès !', [
+                        { text: 'OK', onPress: onClose },
+                      ]);
+                    } catch (scheduleError) {
+                      console.error('Erreur lors de la programmation:', scheduleError);
+                      Alert.alert(
+                        'Erreur de programmation',
+                        'Les paramètres ont été sauvegardés mais il y a eu une erreur lors de la programmation des rappels.',
+                        [{ text: 'OK', onPress: onClose }]
+                      );
+                    }
+                  } else {
+                    Alert.alert(
+                      'Permissions refusées',
+                      'Vos paramètres ont été sauvegardés mais les rappels ne seront pas programmés sans les permissions de notification.',
+                      [{ text: 'OK', onPress: onClose }]
+                    );
+                  }
+                },
+              },
+            ]
+          );
+        } else {
+          // Permissions accordées, programmer normalement
+          await scheduleReminders(settings);
+          Alert.alert('Succès', 'Vos rappels ont été programmés avec succès !', [
+            { text: 'OK', onPress: onClose },
+          ]);
+        }
       } else {
         await cancelAllReminders();
         Alert.alert('Succès', 'Tous vos rappels ont été annulés.', [
@@ -139,7 +201,21 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       console.log('Reminders settings saved:', settings);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      Alert.alert('Erreur', "Une erreur s'est produite lors de la sauvegarde de vos paramètres.");
+      
+      // Gestion d'erreur plus spécifique
+      let errorMessage = "Une erreur s'est produite lors de la sauvegarde de vos paramètres.";
+      
+      if (error instanceof Error) {
+        if (error.message.includes('permissions')) {
+          errorMessage = "Les permissions de notification sont requises pour sauvegarder ces paramètres.";
+        } else if (error.message.includes('network') || error.message.includes('connection')) {
+          errorMessage = "Vérifiez votre connexion internet et réessayez.";
+        } else if (error.message.includes('firebase') || error.message.includes('firestore')) {
+          errorMessage = "Erreur de connexion avec le serveur. Réessayez dans quelques instants.";
+        }
+      }
+      
+      Alert.alert('Erreur', errorMessage);
     } finally {
       setIsSaving(false);
     }
@@ -149,7 +225,28 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     if (!permissions?.granted) {
       Alert.alert(
         'Permissions requises',
-        'Veuillez autoriser les notifications pour tester cette fonctionnalité.'
+        'Veuillez autoriser les notifications pour tester cette fonctionnalité.',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            text: 'Autoriser',
+            onPress: async () => {
+              const granted = await requestPermission();
+              if (granted) {
+                // Relancer le test après avoir obtenu les permissions
+                handleTestNotification();
+              } else {
+                Alert.alert(
+                  'Permissions refusées',
+                  'Les notifications sont nécessaires pour tester cette fonctionnalité. Vous pouvez les activer dans les paramètres de l\'appareil.'
+                );
+              }
+            },
+          },
+        ]
       );
       return;
     }
@@ -384,6 +481,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
         <Text style={styles.title}>Rappels</Text>
       </View>
 
+
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Main Settings Card */}
         <View style={styles.card}>
@@ -393,7 +491,37 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
             <Switch
               style={styles.switch}
               value={enableDeceasedReminder}
-              onValueChange={setEnableDeceasedReminder}
+              onValueChange={async (value) => {
+                if (value && !permissions?.granted) {
+                  // Demander les permissions si on active les rappels pour défunts
+                  Alert.alert(
+                    'Permissions requises',
+                    'Veuillez autoriser les notifications pour activer les rappels pour les défunts.',
+                    [
+                      {
+                        text: 'Annuler',
+                        style: 'cancel',
+                      },
+                      {
+                        text: 'Autoriser',
+                        onPress: async () => {
+                          const granted = await requestPermission();
+                          if (granted) {
+                            setEnableDeceasedReminder(true);
+                          } else {
+                            Alert.alert(
+                              'Permissions refusées',
+                              'Les notifications sont nécessaires pour les rappels des défunts. Vous pouvez les activer dans les paramètres de l\'appareil.'
+                            );
+                          }
+                        },
+                      },
+                    ]
+                  );
+                } else {
+                  setEnableDeceasedReminder(value);
+                }
+              }}
               trackColor={{ false: colors.border, true: colors.info }}
               thumbColor={enableDeceasedReminder ? colors.surface : colors.textSecondary}
             />
