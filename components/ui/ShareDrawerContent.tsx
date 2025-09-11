@@ -3,7 +3,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useContent } from '@/hooks/useContent';
 import { PrayerFormula } from '@/services/contentService';
 import { PrayerData } from '@/services/prayerService';
-import { formatDate } from '@/utils';
+import { formatDate, replaceNamePlaceholders } from '@/utils';
 import { Ionicons } from '@expo/vector-icons';
 import * as MediaLibrary from 'expo-media-library';
 import React, { useEffect, useRef, useState } from 'react';
@@ -172,19 +172,28 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
                   Prière pour le défunt
                 </Text>
 
-                <Text style={[styles.arabicFormula, { color: 'white' }]}>
-                  {prayerFormula.arabic}
-                </Text>
+                {(() => {
+                  // Remplacer les placeholders de nom dans la formule avec le nom du défunt
+                  const personalizedFormula = replaceNamePlaceholders(prayerFormula, prayer.name);
+                  
+                  return (
+                    <>
+                      <Text style={[styles.arabicFormula, { color: 'white' }]}>
+                        {personalizedFormula.arabic}
+                      </Text>
 
-                <Text
-                  style={[styles.transliterationFormula, { color: 'rgba(255, 255, 255, 0.8)' }]}
-                >
-                  {prayerFormula.transliteration}
-                </Text>
+                      <Text
+                        style={[styles.transliterationFormula, { color: 'rgba(255, 255, 255, 0.8)' }]}
+                      >
+                        {personalizedFormula.transliteration}
+                      </Text>
 
-                <Text style={[styles.translationFormula, { color: 'rgba(255, 255, 255, 0.8)' }]}>
-                  {prayerFormula.translation}
-                </Text>
+                      <Text style={[styles.translationFormula, { color: 'rgba(255, 255, 255, 0.8)' }]}>
+                        {personalizedFormula.translation}
+                      </Text>
+                    </>
+                  );
+                })()}
               </View>
             </>
           )}
