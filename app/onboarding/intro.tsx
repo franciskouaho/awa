@@ -1,3 +1,4 @@
+import { useDeviceType } from '@/hooks/useDeviceType';
 import { router } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Image, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -5,6 +6,7 @@ import { Animated, Image, Linking, StyleSheet, Text, TouchableOpacity, View } fr
 export default function IntroScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const { isIPad } = useDeviceType();
 
   useEffect(() => {
     Animated.parallel([
@@ -33,32 +35,34 @@ export default function IntroScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', width: '100%' }}>
-        <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }] }}>
-          <View style={styles.logoContainer}>
-            <Image source={require('../../assets/images/logo_rmbg.png')} style={styles.icon} />
-          </View>
-          <Text style={styles.appName}>AWA</Text>
-          <Text style={styles.slogan}>Ta routine spirituelle, simple et motivante.</Text>
-        </Animated.View>
-      </View>
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.changeWorldBtn} onPress={handleChangeWorld}>
-          <Text style={styles.changeWorldText}>Commencer maintenant</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.termsContainer}>
-        <Text style={styles.termsText}>
-          En continuant, tu acceptes nos{' '}
-          <Text style={styles.link} onPress={openTerms}>
-            conditions d&#39;utilisation
-          </Text>{' '}
-          et{' '}
-          <Text style={styles.link} onPress={openPrivacy}>
-            politique de confidentialité
+    <View style={[styles.container, isIPad && styles.containerIPad]}>
+      <View style={[styles.contentWrapper, isIPad && styles.contentWrapperIPad]}>
+        <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', width: '100%' }}>
+          <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }] }}>
+            <View style={[styles.logoContainer, isIPad && styles.logoContainerIPad]}>
+              <Image source={require('../../assets/images/logo_rmbg.png')} style={[styles.icon, isIPad && styles.iconIPad]} />
+            </View>
+            <Text style={[styles.appName, isIPad && styles.appNameIPad]}>AWA</Text>
+            <Text style={[styles.slogan, isIPad && styles.sloganIPad]}>Ta routine spirituelle, simple et motivante.</Text>
+          </Animated.View>
+        </View>
+        <View style={[styles.buttonsContainer, isIPad && styles.buttonsContainerIPad]}>
+          <TouchableOpacity style={[styles.changeWorldBtn, isIPad && styles.changeWorldBtnIPad]} onPress={handleChangeWorld}>
+            <Text style={[styles.changeWorldText, isIPad && styles.changeWorldTextIPad]}>Commencer maintenant</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={[styles.termsContainer, isIPad && styles.termsContainerIPad]}>
+          <Text style={[styles.termsText, isIPad && styles.termsTextIPad]}>
+            En continuant, tu acceptes nos{' '}
+            <Text style={styles.link} onPress={openTerms}>
+              conditions d&#39;utilisation
+            </Text>{' '}
+            et{' '}
+            <Text style={styles.link} onPress={openPrivacy}>
+              politique de confidentialité
+            </Text>
           </Text>
-        </Text>
+        </View>
       </View>
     </View>
   );
@@ -146,5 +150,43 @@ const styles = StyleSheet.create({
     color: '#4CCB5F',
     textDecorationLine: 'underline',
     fontWeight: 'bold',
+  },
+  // Styles iPad
+  containerIPad: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contentWrapperIPad: {
+    width: 500,
+    maxWidth: '90%',
+  },
+  logoContainerIPad: {
+    marginTop: 60,
+  },
+  iconIPad: {
+    width: 100,
+    height: 100,
+  },
+  appNameIPad: {
+    fontSize: 42,
+  },
+  sloganIPad: {
+    fontSize: 20,
+  },
+  buttonsContainerIPad: {
+    marginTop: 20,
+  },
+  changeWorldBtnIPad: {
+    width: '100%',
+    paddingVertical: 20,
+  },
+  changeWorldTextIPad: {
+    fontSize: 24,
+  },
+  termsContainerIPad: {
+    marginTop: 8,
+  },
+  termsTextIPad: {
+    fontSize: 14,
   },
 });

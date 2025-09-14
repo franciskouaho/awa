@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useDeviceType } from '@/hooks/useDeviceType';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -19,6 +20,7 @@ export default function EmailScreen() {
   const [email, setEmail] = useState('');
   const router = useRouter();
   const colorScheme = useColorScheme();
+  const { isIPad } = useDeviceType();
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -46,6 +48,7 @@ export default function EmailScreen() {
     <SafeAreaView
       style={[
         styles.container,
+        isIPad && styles.containerIPad,
         {
           backgroundColor:
             Colors[colorScheme ?? 'light'].onboarding?.backgroundColor ||
@@ -54,59 +57,68 @@ export default function EmailScreen() {
       ]}
     >
       <KeyboardAvoidingView
-        style={styles.content}
+        style={[styles.content, isIPad && styles.contentIPad]}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        {/* Islamic Icon */}
-        <View style={styles.iconContainer}>
-          <View style={styles.islamicContainer}>
-            <Text style={styles.islamicEmoji}>📧</Text>
+        <View style={[styles.contentWrapper, isIPad && styles.contentWrapperIPad]}>
+          {/* Islamic Icon */}
+          <View style={[styles.iconContainer, isIPad && styles.iconContainerIPad]}>
+            <View style={[styles.islamicContainer, isIPad && styles.islamicContainerIPad]}>
+              <Text style={[styles.islamicEmoji, isIPad && styles.islamicEmojiIPad]}>📧</Text>
+            </View>
           </View>
-        </View>
 
-        {/* Title */}
-        <Text style={styles.title}>Quelle est votre adresse email ?</Text>
-
-        {/* Subtitle */}
-        <Text style={styles.subtitle}>
-          Cela nous permet de synchroniser vos données en toute sécurité
-        </Text>
-
-        {/* Input */}
-        <TextInput
-          style={styles.input}
-          placeholder="votre.email@exemple.com"
-          placeholderTextColor="#A0A0A0"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          returnKeyType="done"
-          onSubmitEditing={handleContinue}
-        />
-
-        {/* Continue Button */}
-        <TouchableOpacity
-          style={[styles.button, isValidEmail(email) ? styles.buttonActive : styles.buttonInactive]}
-          disabled={!isValidEmail(email)}
-          onPress={handleContinue}
-        >
-          <Text
-            style={[
-              styles.buttonText,
-              isValidEmail(email) ? styles.buttonTextActive : styles.buttonTextInactive,
-            ]}
-          >
-            Continuer
+          {/* Title */}
+          <Text style={[styles.title, isIPad && styles.titleIPad]}>
+            Quelle est votre adresse email ?
           </Text>
-        </TouchableOpacity>
 
-        {/* Information Text */}
-        <Text style={styles.infoText}>
-          Aucun mot de passe requis. Nous utilisons votre email uniquement pour sauvegarder vos
-          prières.
-        </Text>
+          {/* Subtitle */}
+          <Text style={[styles.subtitle, isIPad && styles.subtitleIPad]}>
+            Cela nous permet de synchroniser vos données en toute sécurité
+          </Text>
+
+          {/* Input */}
+          <TextInput
+            style={[styles.input, isIPad && styles.inputIPad]}
+            placeholder="votre.email@exemple.com"
+            placeholderTextColor="#A0A0A0"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            returnKeyType="done"
+            onSubmitEditing={handleContinue}
+          />
+
+          {/* Continue Button */}
+          <TouchableOpacity
+            style={[
+              styles.button,
+              isIPad && styles.buttonIPad,
+              isValidEmail(email) ? styles.buttonActive : styles.buttonInactive,
+            ]}
+            disabled={!isValidEmail(email)}
+            onPress={handleContinue}
+          >
+            <Text
+              style={[
+                styles.buttonText,
+                isIPad && styles.buttonTextIPad,
+                isValidEmail(email) ? styles.buttonTextActive : styles.buttonTextInactive,
+              ]}
+            >
+              Continuer
+            </Text>
+          </TouchableOpacity>
+
+          {/* Information Text */}
+          <Text style={[styles.infoText, isIPad && styles.infoTextIPad]}>
+            Aucun mot de passe requis. Nous utilisons votre email uniquement pour sauvegarder vos
+            prières.
+          </Text>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -206,12 +218,62 @@ const styles = StyleSheet.create({
     color: '#A0A0A0',
   },
   infoText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#718096',
     textAlign: 'center',
     paddingHorizontal: 20,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
     position: 'absolute',
     bottom: 50,
+  },
+  // Styles iPad
+  containerIPad: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contentIPad: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  contentWrapperIPad: {
+    width: 500,
+    maxWidth: '90%',
+  },
+  iconContainerIPad: {
+    marginBottom: 50,
+  },
+  islamicContainerIPad: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+  },
+  islamicEmojiIPad: {
+    fontSize: 70,
+  },
+  titleIPad: {
+    fontSize: 36,
+    marginBottom: 16,
+  },
+  subtitleIPad: {
+    fontSize: 20,
+    marginBottom: 50,
+  },
+  inputIPad: {
+    height: 64,
+    fontSize: 20,
+    marginBottom: 50,
+  },
+  buttonIPad: {
+    height: 64,
+    marginBottom: 40,
+  },
+  buttonTextIPad: {
+    fontSize: 22,
+  },
+  infoTextIPad: {
+    fontSize: 16,
+    position: 'relative',
+    bottom: 0,
+    marginTop: 20,
   },
 });

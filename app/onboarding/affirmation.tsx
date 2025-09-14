@@ -1,6 +1,7 @@
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useDeviceType } from '@/hooks/useDeviceType';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -11,6 +12,7 @@ export default function AffirmationScreen() {
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const router = useRouter();
   const colorScheme = useColorScheme();
+  const { isIPad } = useDeviceType();
   const { signUp, completeOnboarding } = useAuth();
 
   const affirmations = [
@@ -78,64 +80,70 @@ export default function AffirmationScreen() {
     <SafeAreaView
       style={[
         styles.container,
+        isIPad && styles.containerIPad,
         { backgroundColor: Colors[colorScheme ?? 'light'].onboarding.backgroundColor },
       ]}
     >
-      <View style={styles.content}>
-        {/* Title */}
-        <Text style={styles.title}>
-          Ravi de vous rencontrer ! Pour vous, cette application représente plutôt...
-        </Text>
+      <View style={[styles.content, isIPad && styles.contentIPad]}>
+        <View style={[styles.contentWrapper, isIPad && styles.contentWrapperIPad]}>
+          {/* Title */}
+          <Text style={[styles.title, isIPad && styles.titleIPad]}>
+            Ravi de vous rencontrer ! Pour vous, cette application représente plutôt...
+          </Text>
 
-        {/* Islamic Icon */}
-        <View style={styles.iconContainer}>
-          <View style={styles.islamicContainer}>
-            <Text style={styles.islamicEmoji}>🤲</Text>
-          </View>
-        </View>
-
-        {/* Affirmation Options */}
-        <View style={styles.optionsContainer}>
-          {affirmations.map(affirmation => (
-            <TouchableOpacity
-              key={affirmation.id}
-              style={[
-                styles.optionButton,
-                { backgroundColor: affirmation.color },
-                selectedAffirmation === affirmation.id && styles.selectedOption,
-              ]}
-              onPress={() => setSelectedAffirmation(affirmation.id)}
-            >
-              <Text style={styles.optionText}>{affirmation.text}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Continue Button */}
-        <TouchableOpacity
-          style={[
-            styles.button,
-            selectedAffirmation && !isCreatingAccount ? styles.buttonActive : styles.buttonInactive
-          ]}
-          disabled={!selectedAffirmation || isCreatingAccount}
-          onPress={handleContinue}
-        >
-          {isCreatingAccount ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator color="white" size="small" />
-              <Text style={styles.buttonTextActive}>Création du compte...</Text>
+          {/* Islamic Icon */}
+          <View style={[styles.iconContainer, isIPad && styles.iconContainerIPad]}>
+            <View style={[styles.islamicContainer, isIPad && styles.islamicContainerIPad]}>
+              <Text style={[styles.islamicEmoji, isIPad && styles.islamicEmojiIPad]}>🤲</Text>
             </View>
-          ) : (
-            <Text
-              style={[
-                styles.buttonText,
-                selectedAffirmation ? styles.buttonTextActive : styles.buttonTextInactive,
-              ]}
-            >
-              Continuer
-            </Text>
-          )}
-        </TouchableOpacity>
+          </View>
+
+          {/* Affirmation Options */}
+          <View style={[styles.optionsContainer, isIPad && styles.optionsContainerIPad]}>
+            {affirmations.map(affirmation => (
+              <TouchableOpacity
+                key={affirmation.id}
+                style={[
+                  styles.optionButton,
+                  isIPad && styles.optionButtonIPad,
+                  { backgroundColor: affirmation.color },
+                  selectedAffirmation === affirmation.id && styles.selectedOption,
+                ]}
+                onPress={() => setSelectedAffirmation(affirmation.id)}
+              >
+                <Text style={[styles.optionText, isIPad && styles.optionTextIPad]}>{affirmation.text}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Continue Button */}
+          <TouchableOpacity
+            style={[
+              styles.button,
+              isIPad && styles.buttonIPad,
+              selectedAffirmation && !isCreatingAccount ? styles.buttonActive : styles.buttonInactive
+            ]}
+            disabled={!selectedAffirmation || isCreatingAccount}
+            onPress={handleContinue}
+          >
+            {isCreatingAccount ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator color="white" size="small" />
+                <Text style={[styles.buttonTextActive, isIPad && styles.buttonTextActiveIPad]}>Création du compte...</Text>
+              </View>
+            ) : (
+              <Text
+                style={[
+                  styles.buttonText,
+                  isIPad && styles.buttonTextIPad,
+                  selectedAffirmation ? styles.buttonTextActive : styles.buttonTextInactive,
+                ]}
+              >
+                Continuer
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -150,6 +158,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
+  },
+  contentWrapper: {
+    width: '100%',
   },
   title: {
     fontSize: 22,
@@ -241,5 +252,56 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  // Styles iPad
+  containerIPad: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contentIPad: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  contentWrapperIPad: {
+    width: 600,
+    maxWidth: '90%',
+  },
+  titleIPad: {
+    fontSize: 28,
+    marginBottom: 32,
+  },
+  iconContainerIPad: {
+    marginBottom: 32,
+  },
+  islamicContainerIPad: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  islamicEmojiIPad: {
+    fontSize: 50,
+  },
+  optionsContainerIPad: {
+    marginBottom: 80,
+  },
+  optionButtonIPad: {
+    paddingVertical: 20,
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  optionTextIPad: {
+    fontSize: 17,
+    lineHeight: 24,
+  },
+  buttonIPad: {
+    height: 56,
+    position: 'relative',
+    bottom: 0,
+  },
+  buttonTextIPad: {
+    fontSize: 18,
+  },
+  buttonTextActiveIPad: {
+    fontSize: 18,
   },
 });

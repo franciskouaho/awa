@@ -1,24 +1,26 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useDeviceType } from '@/hooks/useDeviceType';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 export default function NameScreen() {
   const [name, setName] = useState('');
   const router = useRouter();
   const colorScheme = useColorScheme();
+  const { isIPad } = useDeviceType();
 
   const handleContinue = async () => {
     if (name.trim()) {
@@ -43,9 +45,10 @@ export default function NameScreen() {
       ]}
     >
       <KeyboardAvoidingView
-        style={styles.content}
+        style={[styles.content, isIPad && styles.contentIPad]}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
+        <View style={[styles.contentWrapper, isIPad && styles.contentWrapperIPad]}>
         {/* Islamic Icon */}
         <View style={styles.iconContainer}>
           <View style={styles.islamicContainer}>
@@ -103,6 +106,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
+  },
+  contentWrapper: {
+    width: '100%',
   },
   iconContainer: {
     marginBottom: 60,
@@ -187,5 +193,50 @@ const styles = StyleSheet.create({
   },
   buttonTextInactive: {
     color: '#A0A0A0',
+  },
+  // Styles iPad
+  containerIPad: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contentIPad: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  contentWrapperIPad: {
+    width: 500,
+    maxWidth: '90%',
+  },
+  iconContainerIPad: {
+    marginBottom: 50,
+  },
+  islamicContainerIPad: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+  },
+  islamicEmojiIPad: {
+    fontSize: 70,
+  },
+  titleIPad: {
+    fontSize: 36,
+    marginBottom: 16,
+  },
+  subtitleIPad: {
+    fontSize: 20,
+    marginBottom: 50,
+  },
+  inputIPad: {
+    height: 64,
+    fontSize: 20,
+    marginBottom: 50,
+  },
+  buttonIPad: {
+    height: 64,
+    position: 'relative',
+    bottom: 0,
+  },
+  buttonTextIPad: {
+    fontSize: 22,
   },
 });

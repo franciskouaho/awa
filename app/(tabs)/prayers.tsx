@@ -18,24 +18,33 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Animated,
-    Dimensions,
-    Platform,
-    RefreshControl,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Animated,
+  Dimensions,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import { PRAYER_EVENTS, prayerEventEmitter } from '@/utils/eventEmitter';
 import { useAuth } from '../../contexts/AuthContext';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const cardHeight = screenHeight; // Chaque carte prend toute la hauteur de l'écran
+
+// Calculer la largeur optimale pour iPad
+const getOptimalCardWidth = (isIPad: boolean) => {
+  if (isIPad) {
+    // Sur iPad, limiter la largeur à 600px maximum et centrer le contenu
+    return Math.min(600, screenWidth * 0.8);
+  }
+  return screenWidth;
+};
 
 export default function PrayersScreen() {
   const { user } = useAuth();
@@ -134,7 +143,7 @@ export default function PrayersScreen() {
 
     // Écouter l'événement d'ajout
     prayerEventEmitter.on(PRAYER_EVENTS.PRAYER_ADDED, handlePrayerAdded);
-    
+
     return () => {
       prayerEventEmitter.off(PRAYER_EVENTS.PRAYER_ADDED, handlePrayerAdded);
     };
@@ -330,137 +339,141 @@ export default function PrayersScreen() {
   };
 
   // Fonction pour afficher le contenu des rappels
-  const renderReminderCard = (reminder: any, index: number) => (
-    <View key={reminder.id} style={styles.card}>
-      {/* Contenu principal centré */}
-      <View style={styles.cardContent}>
-        {/* Section rappel */}
-        <View style={[styles.formulaSection]}>
-          <View style={styles.formulaHeader}>
-            <Ionicons
-              name="notifications-outline"
-              size={18}
-              color={Colors[colorScheme ?? 'light'].primary}
-            />
-            <Text
-              style={[
-                styles.formulaTitle,
-                {
-                  color: Colors[colorScheme ?? 'light'].primary,
-                },
-              ]}
-            >
-              Rappel
-            </Text>
-          </View>
+  const renderReminderCard = (reminder: any, index: number) => {
+    const optimalWidth = getOptimalCardWidth(isIPad);
+    return (
+      <View key={reminder.id} style={[styles.card, { width: optimalWidth }]}>
+        {/* Contenu principal centré */}
+        <View style={styles.cardContent}>
+          {/* Section rappel */}
+          <View style={[styles.formulaSection]}>
+            <View style={styles.formulaHeader}>
+              <Ionicons
+                name="notifications-outline"
+                size={18}
+                color={Colors[colorScheme ?? 'light'].primary}
+              />
+              <Text
+                style={[
+                  styles.formulaTitle,
+                  {
+                    color: Colors[colorScheme ?? 'light'].primary,
+                  },
+                ]}
+              >
+                Rappel
+              </Text>
+            </View>
 
-          {/* Infos du rappel juste après le titre */}
-          <View style={styles.personInfoInFormula}>
-            {/* Titre du rappel */}
-            <Text
-              style={[
-                styles.nameInFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].primary,
-                  fontWeight: 'bold',
-                  fontSize: 24,
-                  textAlign: 'center',
-                  marginBottom: 8,
-                },
-              ]}
-            >
-              {reminder.title}
-            </Text>
+            {/* Infos du rappel juste après le titre */}
+            <View style={styles.personInfoInFormula}>
+              {/* Titre du rappel */}
+              <Text
+                style={[
+                  styles.nameInFormula,
+                  {
+                    color: Colors[colorScheme ?? 'light'].primary,
+                    fontWeight: 'bold',
+                    fontSize: 24,
+                    textAlign: 'center',
+                    marginBottom: 8,
+                  },
+                ]}
+              >
+                {reminder.title}
+              </Text>
 
-            {/* Description du rappel */}
-            <Text
-              style={[
-                styles.translationFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].text,
-                  fontSize: 16,
-                  textAlign: 'center',
-                  marginBottom: 16,
-                  lineHeight: 22,
-                },
-              ]}
-            >
-              {reminder.description}
-            </Text>
+              {/* Description du rappel */}
+              <Text
+                style={[
+                  styles.translationFormula,
+                  {
+                    color: Colors[colorScheme ?? 'light'].text,
+                    fontSize: 16,
+                    textAlign: 'center',
+                    marginBottom: 16,
+                    lineHeight: 22,
+                  },
+                ]}
+              >
+                {reminder.description}
+              </Text>
 
-            {/* Texte en arabe */}
-            <Text
-              style={[
-                styles.arabicFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].prayer.formulaArabic,
-                },
-              ]}
-            >
-              {reminder.arabic}
-            </Text>
+              {/* Texte en arabe */}
+              <Text
+                style={[
+                  styles.arabicFormula,
+                  {
+                    color: Colors[colorScheme ?? 'light'].prayer.formulaArabic,
+                  },
+                ]}
+              >
+                {reminder.arabic}
+              </Text>
 
-            {/* Translittération */}
-            <Text
-              style={[
-                styles.transliterationFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].prayer.formulaTranslation,
-                },
-              ]}
-            >
-              {reminder.transliteration}
-            </Text>
+              {/* Translittération */}
+              <Text
+                style={[
+                  styles.transliterationFormula,
+                  {
+                    color: Colors[colorScheme ?? 'light'].prayer.formulaTranslation,
+                  },
+                ]}
+              >
+                {reminder.transliteration}
+              </Text>
 
-            {/* Traduction */}
-            <Text
-              style={[
-                styles.translationFormula,
-                {
-                  color: Colors[colorScheme ?? 'light'].text,
-                },
-              ]}
-            >
-              {reminder.translation}
-            </Text>
+              {/* Traduction */}
+              <Text
+                style={[
+                  styles.translationFormula,
+                  {
+                    color: Colors[colorScheme ?? 'light'].text,
+                  },
+                ]}
+              >
+                {reminder.translation}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* Actions à droite style TikTok - exactement comme pour les prières */}
-      <View style={[styles.sideActions, { transform: [{ translateX: -44 }] }]}>
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => reminder.id && handleLike(reminder.id)}
-          activeOpacity={0.8}
-        >
-          <Ionicons
-            name={isLiked(reminder.id || '') ? 'heart' : 'heart-outline'}
-            size={36}
-            color={isLiked(reminder.id || '') ? '#FF0000' : Colors[colorScheme ?? 'light'].text}
-          />
-        </TouchableOpacity>
+        {/* Actions à droite style TikTok - exactement comme pour les prières */}
+        <View style={[styles.sideActions, { transform: [{ translateX: -44 }] }]}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => reminder.id && handleLike(reminder.id)}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name={isLiked(reminder.id || '') ? 'heart' : 'heart-outline'}
+              size={36}
+              color={isLiked(reminder.id || '') ? '#FF0000' : Colors[colorScheme ?? 'light'].text}
+            />
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => handleShare(reminder)}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="share-outline" size={36} color={Colors[colorScheme ?? 'light'].text} />
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleShare(reminder)}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="share-outline" size={36} color={Colors[colorScheme ?? 'light'].text} />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   const renderPrayerCard = (prayer: PrayerData, index: number) => {
     if (!prayer.id) return null;
 
     const formula = assignedFormulas[prayer.id];
+    const optimalWidth = getOptimalCardWidth(isIPad);
 
     // Si pas de formule assignée, afficher un indicateur de chargement
     if (!formula) {
       return (
-        <View key={prayer.id} style={styles.card}>
+        <View key={prayer.id} style={[styles.card, { width: optimalWidth }]}>
           <View style={styles.cardContent}>
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={Colors[colorScheme ?? 'light'].primary} />
@@ -477,7 +490,7 @@ export default function PrayersScreen() {
     const personalizedFormula = replaceNamePlaceholders(formula, prayer.name);
 
     return (
-      <View key={prayer.id} style={styles.card}>
+      <View key={prayer.id} style={[styles.card, { width: optimalWidth }]}>
         {/* Contenu principal centré */}
         <View style={styles.cardContent}>
           {/* Formule de prière */}
@@ -869,6 +882,7 @@ export default function PrayersScreen() {
             styles.scrollView,
             { backgroundColor: Colors[colorScheme ?? 'light'].drawer.backgroundColor },
           ]}
+          contentContainerStyle={isIPad ? styles.scrollViewContentIPad : undefined}
           decelerationRate="fast"
           snapToInterval={cardHeight}
           snapToAlignment="start"
@@ -918,6 +932,9 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     backgroundColor: 'transparent', // Transparent pour laisser voir le container
+  },
+  scrollViewContentIPad: {
+    alignItems: 'center', // Centrer le contenu sur iPad
   },
   card: {
     width: screenWidth,
