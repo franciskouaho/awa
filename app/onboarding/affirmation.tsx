@@ -91,13 +91,6 @@ export default function AffirmationScreen() {
             Ravi de vous rencontrer ! Pour vous, cette application représente plutôt...
           </Text>
 
-          {/* Islamic Icon */}
-          <View style={[styles.iconContainer, isIPad && styles.iconContainerIPad]}>
-            <View style={[styles.islamicContainer, isIPad && styles.islamicContainerIPad]}>
-              <Text style={[styles.islamicEmoji, isIPad && styles.islamicEmojiIPad]}>🤲</Text>
-            </View>
-          </View>
-
           {/* Affirmation Options */}
           <View style={[styles.optionsContainer, isIPad && styles.optionsContainerIPad]}>
             {affirmations.map(affirmation => (
@@ -170,29 +163,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     lineHeight: 28,
   },
-  iconContainer: {
-    marginBottom: 24,
-  },
-  islamicContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#2D5A4A',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  islamicEmoji: {
-    fontSize: 40,
-    color: '#FFFFFF',
-  },
   optionsContainer: {
     width: '100%',
     marginBottom: 60,
@@ -229,14 +199,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 30,
+    marginTop: 20,
+    marginBottom: 30,
   },
   buttonActive: {
-    backgroundColor: '#4299E1',
+    backgroundColor: '#2D5A4A',
   },
   buttonInactive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    backgroundColor: 'rgba(45, 90, 74, 0.3)',
   },
   buttonText: {
     fontSize: 16,
@@ -269,17 +239,6 @@ const styles = StyleSheet.create({
   titleIPad: {
     fontSize: 28,
     marginBottom: 32,
-  },
-  iconContainerIPad: {
-    marginBottom: 32,
-  },
-  islamicContainerIPad: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  islamicEmojiIPad: {
-    fontSize: 50,
   },
   optionsContainerIPad: {
     marginBottom: 80,

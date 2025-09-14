@@ -5,15 +5,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 export default function NameScreen() {
@@ -49,49 +49,43 @@ export default function NameScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={[styles.contentWrapper, isIPad && styles.contentWrapperIPad]}>
-        {/* Islamic Icon */}
-        <View style={styles.iconContainer}>
-          <View style={styles.islamicContainer}>
-            <Text style={styles.islamicEmoji}>�</Text>
-          </View>
-        </View>
+          {/* Title */}
+          <Text style={styles.title}>Quel est votre prénom ?</Text>
 
-        {/* Title */}
-        <Text style={styles.title}>Quel est votre prénom ?</Text>
-
-        {/* Subtitle */}
-        <Text style={styles.subtitle}>
-          Cela nous aide à personnaliser votre expérience spirituelle
-        </Text>
-
-        {/* Input */}
-        <TextInput
-          style={styles.input}
-          placeholder="Entrez votre prénom"
-          placeholderTextColor="#A0A0A0"
-          value={name}
-          onChangeText={setName}
-          autoCapitalize="words"
-          autoCorrect={false}
-          returnKeyType="done"
-          onSubmitEditing={handleContinue}
-        />
-
-        {/* Continue Button */}
-        <TouchableOpacity
-          style={[styles.button, name.trim() ? styles.buttonActive : styles.buttonInactive]}
-          disabled={!name.trim()}
-          onPress={handleContinue}
-        >
-          <Text
-            style={[
-              styles.buttonText,
-              name.trim() ? styles.buttonTextActive : styles.buttonTextInactive,
-            ]}
-          >
-            Continuer
+          {/* Subtitle */}
+          <Text style={styles.subtitle}>
+            Cela nous aide à personnaliser votre expérience spirituelle
           </Text>
-        </TouchableOpacity>
+
+          {/* Input */}
+          <TextInput
+            style={styles.input}
+            placeholder="Entrez votre prénom"
+            placeholderTextColor="#A0A0A0"
+            value={name}
+            onChangeText={setName}
+            autoCapitalize="words"
+            autoCorrect={false}
+            returnKeyType="done"
+            onSubmitEditing={handleContinue}
+          />
+
+          {/* Continue Button */}
+          <TouchableOpacity
+            style={[styles.button, name.trim() ? styles.buttonActive : styles.buttonInactive]}
+            disabled={!name.trim()}
+            onPress={handleContinue}
+          >
+            <Text
+              style={[
+                styles.buttonText,
+                name.trim() ? styles.buttonTextActive : styles.buttonTextInactive,
+              ]}
+            >
+              Continuer
+            </Text>
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -109,29 +103,6 @@ const styles = StyleSheet.create({
   },
   contentWrapper: {
     width: '100%',
-  },
-  iconContainer: {
-    marginBottom: 60,
-  },
-  islamicContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#2D5A4A',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  islamicEmoji: {
-    fontSize: 60,
-    color: '#FFFFFF',
   },
   title: {
     fontSize: 32,
@@ -156,7 +127,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     fontSize: 18,
     color: '#2D3748',
-    marginBottom: 80,
+    marginBottom: 40,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
     shadowColor: '#000',
@@ -174,14 +145,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 30,
+    marginBottom: 30,
   },
   buttonActive: {
-    backgroundColor: '#4299E1',
+    backgroundColor: '#2D5A4A',
   },
   buttonInactive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    backgroundColor: 'rgba(45, 90, 74, 0.3)',
   },
   buttonText: {
     fontSize: 20,
@@ -206,17 +176,6 @@ const styles = StyleSheet.create({
   contentWrapperIPad: {
     width: 500,
     maxWidth: '90%',
-  },
-  iconContainerIPad: {
-    marginBottom: 50,
-  },
-  islamicContainerIPad: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-  },
-  islamicEmojiIPad: {
-    fontSize: 70,
   },
   titleIPad: {
     fontSize: 36,

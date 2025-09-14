@@ -39,7 +39,8 @@ export default function EmailScreen() {
 
       // Aller à l'écran nom
       router.push('/onboarding/name');
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error saving email:', error);
       Alert.alert('Erreur', "Impossible de sauvegarder l'email");
     }
   };
@@ -61,63 +62,64 @@ export default function EmailScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={[styles.contentWrapper, isIPad && styles.contentWrapperIPad]}>
-          {/* Islamic Icon */}
-          <View style={[styles.iconContainer, isIPad && styles.iconContainerIPad]}>
-            <View style={[styles.islamicContainer, isIPad && styles.islamicContainerIPad]}>
-              <Text style={[styles.islamicEmoji, isIPad && styles.islamicEmojiIPad]}>📧</Text>
-            </View>
+          {/* Top Section - Text Only */}
+          <View style={styles.topSection}>
+            {/* Title */}
+            <Text style={[styles.title, isIPad && styles.titleIPad]}>
+              Quelle est votre adresse email ?
+            </Text>
+
+            {/* Subtitle */}
+            <Text style={[styles.subtitle, isIPad && styles.subtitleIPad]}>
+              Cela nous permet de synchroniser vos données en toute sécurité
+            </Text>
           </View>
 
-          {/* Title */}
-          <Text style={[styles.title, isIPad && styles.titleIPad]}>
-            Quelle est votre adresse email ?
-          </Text>
+          {/* Middle Section - Input and Button */}
+          <View style={styles.middleSection}>
+            {/* Input */}
+            <TextInput
+              style={[styles.input, isIPad && styles.inputIPad]}
+              placeholder="votre.email@exemple.com"
+              placeholderTextColor="#A0A0A0"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              returnKeyType="done"
+              onSubmitEditing={handleContinue}
+            />
 
-          {/* Subtitle */}
-          <Text style={[styles.subtitle, isIPad && styles.subtitleIPad]}>
-            Cela nous permet de synchroniser vos données en toute sécurité
-          </Text>
-
-          {/* Input */}
-          <TextInput
-            style={[styles.input, isIPad && styles.inputIPad]}
-            placeholder="votre.email@exemple.com"
-            placeholderTextColor="#A0A0A0"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="email-address"
-            returnKeyType="done"
-            onSubmitEditing={handleContinue}
-          />
-
-          {/* Continue Button */}
-          <TouchableOpacity
-            style={[
-              styles.button,
-              isIPad && styles.buttonIPad,
-              isValidEmail(email) ? styles.buttonActive : styles.buttonInactive,
-            ]}
-            disabled={!isValidEmail(email)}
-            onPress={handleContinue}
-          >
-            <Text
+            {/* Continue Button */}
+            <TouchableOpacity
               style={[
-                styles.buttonText,
-                isIPad && styles.buttonTextIPad,
-                isValidEmail(email) ? styles.buttonTextActive : styles.buttonTextInactive,
+                styles.button,
+                isIPad && styles.buttonIPad,
+                isValidEmail(email) ? styles.buttonActive : styles.buttonInactive,
               ]}
+              disabled={!isValidEmail(email)}
+              onPress={handleContinue}
             >
-              Continuer
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={[
+                  styles.buttonText,
+                  isIPad && styles.buttonTextIPad,
+                  isValidEmail(email) ? styles.buttonTextActive : styles.buttonTextInactive,
+                ]}
+              >
+                Continuer
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-          {/* Information Text */}
-          <Text style={[styles.infoText, isIPad && styles.infoTextIPad]}>
-            Aucun mot de passe requis. Nous utilisons votre email uniquement pour sauvegarder vos
-            prières.
-          </Text>
+          {/* Bottom Section - Information Text */}
+          <View style={styles.bottomSection}>
+            <Text style={[styles.infoText, isIPad && styles.infoTextIPad]}>
+              Aucun mot de passe requis. Nous utilisons votre email uniquement pour sauvegarder vos
+              prières.
+            </Text>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -134,28 +136,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 32,
   },
-  iconContainer: {
-    marginBottom: 60,
+  contentWrapper: {
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
   },
-  islamicContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#2D5A4A',
+  topSection: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    width: '100%',
+    paddingTop: 20,
   },
-  islamicEmoji: {
-    fontSize: 60,
-    color: '#FFFFFF',
+  middleSection: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 0,
+    marginBottom: 40,
+  },
+  bottomSection: {
+    width: '100%',
+    alignItems: 'center',
+    paddingBottom: 20,
   },
   title: {
     fontSize: 32,
@@ -167,9 +170,9 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: '#718096',
+    color: '#2D3748',
     textAlign: 'center',
-    marginBottom: 60,
+    marginBottom: 0,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
   },
   input: {
@@ -180,7 +183,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     fontSize: 18,
     color: '#2D3748',
-    marginBottom: 60,
+    marginTop: 20,
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
     shadowColor: '#000',
@@ -198,13 +202,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 0,
   },
   buttonActive: {
-    backgroundColor: '#4299E1',
+    backgroundColor: '#2D5A4A',
   },
   buttonInactive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    backgroundColor: 'rgba(45, 90, 74, 0.3)',
   },
   buttonText: {
     fontSize: 20,
@@ -223,8 +227,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 20,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
-    position: 'absolute',
-    bottom: 50,
+    lineHeight: 18,
   },
   // Styles iPad
   containerIPad: {
@@ -239,24 +242,13 @@ const styles = StyleSheet.create({
     width: 500,
     maxWidth: '90%',
   },
-  iconContainerIPad: {
-    marginBottom: 50,
-  },
-  islamicContainerIPad: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-  },
-  islamicEmojiIPad: {
-    fontSize: 70,
-  },
   titleIPad: {
     fontSize: 36,
     marginBottom: 16,
   },
   subtitleIPad: {
     fontSize: 20,
-    marginBottom: 50,
+    marginBottom: 0,
   },
   inputIPad: {
     height: 64,

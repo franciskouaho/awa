@@ -37,7 +37,8 @@ export default function IntroScreen() {
   return (
     <View style={[styles.container, isIPad && styles.containerIPad]}>
       <View style={[styles.contentWrapper, isIPad && styles.contentWrapperIPad]}>
-        <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', width: '100%' }}>
+        {/* Logo et texte en haut */}
+        <View style={styles.topSection}>
           <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }] }}>
             <View style={[styles.logoContainer, isIPad && styles.logoContainerIPad]}>
               <Image source={require('../../assets/images/logo_rmbg.png')} style={[styles.icon, isIPad && styles.iconIPad]} />
@@ -46,11 +47,15 @@ export default function IntroScreen() {
             <Text style={[styles.slogan, isIPad && styles.sloganIPad]}>Ta routine spirituelle, simple et motivante.</Text>
           </Animated.View>
         </View>
+
+        {/* Bouton centré */}
         <View style={[styles.buttonsContainer, isIPad && styles.buttonsContainerIPad]}>
           <TouchableOpacity style={[styles.changeWorldBtn, isIPad && styles.changeWorldBtnIPad]} onPress={handleChangeWorld}>
             <Text style={[styles.changeWorldText, isIPad && styles.changeWorldTextIPad]}>Commencer maintenant</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Terms en bas */}
         <View style={[styles.termsContainer, isIPad && styles.termsContainerIPad]}>
           <Text style={[styles.termsText, isIPad && styles.termsTextIPad]}>
             En continuant, tu acceptes nos{' '}
@@ -71,15 +76,27 @@ export default function IntroScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#E6F7EC', // vert très clair, thème principal
     padding: 0,
     width: '100%',
   },
+  contentWrapper: {
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+  topSection: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
   logoContainer: {
     alignItems: 'center',
-    marginTop: 80,
     marginBottom: 8,
   },
   icon: {
@@ -101,7 +118,7 @@ const styles = StyleSheet.create({
   },
   slogan: {
     fontSize: 16,
-    color: '#4CCB5F',
+    color: '#2D3748',
     textAlign: 'center',
     marginBottom: 8,
     fontFamily: 'System',
@@ -109,8 +126,7 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     width: '100%',
     alignItems: 'center',
-    marginBottom: 0,
-    marginTop: 0,
+    marginBottom: 20,
   },
   changeWorldBtn: {
     backgroundColor: '#2D5A4A', // vert foncé du thème
@@ -159,9 +175,10 @@ const styles = StyleSheet.create({
   contentWrapperIPad: {
     width: 500,
     maxWidth: '90%',
+    paddingHorizontal: 40,
   },
   logoContainerIPad: {
-    marginTop: 60,
+    marginBottom: 12,
   },
   iconIPad: {
     width: 100,
@@ -174,7 +191,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   buttonsContainerIPad: {
-    marginTop: 20,
+    marginBottom: 30,
   },
   changeWorldBtnIPad: {
     width: '100%',
