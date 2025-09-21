@@ -7,7 +7,7 @@ struct PrayerWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: PrayerProvider()) { entry in
             PrayerWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .background(Color(.systemBackground))
         }
         .configurationDisplayName("Prière pour un défunt")
         .description("Affiche une prière pour un défunt avec un compteur de prières.")
