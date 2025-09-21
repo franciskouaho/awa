@@ -1,3 +1,4 @@
+import PrayerTutorialModal from '@/components/PrayerTutorialModal';
 import SuggestionModal from '@/components/SuggestionModal';
 import BottomDrawer from '@/components/ui/BottomDrawer';
 import ShareDrawerContent from '@/components/ui/ShareDrawerContent';
@@ -6,6 +7,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useContent } from '@/hooks/useContent';
 import { useDeviceType } from '@/hooks/useDeviceType';
 import { useLikes } from '@/hooks/useLikes';
+import { usePrayerTutorial } from '@/hooks/usePrayerTutorial';
 import { usePrayers } from '@/hooks/usePrayers';
 import { useReminders } from '@/hooks/useReminders';
 import { useUserPrayers } from '@/hooks/useUserPrayers';
@@ -32,8 +34,8 @@ import {
   View,
 } from 'react-native';
 
+import { useAuth } from '@/contexts/AuthContext';
 import { PRAYER_EVENTS, prayerEventEmitter } from '@/utils/eventEmitter';
-import { useAuth } from '../../contexts/AuthContext';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const cardHeight = screenHeight; // Chaque carte prend toute la hauteur de l'écran
 
@@ -50,6 +52,9 @@ export default function PrayersScreen() {
   const { user } = useAuth();
   const userId = user?.uid || '';
   const [suggestionModalVisible, setSuggestionModalVisible] = useState(false);
+
+  // Hook pour le tutorial
+  const { showTutorial, markTutorialAsShown } = usePrayerTutorial();
 
   // Utiliser le hook pour les prières utilisateur
   const {
@@ -835,6 +840,9 @@ export default function PrayersScreen() {
         visible={suggestionModalVisible}
         onClose={() => setSuggestionModalVisible(false)}
       />
+
+      {/* Modal du tutorial */}
+      <PrayerTutorialModal visible={showTutorial} onClose={markTutorialAsShown} />
     </LinearGradient>
   );
 }
@@ -1025,8 +1033,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 16,
     margin: 16,
   },
   loadingText: {

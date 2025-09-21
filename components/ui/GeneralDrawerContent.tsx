@@ -7,7 +7,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-
 interface GeneralDrawerContentProps {
   onClose: () => void;
   onNavigateToScreen: (screenName: string) => void;
@@ -27,8 +26,6 @@ export default function GeneralDrawerContent({
   const colors = Colors[colorScheme ?? 'light'];
   const { settings, loading } = useUserSettings();
   const { user, firebaseUser } = useAuth();
-
-
 
   // Utiliser les données de Firebase en priorité, puis les valeurs passées en props ou des valeurs par défaut
   const firstName = settings?.firstName || currentValues?.firstName || 'Utilisateur';
@@ -53,6 +50,34 @@ export default function GeneralDrawerContent({
       flexDirection: 'row',
       alignItems: 'center',
       marginBottom: 32,
+    },
+    backButtonGlass: {
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+      shadowColor: 'rgba(0, 0, 0, 0.1)',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 8,
+      marginRight: 12,
+    },
+    backButtonGlassInner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 20,
+      overflow: 'hidden',
+    },
+    backButtonGlassHighlight: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: '50%',
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
     },
 
     backText: {
@@ -137,17 +162,17 @@ export default function GeneralDrawerContent({
     },
   });
 
-
-
   return (
-    <LinearGradient
-      colors={['#2D5A4A', '#4A7C69', '#6BAF8A']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#2D5A4A', '#4A7C69', '#6BAF8A']} style={styles.container}>
       {/* Header avec bouton Back et titre */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onClose} activeOpacity={0.7}>
-          <IconSymbol name="chevron.left" size={20} color="rgba(255, 255, 255, 0.8)" />
+          <View style={styles.backButtonGlass}>
+            <View style={styles.backButtonGlassInner}>
+              <View style={styles.backButtonGlassHighlight} />
+              <IconSymbol name="chevron.left" size={20} color="#2D5A4A" />
+            </View>
+          </View>
           <Text style={[styles.backText, { color: '#FFFFFF' }]}>Retour</Text>
         </TouchableOpacity>
 
@@ -209,7 +234,6 @@ export default function GeneralDrawerContent({
                 <Text style={styles.chevron}>›</Text>
               </TouchableOpacity>
             </View>
-
           </>
         )}
       </ScrollView>

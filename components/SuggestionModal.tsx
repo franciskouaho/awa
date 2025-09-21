@@ -4,19 +4,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { IconSymbol } from './ui/IconSymbol';
 
 interface SuggestionModalProps {
   visible: boolean;
@@ -94,7 +93,7 @@ export default function SuggestionModal({ visible, onClose }: SuggestionModalPro
                 onPress={handleClose}
                 disabled={isSubmitting}
               >
-                <IconSymbol name="xmark" size={24} color="#FFFFFF" />
+                <Ionicons name="chevron-back" size={24} color="#2D5A4A" />
               </TouchableOpacity>
               <Text style={styles.title}>Suggestion d&apos;amélioration</Text>
               <View style={styles.placeholder} />
@@ -193,9 +192,11 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(45, 90, 74, 0.3)',
   },
   title: {
     fontSize: 18,

@@ -316,9 +316,36 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     closeButton: {
       padding: 8,
     },
+    closeButtonGlass: {
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+      shadowColor: 'rgba(0, 0, 0, 0.1)',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    closeButtonGlassInner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 20,
+      overflow: 'hidden',
+    },
+    closeButtonGlassHighlight: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: '50%',
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    },
     closeText: {
       fontSize: 24,
-      color: '#FFFFFF',
+      color: '#2D5A4A',
       fontWeight: '300',
     },
     saveButton: {
@@ -517,7 +544,12 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-          <Text style={styles.closeText}>×</Text>
+          <View style={styles.closeButtonGlass}>
+            <View style={styles.closeButtonGlassInner}>
+              <View style={styles.closeButtonGlassHighlight} />
+              <Text style={styles.closeText}>×</Text>
+            </View>
+          </View>
         </TouchableOpacity>
         <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={isSaving}>
           <Text style={[styles.saveText, isSaving && { opacity: 0.5 }]}>

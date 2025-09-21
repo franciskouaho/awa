@@ -57,7 +57,12 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
       {/* Header avec bouton Back et titre */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onClose} activeOpacity={0.7}>
-          <IconSymbol name="chevron.left" size={20} color="rgba(255, 255, 255, 0.8)" />
+          <View style={styles.backButtonGlass}>
+            <View style={styles.backButtonGlassInner}>
+              <View style={styles.backButtonGlassHighlight} />
+              <IconSymbol name="chevron.left" size={20} color="#2D5A4A" />
+            </View>
+          </View>
           <Text style={styles.backText}>
             Retour
           </Text>
@@ -192,6 +197,34 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 8,
     marginRight: 8,
+  },
+  backButtonGlass: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: 'rgba(0, 0, 0, 0.1)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    marginRight: 12,
+  },
+  backButtonGlassInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  backButtonGlassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
 
   backText: {

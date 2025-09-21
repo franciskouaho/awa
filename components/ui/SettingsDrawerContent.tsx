@@ -6,7 +6,6 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import LanguageScreen from '@/components/ui/LanguageScreen';
 import RemindersDrawerContent from '@/components/ui/RemindersDrawerContent';
 import UserPrayersDrawerContent from '@/components/ui/UserPrayersDrawerContent';
-import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLikes } from '@/hooks/useLikes';
 import { usePrayers } from '@/hooks/usePrayers';
@@ -16,12 +15,12 @@ import { DevService } from '@/services/devService';
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View /*, Linking*/,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View /*, Linking*/,
 } from 'react-native';
 import appConfig from '../../app.json';
 
@@ -171,7 +170,12 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onClose} activeOpacity={0.7}>
-          <IconSymbol name="chevron.left" size={20} color="rgba(255, 255, 255, 0.8)" />
+          <View style={styles.backButtonGlass}>
+            <View style={styles.backButtonGlassInner}>
+              <View style={styles.backButtonGlassHighlight} />
+              <IconSymbol name="chevron.left" size={20} color="#2D5A4A" />
+            </View>
+          </View>
           <Text style={[styles.backText, { color: '#FFFFFF' }]}>Retour</Text>
         </TouchableOpacity>
         <Text style={[styles.title, { color: '#FFFFFF' }]}>AWA</Text>
@@ -270,6 +274,25 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
                 </View>
                 <Text style={[styles.menuItemText, { color: '#FFC107', fontWeight: '600' }]}>
                   Reset Onboarding
+                </Text>
+                <Text style={[styles.chevron, { color: '#FFC107' }]}>›</Text>
+              </TouchableOpacity>
+
+              <View style={[styles.separator, { backgroundColor: 'rgba(255, 193, 7, 0.2)' }]} />
+
+              <TouchableOpacity
+                style={[styles.menuItem, { backgroundColor: 'rgba(255, 193, 7, 0.05)' }]}
+                onPress={() => {
+                  console.log('🔄 Reset tutorial clicked');
+                  DevService.resetPrayerTutorial();
+                }}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.iconContainer, { backgroundColor: 'rgba(255, 193, 7, 0.2)' }]}>
+                  <IconSymbol name="info.circle" size={20} color="#FFC107" />
+                </View>
+                <Text style={[styles.menuItemText, { color: '#FFC107', fontWeight: '600' }]}>
+                  Reset Tutorial Prières
                 </Text>
                 <Text style={[styles.chevron, { color: '#FFC107' }]}>›</Text>
               </TouchableOpacity>
@@ -379,6 +402,34 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   backButton: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+  backButtonGlass: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: 'rgba(0, 0, 0, 0.1)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    marginRight: 12,
+  },
+  backButtonGlassInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  backButtonGlassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
   backText: { fontSize: 16, fontWeight: '500' },
   title: { fontSize: 20, fontWeight: '600', letterSpacing: 0.5 },
   content: { flex: 1 },

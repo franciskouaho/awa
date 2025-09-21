@@ -39,6 +39,30 @@ export class DevService {
   }
 
   /**
+   * Reset le tutorial des prières pour le développement
+   * Supprime la clé de stockage pour que le tutorial s'affiche à nouveau
+   */
+  static async resetPrayerTutorial() {
+    try {
+      await AsyncStorage.removeItem('prayer_tutorial_shown');
+      
+      console.log('🧹 Tutorial des prières reset - Clé supprimée');
+      
+      Alert.alert(
+        'Tutorial Reset',
+        'Le tutorial des prières a été réinitialisé. Il s\'affichera à nouveau au prochain chargement de l\'écran des prières.',
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('❌ Erreur lors du reset du tutorial:', error);
+      Alert.alert(
+        'Erreur',
+        'Impossible de réinitialiser le tutorial. Veuillez réessayer.'
+      );
+    }
+  }
+
+  /**
    * Vérifie si on est en mode développement
    */
   static isDevMode(): boolean {

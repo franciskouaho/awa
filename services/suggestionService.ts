@@ -62,4 +62,7 @@ export class SuggestionService {
   }
 }
 
-export const suggestionService = new SuggestionService();
+export const suggestionService = {
+  submitSuggestion: SuggestionService.submitSuggestion,
+  validateSuggestion: SuggestionService.validateSuggestion,
+};

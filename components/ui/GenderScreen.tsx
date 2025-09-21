@@ -43,10 +43,38 @@ export default function GenderScreen({ onBack, initialValue, onSave }: GenderScr
       alignItems: 'center',
       marginBottom: 32,
     },
+    backButtonGlass: {
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+      shadowColor: 'rgba(0, 0, 0, 0.1)',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 8,
+      marginRight: 12,
+    },
+    backButtonGlassInner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 20,
+      overflow: 'hidden',
+    },
+    backButtonGlassHighlight: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: '50%',
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    },
     backIcon: {
       fontSize: 20,
       marginRight: 8,
-      color: 'rgba(255, 255, 255, 0.8)',
+      color: '#2D5A4A',
     },
     backText: {
       fontSize: 16,
@@ -112,7 +140,12 @@ export default function GenderScreen({ onBack, initialValue, onSave }: GenderScr
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onBack} activeOpacity={0.7}>
-          <Text style={styles.backIcon}>←</Text>
+          <View style={styles.backButtonGlass}>
+            <View style={styles.backButtonGlassInner}>
+              <View style={styles.backButtonGlassHighlight} />
+              <Text style={styles.backIcon}>←</Text>
+            </View>
+          </View>
           <Text style={styles.backText}>Général</Text>
         </TouchableOpacity>
 
