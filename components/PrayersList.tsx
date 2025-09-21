@@ -3,9 +3,9 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { usePrayers } from '@/hooks/usePrayers';
 import { usePrayerWidget } from '@/hooks/usePrayerWidget';
 import { PrayerData } from '@/services/prayerService';
-import React, { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
+import { Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function PrayersList() {
   const colorScheme = useColorScheme();

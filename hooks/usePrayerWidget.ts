@@ -1,10 +1,9 @@
-import { useState, useCallback, useEffect } from 'react';
-import PrayerWidgetService, { 
-  PrayerWidgetData, 
-  PrayerActivityState, 
-  ActivePrayerActivity 
-} from '@/services/prayerWidgetService';
 import { PrayerData } from '@/services/prayerService';
+import PrayerWidgetService, {
+  ActivePrayerActivity,
+  PrayerActivityState,
+} from '@/services/prayerWidgetService';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface UsePrayerWidgetResult {
   // État
@@ -49,93 +48,99 @@ export function usePrayerWidget(): UsePrayerWidgetResult {
   }, [widgetService]);
 
   // Démarrer une Live Activity pour une prière
-  const startPrayerActivity = useCallback(async (prayerData: PrayerData): Promise<string | null> => {
-    if (!isSupported || !activitiesEnabled) {
-      console.warn('Live Activities non disponibles');
-      return null;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const widgetData = PrayerWidgetService.convertPrayerDataForWidget(prayerData);
-      const activityId = await widgetService.startPrayerActivity(widgetData);
-      
-      if (activityId) {
-        // Rafraîchir la liste des activités actives
-        await refreshActiveActivities();
+  const startPrayerActivity = useCallback(
+    async (prayerData: PrayerData): Promise<string | null> => {
+      if (!isSupported || !activitiesEnabled) {
+        console.warn('Live Activities non disponibles');
+        return null;
       }
-      
-      return activityId;
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors du démarrage de la Live Activity');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [isSupported, activitiesEnabled, widgetService]);
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const widgetData = PrayerWidgetService.convertPrayerDataForWidget(prayerData);
+        const activityId = await widgetService.startPrayerActivity(widgetData);
+
+        if (activityId) {
+          // Rafraîchir la liste des activités actives
+          await refreshActiveActivities();
+        }
+
+        return activityId;
+      } catch (err: any) {
+        setError(err.message || 'Erreur lors du démarrage de la Live Activity');
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [isSupported, activitiesEnabled, widgetService]
+  );
 
   // Mettre à jour une Live Activity
-  const updatePrayerActivity = useCallback(async (
-    activityId: string, 
-    prayerCount: number
-  ): Promise<boolean> => {
-    if (!isSupported) {
-      return false;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const state: PrayerActivityState = {
-        prayerCount,
-        lastPrayerTime: Date.now(),
-        isActive: true
-      };
-
-      const success = await widgetService.updatePrayerActivity(activityId, state);
-      
-      if (success) {
-        // Rafraîchir la liste des activités actives
-        await refreshActiveActivities();
+  const updatePrayerActivity = useCallback(
+    async (activityId: string, prayerCount: number): Promise<boolean> => {
+      if (!isSupported) {
+        return false;
       }
-      
-      return success;
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors de la mise à jour de la Live Activity');
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [isSupported, widgetService]);
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const state: PrayerActivityState = {
+          prayerCount,
+          lastPrayerTime: Date.now(),
+          isActive: true,
+        };
+
+        const success = await widgetService.updatePrayerActivity(activityId, state);
+
+        if (success) {
+          // Rafraîchir la liste des activités actives
+          await refreshActiveActivities();
+        }
+
+        return success;
+      } catch (err: any) {
+        setError(err.message || 'Erreur lors de la mise à jour de la Live Activity');
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [isSupported, widgetService]
+  );
 
   // Terminer une Live Activity
-  const endPrayerActivity = useCallback(async (activityId: string): Promise<boolean> => {
-    if (!isSupported) {
-      return false;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const success = await widgetService.endPrayerActivity(activityId);
-      
-      if (success) {
-        // Rafraîchir la liste des activités actives
-        await refreshActiveActivities();
+  const endPrayerActivity = useCallback(
+    async (activityId: string): Promise<boolean> => {
+      if (!isSupported) {
+        return false;
       }
-      
-      return success;
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors de la fin de la Live Activity');
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [isSupported, widgetService]);
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const success = await widgetService.endPrayerActivity(activityId);
+
+        if (success) {
+          // Rafraîchir la liste des activités actives
+          await refreshActiveActivities();
+        }
+
+        return success;
+      } catch (err: any) {
+        setError(err.message || 'Erreur lors de la fin de la Live Activity');
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [isSupported, widgetService]
+  );
 
   // Rafraîchir la liste des activités actives
   const refreshActiveActivities = useCallback(async () => {
@@ -166,6 +171,6 @@ export function usePrayerWidget(): UsePrayerWidgetResult {
     updatePrayerActivity,
     endPrayerActivity,
     refreshActiveActivities,
-    checkActivitiesEnabled
+    checkActivitiesEnabled,
   };
 }

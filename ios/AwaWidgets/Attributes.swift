@@ -20,6 +20,10 @@ struct PrayerAttributes: ActivityAttributes {
     var creatorId: String
     
     // Configuration du widget
-    var widgetName: String = "Prière pour \(name)"
-    var widgetDescription: String = "Priez pour \(name) qui a quitté ce monde à l'âge de \(age) ans"
+    var widgetName: String {
+        return "Prière pour \(name)"
+    }
+    var widgetDescription: String {
+        return "Priez pour \(name) qui a quitté ce monde à l'âge de \(age) ans"
+    }
 }
