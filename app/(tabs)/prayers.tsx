@@ -6,6 +6,7 @@ import { useCategories } from '@/contexts/CategoryContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useContent } from '@/hooks/useContent';
 import { useDeviceType } from '@/hooks/useDeviceType';
+import { useInAppReview } from '@/hooks/useInAppReview';
 import { useLikes } from '@/hooks/useLikes';
 import { usePrayerTutorial } from '@/hooks/usePrayerTutorial';
 import { usePrayers } from '@/hooks/usePrayers';
@@ -55,6 +56,9 @@ export default function PrayersScreen() {
 
   // Hook pour le tutorial
   const { showTutorial, markTutorialAsShown } = usePrayerTutorial();
+
+  // Hook pour les reviews
+  const { triggerReviewAfterScroll } = useInAppReview();
 
   // Utiliser le hook pour les prières utilisateur
   const {
@@ -299,6 +303,9 @@ export default function PrayersScreen() {
   const handleScrollEnd = (event: any) => {
     const index = Math.round(event.nativeEvent.contentOffset.y / cardHeight);
     setCurrentIndex(index);
+
+    // Déclencher la review après le scroll
+    triggerReviewAfterScroll();
   };
 
   const handleShare = async (item: PrayerData | any) => {

@@ -7,6 +7,7 @@ import LanguageScreen from '@/components/ui/LanguageScreen';
 import RemindersDrawerContent from '@/components/ui/RemindersDrawerContent';
 import UserPrayersDrawerContent from '@/components/ui/UserPrayersDrawerContent';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useInAppReview } from '@/hooks/useInAppReview';
 import { useLikes } from '@/hooks/useLikes';
 import { usePrayers } from '@/hooks/usePrayers';
 import { useUserSettings } from '@/hooks/useUserSettings';
@@ -36,6 +37,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
   const { settings, saveSetting, error /*, deleteAccount*/ } = useUserSettings();
   const { prayers, loadPrayers } = usePrayers();
   const { likeCounts, refreshLikeCount } = useLikes();
+  const { resetReviewData } = useInAppReview();
 
   const [remindersDrawerVisible, setRemindersDrawerVisible] = useState(false);
   const [generalDrawerVisible, setGeneralDrawerVisible] = useState(false);
@@ -124,6 +126,20 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
               text: 'Reset',
               style: 'destructive',
               onPress: () => DevService.resetOnboarding(),
+            },
+          ]
+        );
+        break;
+      case 'resetReviews':
+        Alert.alert(
+          'Reset Reviews (Dev)',
+          'Voulez-vous réinitialiser les données de review ? Cela permettra de redemander une évaluation de l\'app.',
+          [
+            { text: 'Annuler', style: 'cancel' },
+            {
+              text: 'Reset',
+              style: 'destructive',
+              onPress: () => resetReviewData(),
             },
           ]
         );
@@ -293,6 +309,22 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
                 </View>
                 <Text style={[styles.menuItemText, { color: '#FFC107', fontWeight: '600' }]}>
                   Reset Tutorial Prières
+                </Text>
+                <Text style={[styles.chevron, { color: '#FFC107' }]}>›</Text>
+              </TouchableOpacity>
+
+              <View style={[styles.separator, { backgroundColor: 'rgba(255, 193, 7, 0.2)' }]} />
+
+              <TouchableOpacity
+                style={[styles.menuItem, { backgroundColor: 'rgba(255, 193, 7, 0.05)' }]}
+                onPress={() => handleItemPress('resetReviews')}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.iconContainer, { backgroundColor: 'rgba(255, 193, 7, 0.2)' }]}>
+                  <IconSymbol name="star" size={20} color="#FFC107" />
+                </View>
+                <Text style={[styles.menuItemText, { color: '#FFC107', fontWeight: '600' }]}>
+                  Reset Reviews
                 </Text>
                 <Text style={[styles.chevron, { color: '#FFC107' }]}>›</Text>
               </TouchableOpacity>
