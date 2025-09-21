@@ -140,19 +140,20 @@ struct PrayerWidgetEntryView: View {
     }
 }
 
-#Preview(as: .systemSmall) {
-    PrayerWidget()
-} timeline: {
-    PrayerEntry(
-        date: .now,
-        prayerId: "preview",
-        name: "Marie Dubois",
-        age: 72,
-        deathDate: .now,
-        location: "Lyon",
-        personalMessage: "Que Dieu ait son âme en paix",
-        prayerCount: 23,
-        lastPrayerTime: .now,
-        isActive: true
-    )
+struct PrayerWidget_Previews: PreviewProvider {
+    static var previews: some View {
+        PrayerWidgetEntryView(entry: PrayerEntry(
+            date: .now,
+            prayerId: "preview",
+            name: "Marie Dubois",
+            age: 72,
+            deathDate: .now,
+            location: "Lyon",
+            personalMessage: "Que Dieu ait son âme en paix",
+            prayerCount: 23,
+            lastPrayerTime: .now,
+            isActive: true
+        ))
+        .previewContext(WidgetPreviewContext(family: .systemSmall))
+    }
 }
