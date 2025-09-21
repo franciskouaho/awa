@@ -15,7 +15,10 @@
       "appleTeamId": "NAN7MFNMT7",
       "scheme": "awa",
       "infoPlist": {
-        "UIBackgroundModes": ["background-fetch", "background-processing"],
+        "UIBackgroundModes": [
+          "background-fetch",
+          "background-processing"
+        ],
         "NSUserNotificationsUsageDescription": "Cette application utilise les notifications pour vous rappeler de prier et maintenir votre routine spirituelle."
       }
     },
@@ -79,6 +82,15 @@
               "com.android.vending.BILLING"
             ]
           }
+        }
+      ],
+      [
+        "react-native-widget-extension",
+        {
+          "frequentUpdates": true,
+          "widgetsFolder": "PrayerWidgetExtension",
+          "deploymentTarget": "16.2",
+          "groupIdentifier": "group.com.emplica.awa"
         }
       ]
     ],

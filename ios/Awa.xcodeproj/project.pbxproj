@@ -15,6 +15,15 @@
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 		F8BCEE84E60686110ECBFB8F /* Pods_Awa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2424D4821E98B5EC1B209EE8 /* Pods_Awa.framework */; };
+		8D8DFC717ABA445485CAD232 /* Attributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB4C45AEB3F34943935B4D3E /* Attributes.swift */; };
+		391A79D41D724898A3861BEE /* PrayerLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC621AC83A84D48AAA41450 /* PrayerLiveActivity.swift */; };
+		E8FFEB9755044F3492CA75E9 /* PrayerWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C61AE0FB6F45DCA00DBFFA /* PrayerWidget.swift */; };
+		351C80E44929411D8A4E11EE /* PrayerWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59B063C1BA0141E08A4745F5 /* PrayerWidgetBundle.swift */; };
+		C50240A5A99B4DD39240F921 /* AwaWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4FA3B5643D704B82A876C3BB /* AwaWidgets.appex */; };
+		320F79D648134F10B22D2778 /* PrayerWidgetModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DE6F8ED4D4A14D58A66E1EB3 /* PrayerWidgetModule.m */; };
+		74AD4D51140E496190D22CA2 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 4B4987B1A6DE419BB2C7D80D /* README.md */; };
+		26C133D2EA814D6FACB2BCDE /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BF20797FFC034894AF20C99A /* Info.plist */; };
+		399A16FCB7704E18879E548F /* AwaWidgets.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = DA80F2D3F40747E9AD6598FF /* AwaWidgets.entitlements */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +41,17 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Awa/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* Awa-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Awa-Bridging-Header.h"; path = "Awa/Awa-Bridging-Header.h"; sourceTree = "<group>"; };
+		4FA3B5643D704B82A876C3BB /* AwaWidgets.appex */ = {isa = PBXFileReference; name = "AwaWidgets.appex"; path = "AwaWidgets.appex"; sourceTree = BUILT_PRODUCTS_DIR; fileEncoding = undefined; lastKnownFileType = undefined; explicitFileType = wrapper.app-extension; includeInIndex = 0; };
+		F50B6A91A2C640AEBE66C466 /* WidgetKit.framework */ = {isa = PBXFileReference; name = "WidgetKit.framework"; path = "System/Library/Frameworks/WidgetKit.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		52D2FB3216B9449E8F53BE57 /* SwiftUI.framework */ = {isa = PBXFileReference; name = "SwiftUI.framework"; path = "System/Library/Frameworks/SwiftUI.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		DB4C45AEB3F34943935B4D3E /* Attributes.swift */ = {isa = PBXFileReference; name = "Attributes.swift"; path = "Attributes.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		1BC621AC83A84D48AAA41450 /* PrayerLiveActivity.swift */ = {isa = PBXFileReference; name = "PrayerLiveActivity.swift"; path = "PrayerLiveActivity.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		05C61AE0FB6F45DCA00DBFFA /* PrayerWidget.swift */ = {isa = PBXFileReference; name = "PrayerWidget.swift"; path = "PrayerWidget.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		59B063C1BA0141E08A4745F5 /* PrayerWidgetBundle.swift */ = {isa = PBXFileReference; name = "PrayerWidgetBundle.swift"; path = "PrayerWidgetBundle.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		DE6F8ED4D4A14D58A66E1EB3 /* PrayerWidgetModule.m */ = {isa = PBXFileReference; name = "PrayerWidgetModule.m"; path = "PrayerWidgetModule.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		4B4987B1A6DE419BB2C7D80D /* README.md */ = {isa = PBXFileReference; name = "README.md"; path = "README.md"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		BF20797FFC034894AF20C99A /* Info.plist */ = {isa = PBXFileReference; name = "Info.plist"; path = "Info.plist"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = text.plist.xml; explicitFileType = undefined; includeInIndex = 0; };
+		DA80F2D3F40747E9AD6598FF /* AwaWidgets.entitlements */ = {isa = PBXFileReference; name = "AwaWidgets.entitlements"; path = "AwaWidgets.entitlements"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,6 +60,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				F8BCEE84E60686110ECBFB8F /* Pods_Awa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BC9AECAE988D450785498F0A /* Embed Foundation Extensions */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,6 +101,8 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				2424D4821E98B5EC1B209EE8 /* Pods_Awa.framework */,
+				F50B6A91A2C640AEBE66C466 /* WidgetKit.framework */,
+				52D2FB3216B9449E8F53BE57 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -102,6 +131,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				9D58434B491CFBCD4D848329 /* Pods */,
 				47C05823509F72BAAC8A8801 /* ExpoModulesProviders */,
+				4ECF7E75A7514A6C89AB1D7E /* AwaWidgets */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -112,6 +142,7 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* Awa.app */,
+				4FA3B5643D704B82A876C3BB /* AwaWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -134,6 +165,22 @@
 			path = Awa/Supporting;
 			sourceTree = "<group>";
 		};
+		4ECF7E75A7514A6C89AB1D7E /* AwaWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				DB4C45AEB3F34943935B4D3E /* Attributes.swift */,
+				1BC621AC83A84D48AAA41450 /* PrayerLiveActivity.swift */,
+				05C61AE0FB6F45DCA00DBFFA /* PrayerWidget.swift */,
+				59B063C1BA0141E08A4745F5 /* PrayerWidgetBundle.swift */,
+				DE6F8ED4D4A14D58A66E1EB3 /* PrayerWidgetModule.m */,
+				4B4987B1A6DE419BB2C7D80D /* README.md */,
+				BF20797FFC034894AF20C99A /* Info.plist */,
+				DA80F2D3F40747E9AD6598FF /* AwaWidgets.entitlements */,
+			);
+			name = AwaWidgets;
+			path = AwaWidgets;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -150,15 +197,34 @@
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
 				0E3124A10A74011963EFB96B /* [CP] Embed Pods Frameworks */,
 				1F8C8804C82DC653083F7EE7 /* [CP-User] [RNFB] Core Configuration */,
+				C546782FC48D4FA190FBEA35 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				6551F88257A54F928BC43115 /* PBXTargetDependency */,
 			);
 			name = Awa;
 			productName = Awa;
 			productReference = 13B07F961A680F5B00A75B9A /* Awa.app */;
 			productType = "com.apple.product-type.application";
+		};
+		9AF0DDB34CC047C8B8F85F59 /* AwaWidgets */ = {
+			isa = PBXNativeTarget;
+			name = AwaWidgets;
+			productName = AwaWidgets;
+			productReference = 4FA3B5643D704B82A876C3BB;
+			productType = "com.apple.product-type.app-extension";
+			buildConfigurationList = 8F1184BCE45B436E9E8B3E3E;
+			buildPhases = (
+				23F01C206A404F7599A85730 /* Embed Foundation Extensions */,
+				BC9AECAE988D450785498F0A /* Embed Foundation Extensions */,
+				04827DCB9A014DDF8EDA3C1B /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
 		};
 /* End PBXNativeTarget section */
 
@@ -169,6 +235,9 @@
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
+						LastSwiftMigration = 1250;
+					};
+					9AF0DDB34CC047C8B8F85F59 = {
 						LastSwiftMigration = 1250;
 					};
 				};
@@ -187,6 +256,7 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* Awa */,
+				9AF0DDB34CC047C8B8F85F59 /* AwaWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -201,6 +271,13 @@
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				B55E9AA4F64C4E2F91AAF096 /* GoogleService-Info.plist in Resources */,
 				09CFE54A06CFC3DC9D210764 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04827DCB9A014DDF8EDA3C1B /* Embed Foundation Extensions */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -396,6 +473,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		23F01C206A404F7599A85730 /* Embed Foundation Extensions */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D8DFC717ABA445485CAD232 /* Attributes.swift in Sources */,
+				391A79D41D724898A3861BEE /* PrayerLiveActivity.swift in Sources */,
+				E8FFEB9755044F3492CA75E9 /* PrayerWidget.swift in Sources */,
+				351C80E44929411D8A4E11EE /* PrayerWidgetBundle.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
@@ -429,7 +517,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.emplica.awa;
-				PRODUCT_NAME = Awa;
+				PRODUCT_NAME = "Awa";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -437,7 +525,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Awa/Awa-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -467,14 +555,14 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.emplica.awa;
-				PRODUCT_NAME = Awa;
+				PRODUCT_NAME = "Awa";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Awa/Awa-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
@@ -621,6 +709,44 @@
 			};
 			name = Release;
 		};
+		31ABAC6FA607481EA4495BBE /* Debug */ = {
+			name = Debug;
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				INFOPLIST_FILE = AwaWidgets/Info.plist;
+				CURRENT_PROJECT_VERSION = "1";
+				IPHONEOS_DEPLOYMENT_TARGET = "16.2";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.emplica.awa.AwaWidgets";
+				GENERATE_INFOPLIST_FILE = "YES";
+				INFOPLIST_KEY_CFBundleDisplayName = AwaWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				MARKETING_VERSION = "0.4.0";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				CODE_SIGN_ENTITLEMENTS = "AwaWidgets/AwaWidgets.entitlements";
+			};
+		};
+		530B60118325458A82404071 /* Release */ = {
+			name = Release;
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				INFOPLIST_FILE = AwaWidgets/Info.plist;
+				CURRENT_PROJECT_VERSION = "1";
+				IPHONEOS_DEPLOYMENT_TARGET = "16.2";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.emplica.awa.AwaWidgets";
+				GENERATE_INFOPLIST_FILE = "YES";
+				INFOPLIST_KEY_CFBundleDisplayName = AwaWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				MARKETING_VERSION = "0.4.0";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				CODE_SIGN_ENTITLEMENTS = "AwaWidgets/AwaWidgets.entitlements";
+			};
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -642,7 +768,48 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		8F1184BCE45B436E9E8B3E3E /* Build configuration list for PBXNativeTarget "AwaWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				31ABAC6FA607481EA4495BBE /* Debug */,
+				530B60118325458A82404071 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin PBXTargetDependency section */
+		6551F88257A54F928BC43115 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9AF0DDB34CC047C8B8F85F59 /* AwaWidgets */;
+			targetProxy = 3A62501607A6492F87204E0E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXContainerItemProxy section */
+		3A62501607A6492F87204E0E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9AF0DDB34CC047C8B8F85F59;
+			remoteInfo = AwaWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C546782FC48D4FA190FBEA35 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C50240A5A99B4DD39240F921 /* AwaWidgets.appex in Embed Foundation Extensions */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			name = "Embed Foundation Extensions";
+			dstPath = "";
+			dstSubfolderSpec = 13;
+		};
+/* End PBXCopyFilesBuildPhase section */
 	};
 	rootObject = 83CBB9F71A601CBA00E9B192 /* Project object */;
 }

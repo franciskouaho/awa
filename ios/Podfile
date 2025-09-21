@@ -49,6 +49,16 @@ target 'Awa' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => podfile_properties['apple.ccacheEnabled'] == 'true',
     )
+# @generated begin react-native-widget-extension-1 - expo prebuild (DO NOT MODIFY) sync-7f87fe457565fa39586bc490048ce7619f04123e
+
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        # Sentry has build errors unless configured as 'YES' for the Sentry target: https://github.com/bndkt/react-native-widget-extension/issues/24
+        config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = target.name == 'Sentry' ? 'YES' : 'No'
+      end
+    end
+
+# @generated end react-native-widget-extension-1
 
     # This is necessary for Xcode 14, because it signs resource bundles by default
     # when building for devices.
@@ -62,3 +72,13 @@ target 'Awa' do
     end
   end
 end
+
+
+# >>> Inserted by react-native-widget-extension
+
+target 'AwaWidgets' do
+  use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
+  use_frameworks! :linkage => ENV['USE_FRAMEWORKS'].to_sym if ENV['USE_FRAMEWORKS']
+end
+
+# >>> Inserted by react-native-widget-extension
