@@ -85,12 +85,19 @@
         }
       ],
       [
-        "react-native-widget-extension",
+        "@bittingz/expo-widgets",
         {
-          "frequentUpdates": true,
-          "widgetsFolder": "PrayerWidgetExtension",
-          "deploymentTarget": "16.2",
-          "groupIdentifier": "group.com.emplica.awa"
+          "ios": {
+            "src": "./ios/AwaWidgets",
+            "devTeamId": "NAN7MFNMT7",
+            "mode": "production",
+            "moduleDependencies": [],
+            "useLiveActivities": true,
+            "frequentUpdates": true,
+            "entitlements": {
+              "com.apple.developer.usernotifications.filtering": true
+            }
+          }
         }
       ]
     ],

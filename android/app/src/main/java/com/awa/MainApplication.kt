@@ -1,4 +1,4 @@
-package com.emplica.awa
+package com.awa
 
 import android.app.Application
 import android.content.res.Configuration
