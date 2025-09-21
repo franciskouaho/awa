@@ -31,15 +31,22 @@ export default function SuggestionModal({ visible, onClose }: SuggestionModalPro
   const userEmail = user?.email || '';
 
   const handleSubmit = async () => {
+    console.log("🔄 Tentative d'envoi de suggestion...");
+    console.log('📧 Email utilisateur:', userEmail);
+    console.log('👤 Utilisateur connecté:', !!user);
+    console.log('📝 Contenu:', content);
+
     // Validation
     const validation = suggestionService.validateSuggestion({ content, email: userEmail });
     if (!validation.isValid) {
+      console.log('❌ Validation échouée:', validation.errors);
       Alert.alert('Erreur de validation', validation.errors.join('\n'));
       return;
     }
 
     setIsSubmitting(true);
     try {
+      console.log('📤 Envoi de la suggestion...');
       await suggestionService.submitSuggestion({
         content,
         email: userEmail,
@@ -54,7 +61,6 @@ export default function SuggestionModal({ visible, onClose }: SuggestionModalPro
             text: 'Parfait',
             onPress: () => {
               setContent('');
-              setEmail('');
               onClose();
             },
           },
@@ -139,7 +145,12 @@ export default function SuggestionModal({ visible, onClose }: SuggestionModalPro
               {/* Submit Button */}
               <TouchableOpacity
                 style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
-                onPress={handleSubmit}
+                onPress={() => {
+                  console.log('🖱️ Bouton cliqué !');
+                  console.log('📝 Longueur du contenu:', content.length);
+                  console.log("⏳ En cours d'envoi:", isSubmitting);
+                  handleSubmit();
+                }}
                 disabled={isSubmitting || content.length < 10}
               >
                 <View style={styles.glassBackground}>

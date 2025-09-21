@@ -26,7 +26,7 @@ export class SuggestionService {
         status: 'pending',
       };
 
-      const docRef = await addDoc(collection(db, this.collectionName), suggestionData);
+      const docRef = await addDoc(collection(db, 'suggestions'), suggestionData);
 
       console.log('✅ Suggestion soumise avec succès:', docRef.id);
       return docRef.id;
