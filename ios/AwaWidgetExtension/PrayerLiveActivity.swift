@@ -40,12 +40,8 @@ struct PrayerLiveActivity: Widget {
 }
 
 struct PrayerLiveActivity_Previews: PreviewProvider {
-    static let attributes = PrayerAttributes.preview
-    static let contentState = PrayerAttributes.ContentState.smiley
-
     static var previews: some View {
-        attributes
-            .previewContext(using: contentState)
+        Text("Live Activity Preview")
             .previewDisplayName("Live Activity")
     }
 }
