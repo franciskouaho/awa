@@ -1,8 +1,8 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserCreatedPrayers } from '@/hooks/useUserCreatedPrayers';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -50,16 +50,19 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
   };
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#2D5A4A', '#4A7C69', '#6BAF8A']}
+      style={styles.container}
+    >
       {/* Header avec bouton Back et titre */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onClose} activeOpacity={0.7}>
-          <IconSymbol name="chevron.left" size={20} color={Colors[colorScheme ?? 'light'].textSecondary} />
-          <Text style={[styles.backText, { color: Colors[colorScheme ?? 'light'].text }]}>
+          <IconSymbol name="chevron.left" size={20} color="rgba(255, 255, 255, 0.8)" />
+          <Text style={styles.backText}>
             Retour
           </Text>
         </TouchableOpacity>
-        <Text style={[styles.title, { color: Colors[colorScheme ?? 'light'].text }]}>
+        <Text style={styles.title}>
           Mes Prières
         </Text>
         <TouchableOpacity
@@ -68,14 +71,14 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
           disabled={loading}
           activeOpacity={0.7}
         >
-          <Ionicons name="refresh" size={20} color={Colors[colorScheme ?? 'light'].tint} />
+          <Ionicons name="refresh" size={20} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
 
       {loading && (
         <Text
           style={{
-            color: Colors[colorScheme ?? 'light'].textSecondary,
+            color: 'rgba(255, 255, 255, 0.8)',
             textAlign: 'center',
             marginTop: 16,
           }}
@@ -84,7 +87,7 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
         </Text>
       )}
 
-      {error && <Text style={{ color: Colors[colorScheme ?? 'light'].error, textAlign: 'center', marginTop: 16 }}>{error}</Text>}
+      {error && <Text style={{ color: '#FF6B6B', textAlign: 'center', marginTop: 16 }}>{error}</Text>}
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 32 }}>
         {prayers.length === 0 && !loading ? (
@@ -92,21 +95,15 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
             <Ionicons
               name="heart-outline"
               size={64}
-              color={Colors[colorScheme ?? 'light'].textSecondary}
+              color="rgba(255, 255, 255, 0.8)"
             />
             <Text
-              style={[
-                styles.emptyStateText,
-                { color: Colors[colorScheme ?? 'light'].textSecondary },
-              ]}
+              style={styles.emptyStateText}
             >
               Vous n'avez créé aucune prière.
             </Text>
             <Text
-              style={[
-                styles.emptyStateSubtext,
-                { color: Colors[colorScheme ?? 'light'].textSecondary },
-              ]}
+              style={styles.emptyStateSubtext}
             >
               Créez votre première prière depuis l'écran principal.
             </Text>
@@ -115,60 +112,54 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
           prayers.map(prayer => (
             <View
               key={prayer.id}
-              style={[
-                styles.card,
-                {
-                  backgroundColor: Colors[colorScheme ?? 'light'].surface,
-                  shadowColor: Colors[colorScheme ?? 'light'].border,
-                },
-              ]}
+              style={styles.card}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
                 <Ionicons
                   name="person"
                   size={22}
-                  color={Colors[colorScheme ?? 'light'].tint}
+                  color="#FFFFFF"
                   style={{ marginRight: 8 }}
                 />
-                <Text style={[styles.cardTitle, { color: Colors[colorScheme ?? 'light'].text }]}>{prayer.name}</Text>
+                <Text style={styles.cardTitle}>{prayer.name}</Text>
                 {prayer.prayerCount > 10 && (
-                  <View style={[styles.badgePopular, { backgroundColor: Colors[colorScheme ?? 'light'].warning }]}>
-                    <Text style={[styles.badgeText, { color: Colors[colorScheme ?? 'light'].textOnPrimary }]}>Populaire</Text>
+                  <View style={styles.badgePopular}>
+                    <Text style={styles.badgeText}>Populaire</Text>
                   </View>
                 )}
                 {prayer.createdAt &&
                   new Date().getTime() - new Date(prayer.createdAt).getTime() <
                     7 * 24 * 3600 * 1000 && (
-                    <View style={[styles.badgeRecent, { backgroundColor: Colors[colorScheme ?? 'light'].success }]}>
-                      <Text style={[styles.badgeText, { color: Colors[colorScheme ?? 'light'].textOnPrimary }]}>Nouveau</Text>
+                    <View style={styles.badgeRecent}>
+                      <Text style={styles.badgeText}>Nouveau</Text>
                     </View>
                   )}
               </View>
-              <Text style={[styles.cardMessage, { color: Colors[colorScheme ?? 'light'].text }]}>{prayer.personalMessage}</Text>
+              <Text style={styles.cardMessage}>{prayer.personalMessage}</Text>
               <View style={styles.cardInfoRow}>
-                {prayer.age && <Text style={[styles.cardInfo, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>Âge : {prayer.age}</Text>}
-                {prayer.location && <Text style={[styles.cardInfo, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>Lieu : {prayer.location}</Text>}
+                {prayer.age && <Text style={styles.cardInfo}>Âge : {prayer.age}</Text>}
+                {prayer.location && <Text style={styles.cardInfo}>Lieu : {prayer.location}</Text>}
                 {prayer.deathDate && (
-                  <Text style={[styles.cardInfo, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>Décès : {formatDate(prayer.deathDate)}</Text>
+                  <Text style={styles.cardInfo}>Décès : {formatDate(prayer.deathDate)}</Text>
                 )}
               </View>
               <View style={styles.cardInfoRow}>
-                <Text style={[styles.cardInfo, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>Ajoutée le : {formatDate(prayer.createdAt)}</Text>
-                <Text style={[styles.cardInfo, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>Prières : {prayer.prayerCount ?? 0}</Text>
+                <Text style={styles.cardInfo}>Ajoutée le : {formatDate(prayer.createdAt)}</Text>
+                <Text style={styles.cardInfo}>Prières : {prayer.prayerCount ?? 0}</Text>
               </View>
               <TouchableOpacity
                 onPress={() => handleDelete(prayer.id!)}
-                style={[styles.deleteButton, { backgroundColor: Colors[colorScheme ?? 'light'].error }, deletingId === prayer.id && { opacity: 0.5 }]}
+                style={[styles.deleteButton, deletingId === prayer.id && { opacity: 0.5 }]}
                 disabled={deletingId === prayer.id}
               >
-                <Ionicons name="trash" size={18} color={Colors[colorScheme ?? 'light'].textOnPrimary} style={{ marginRight: 4 }} />
-                <Text style={{ color: Colors[colorScheme ?? 'light'].textOnPrimary, fontSize: 14 }}>Supprimer</Text>
+                <Ionicons name="trash" size={18} color="#FFFFFF" style={{ marginRight: 4 }} />
+                <Text style={styles.deleteButtonText}>Supprimer</Text>
               </TouchableOpacity>
             </View>
           ))
         )}
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -189,6 +180,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     letterSpacing: 1,
+    color: '#FFFFFF',
   },
   content: {
     flex: 1,
@@ -205,26 +197,30 @@ const styles = StyleSheet.create({
   backText: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#FFFFFF',
   },
   card: {
     marginHorizontal: 16,
     marginVertical: 10,
     padding: 16,
     borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 6,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#222',
+    color: '#FFFFFF',
     flex: 1,
   },
   cardMessage: {
     fontSize: 15,
-    color: '#444',
+    color: 'rgba(255, 255, 255, 0.9)',
     marginBottom: 8,
     marginTop: 2,
   },
@@ -237,6 +233,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginRight: 16,
     marginBottom: 2,
+    color: 'rgba(255, 255, 255, 0.8)',
   },
   deleteButton: {
     flexDirection: 'row',
@@ -245,26 +242,37 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingVertical: 7,
     paddingHorizontal: 16,
-
+    backgroundColor: 'rgba(255, 107, 107, 0.2)',
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 107, 107, 0.3)',
+  },
+  deleteButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
   },
   badgePopular: {
-
+    backgroundColor: 'rgba(255, 193, 7, 0.2)',
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
     marginLeft: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 193, 7, 0.3)',
   },
   badgeRecent: {
-
+    backgroundColor: 'rgba(40, 167, 69, 0.2)',
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
     marginLeft: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(40, 167, 69, 0.3)',
   },
   badgeText: {
     fontSize: 11,
     fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   refreshButton: {
     padding: 8,
@@ -281,10 +289,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginTop: 16,
     textAlign: 'center',
+    color: 'rgba(255, 255, 255, 0.8)',
   },
   emptyStateSubtext: {
     fontSize: 14,
     marginTop: 8,
     textAlign: 'center',
+    color: 'rgba(255, 255, 255, 0.8)',
   },
 });

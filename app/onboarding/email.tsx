@@ -1,25 +1,24 @@
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useDeviceType } from '@/hooks/useDeviceType';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 export default function EmailScreen() {
   const [email, setEmail] = useState('');
   const router = useRouter();
-  const colorScheme = useColorScheme();
   const { isIPad } = useDeviceType();
 
   const isValidEmail = (email: string) => {
@@ -33,12 +32,14 @@ export default function EmailScreen() {
       return;
     }
 
+    await Haptics.selectionAsync();
+
     try {
       // Sauvegarder l'email localement pour l'utiliser plus tard
       await AsyncStorage.setItem('userEmail', email);
 
-      // Aller à l'écran nom
-      router.push('/onboarding/name');
+      // Aller à l'écran notifications
+      router.push('/onboarding/notifications');
     } catch (error) {
       console.error('Error saving email:', error);
       Alert.alert('Erreur', "Impossible de sauvegarder l'email");
@@ -46,88 +47,96 @@ export default function EmailScreen() {
   };
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        isIPad && styles.containerIPad,
-        {
-          backgroundColor:
-            Colors[colorScheme ?? 'light'].onboarding?.backgroundColor ||
-            Colors[colorScheme ?? 'light'].background,
-        },
-      ]}
+    <LinearGradient
+      colors={['#2D5A4A', '#4A7C69', '#6BAF8A']}
+      style={[styles.container, isIPad && styles.containerIPad]}
     >
-      <KeyboardAvoidingView
-        style={[styles.content, isIPad && styles.contentIPad]}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <View style={[styles.contentWrapper, isIPad && styles.contentWrapperIPad]}>
-          {/* Top Section - Text Only */}
-          <View style={styles.topSection}>
-            {/* Title */}
-            <Text style={[styles.title, isIPad && styles.titleIPad]}>
-              Quelle est votre adresse email ?
-            </Text>
-
-            {/* Subtitle */}
-            <Text style={[styles.subtitle, isIPad && styles.subtitleIPad]}>
-              Cela nous permet de synchroniser vos données en toute sécurité
-            </Text>
-          </View>
-
-          {/* Middle Section - Input and Button */}
-          <View style={styles.middleSection}>
-            {/* Input */}
-            <TextInput
-              style={[styles.input, isIPad && styles.inputIPad]}
-              placeholder="votre.email@exemple.com"
-              placeholderTextColor="#A0A0A0"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="email-address"
-              returnKeyType="done"
-              onSubmitEditing={handleContinue}
-            />
-
-            {/* Continue Button */}
-            <TouchableOpacity
-              style={[
-                styles.button,
-                isIPad && styles.buttonIPad,
-                isValidEmail(email) ? styles.buttonActive : styles.buttonInactive,
-              ]}
-              disabled={!isValidEmail(email)}
-              onPress={handleContinue}
-            >
-              <Text
-                style={[
-                  styles.buttonText,
-                  isIPad && styles.buttonTextIPad,
-                  isValidEmail(email) ? styles.buttonTextActive : styles.buttonTextInactive,
-                ]}
-              >
-                Continuer
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView
+          style={[styles.content, isIPad && styles.contentIPad]}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <View style={[styles.contentWrapper, isIPad && styles.contentWrapperIPad]}>
+            {/* Top Section - Text Only */}
+            <View style={styles.topSection}>
+              {/* Title */}
+              <Text style={[styles.title, isIPad && styles.titleIPad]}>
+                Quelle est votre adresse email ?
               </Text>
-            </TouchableOpacity>
-          </View>
 
-          {/* Bottom Section - Information Text */}
-          <View style={styles.bottomSection}>
-            <Text style={[styles.infoText, isIPad && styles.infoTextIPad]}>
-              Aucun mot de passe requis. Nous utilisons votre email uniquement pour sauvegarder vos
-              prières.
-            </Text>
+              {/* Subtitle */}
+              <Text style={[styles.subtitle, isIPad && styles.subtitleIPad]}>
+                Cela nous permet de synchroniser vos données en toute sécurité
+              </Text>
+            </View>
+
+            {/* Middle Section - Input and Button */}
+            <View style={styles.middleSection}>
+              {/* Input */}
+              <View style={styles.inputContainer}>
+                <View style={styles.glassInputBackground}>
+                  <TextInput
+                    style={[styles.input, isIPad && styles.inputIPad]}
+                    placeholder="votre.email@exemple.com"
+                    placeholderTextColor="rgba(255, 255, 255, 0.7)"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    keyboardType="email-address"
+                    returnKeyType="done"
+                    onSubmitEditing={handleContinue}
+                  />
+                </View>
+              </View>
+
+              {/* Continue Button */}
+              <TouchableOpacity
+                style={[styles.button, isIPad && styles.buttonIPad]}
+                disabled={!isValidEmail(email)}
+                onPress={handleContinue}
+              >
+                <View
+                  style={[
+                    styles.glassBackground,
+                    !isValidEmail(email) && styles.glassBackgroundDisabled,
+                  ]}
+                >
+                  <View style={styles.glassInner}>
+                    <View style={styles.glassHighlight} />
+                    <Text
+                      style={[
+                        styles.buttonText,
+                        isIPad && styles.buttonTextIPad,
+                        isValidEmail(email) ? styles.buttonTextActive : styles.buttonTextInactive,
+                      ]}
+                    >
+                      Continuer
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            {/* Bottom Section - Information Text */}
+            <View style={styles.bottomSection}>
+              <Text style={[styles.infoText, isIPad && styles.infoTextIPad]}>
+                Aucun mot de passe requis. Nous utilisons votre email uniquement pour sauvegarder
+                vos prières.
+              </Text>
+            </View>
           </View>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  safeArea: {
     flex: 1,
   },
   content: {
@@ -143,17 +152,18 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   topSection: {
-    flex: 1,
+    flex: 0,
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
     paddingTop: 20,
+    paddingBottom: 20,
   },
   middleSection: {
     width: '100%',
     alignItems: 'center',
     marginTop: 0,
-    marginBottom: 40,
+    marginBottom: 20,
   },
   bottomSection: {
     width: '100%',
@@ -163,52 +173,102 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#2D3748',
+    color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 12,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   subtitle: {
     fontSize: 18,
-    color: '#2D3748',
+    color: '#F0F9F4',
     textAlign: 'center',
     marginBottom: 0,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  inputContainer: {
+    width: '100%',
+    marginTop: 0,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  glassInputBackground: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    borderRadius: 16,
+    shadowColor: 'rgba(255, 255, 255, 0.5)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    overflow: 'hidden',
   },
   input: {
     width: '100%',
     height: 56,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     borderRadius: 16,
     paddingHorizontal: 20,
     fontSize: 18,
-    color: '#2D3748',
-    marginTop: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
+    color: '#FFFFFF',
+    borderWidth: 0,
+  },
+  glassBackground: {
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    shadowColor: 'rgba(255, 255, 255, 0.5)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 2,
+    overflow: 'hidden',
+  },
+  glassBackgroundDisabled: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  glassInner: {
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    position: 'relative',
+  },
+  glassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '40%',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
   button: {
     width: '100%',
-    height: 56,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
     marginBottom: 0,
-  },
-  buttonActive: {
-    backgroundColor: '#2D5A4A',
-  },
-  buttonInactive: {
-    backgroundColor: 'rgba(45, 90, 74, 0.3)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   buttonText: {
     fontSize: 20,
@@ -217,17 +277,23 @@ const styles = StyleSheet.create({
   },
   buttonTextActive: {
     color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   buttonTextInactive: {
-    color: '#A0A0A0',
+    color: 'rgba(255, 255, 255, 0.5)',
   },
   infoText: {
     fontSize: 13,
-    color: '#718096',
+    color: '#F0F9F4',
     textAlign: 'center',
     paddingHorizontal: 20,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
     lineHeight: 18,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   // Styles iPad
   containerIPad: {

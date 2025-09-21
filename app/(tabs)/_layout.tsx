@@ -1,59 +1,53 @@
-
 import BottomDrawer from '@/components/ui/BottomDrawer';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import SettingsDrawerContent from '@/components/ui/SettingsDrawerContent';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useDeviceType } from '@/hooks/useDeviceType';
 import { Tabs, router } from 'expo-router';
 import React, { useState } from 'react';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
   const [settingsDrawerVisible, setSettingsDrawerVisible] = useState(false);
 
   const CustomTabBar = () => {
     const { isIPad } = useDeviceType();
-    
+
     return (
       <>
         <View style={[styles.customTabBar, isIPad && styles.customTabBarIPad]}>
           {/* Bouton Add */}
           <TouchableOpacity
-            style={[
-              styles.roundButton,
-              isIPad && styles.roundButtonIPad,
-              {
-                backgroundColor: 'rgba(69, 90, 100, 0.7)',
-              },
-            ]}
+            style={styles.roundButton}
             onPress={() => router.push('/add-prayer')}
             activeOpacity={0.8}
           >
-            <IconSymbol size={isIPad ? 32 : 28} name="plus.circle.fill" color="white" />
+            <View style={styles.buttonGlassBackground}>
+              <View style={styles.buttonGlassInner}>
+                <View style={styles.buttonGlassHighlight} />
+                <IconSymbol size={isIPad ? 32 : 28} name="plus.circle.fill" color="white" />
+              </View>
+            </View>
           </TouchableOpacity>
 
           {/* Bouton Settings */}
           <TouchableOpacity
-            style={[
-              styles.roundButton,
-              isIPad && styles.roundButtonIPad,
-              {
-                backgroundColor: settingsDrawerVisible
-                  ? 'rgba(69, 90, 100, 0.9)'
-                  : 'rgba(69, 90, 100, 0.7)',
-              },
-            ]}
+            style={styles.roundButton}
             onPress={() => setSettingsDrawerVisible(true)}
             activeOpacity={0.8}
           >
-            <IconSymbol size={isIPad ? 32 : 28} name="person.fill" color="white" />
+            <View
+              style={[
+                styles.buttonGlassBackground,
+                settingsDrawerVisible && styles.buttonGlassBackgroundActive,
+              ]}
+            >
+              <View style={styles.buttonGlassInner}>
+                <View style={styles.buttonGlassHighlight} />
+                <IconSymbol size={isIPad ? 32 : 28} name="person.fill" color="white" />
+              </View>
+            </View>
           </TouchableOpacity>
         </View>
-
-
 
         {/* Drawer Settings */}
         <BottomDrawer
@@ -133,13 +127,42 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    backgroundColor: 'transparent', // Transparent pour laisser voir l'effet glass
+  },
+  // Styles glassmorphisme pour les boutons individuels
+  buttonGlassBackground: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    shadowColor: 'rgba(255, 255, 255, 0.5)',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowRadius: 4,
+    overflow: 'hidden',
+  },
+  buttonGlassBackgroundActive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    borderColor: 'rgba(255, 255, 255, 0.6)',
+  },
+  buttonGlassInner: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    position: 'relative',
+    borderRadius: 30,
+  },
+  buttonGlassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '40%',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
   },
 });

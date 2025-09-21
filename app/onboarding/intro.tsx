@@ -1,4 +1,6 @@
 import { useDeviceType } from '@/hooks/useDeviceType';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Image, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -24,34 +26,54 @@ export default function IntroScreen() {
     ]).start();
   }, [fadeAnim, scaleAnim]);
 
-  const handleChangeWorld = () => {
-    router.push('/onboarding/email');
+  const handleChangeWorld = async () => {
+    await Haptics.selectionAsync();
+    router.push('/onboarding/affirmation');
   };
+
   const openTerms = () => {
-    Linking.openURL('https://your-app-url.com/terms');
+    Linking.openURL('https://emplica.fr/terms');
   };
   const openPrivacy = () => {
-    Linking.openURL('https://your-app-url.com/privacy');
+    Linking.openURL('https://emplica.fr/privacy-policy');
   };
 
   return (
-    <View style={[styles.container, isIPad && styles.containerIPad]}>
+    <LinearGradient
+      colors={['#2D5A4A', '#4A7C69', '#6BAF8A']}
+      style={[styles.container, isIPad && styles.containerIPad]}
+    >
       <View style={[styles.contentWrapper, isIPad && styles.contentWrapperIPad]}>
         {/* Logo et texte en haut */}
         <View style={styles.topSection}>
           <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }] }}>
             <View style={[styles.logoContainer, isIPad && styles.logoContainerIPad]}>
-              <Image source={require('../../assets/images/logo_rmbg.png')} style={[styles.icon, isIPad && styles.iconIPad]} />
+              <Image
+                source={require('../../assets/images/logo_rmbg.png')}
+                style={[styles.icon, isIPad && styles.iconIPad]}
+              />
             </View>
             <Text style={[styles.appName, isIPad && styles.appNameIPad]}>AWA</Text>
-            <Text style={[styles.slogan, isIPad && styles.sloganIPad]}>Ta routine spirituelle, simple et motivante.</Text>
+            <Text style={[styles.slogan, isIPad && styles.sloganIPad]}>
+              Ta routine spirituelle, simple et motivante.
+            </Text>
           </Animated.View>
         </View>
 
         {/* Bouton centré */}
         <View style={[styles.buttonsContainer, isIPad && styles.buttonsContainerIPad]}>
-          <TouchableOpacity style={[styles.changeWorldBtn, isIPad && styles.changeWorldBtnIPad]} onPress={handleChangeWorld}>
-            <Text style={[styles.changeWorldText, isIPad && styles.changeWorldTextIPad]}>Commencer maintenant</Text>
+          <TouchableOpacity
+            style={[styles.changeWorldBtn, isIPad && styles.changeWorldBtnIPad]}
+            onPress={handleChangeWorld}
+          >
+            <View style={styles.glassBackground}>
+              <View style={styles.glassInner}>
+                <View style={styles.glassHighlight} />
+                <Text style={[styles.changeWorldText, isIPad && styles.changeWorldTextIPad]}>
+                  Commencer maintenant
+                </Text>
+              </View>
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -69,18 +91,46 @@ export default function IntroScreen() {
           </Text>
         </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#E6F7EC', // vert très clair, thème principal
     padding: 0,
     width: '100%',
+  },
+  glassBackground: {
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    shadowColor: 'rgba(255, 255, 255, 0.5)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    overflow: 'hidden',
+  },
+  glassInner: {
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 56,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    position: 'relative',
+  },
+  glassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '40%',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
   contentWrapper: {
     flex: 1,
@@ -111,17 +161,23 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 34,
     fontWeight: 'bold',
-    color: '#2D5A4A',
+    color: '#FFFFFF',
     textAlign: 'center',
     fontFamily: 'System',
     marginBottom: 4,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   slogan: {
     fontSize: 16,
-    color: '#2D3748',
+    color: '#F0F9F4',
     textAlign: 'center',
     marginBottom: 8,
     fontFamily: 'System',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   buttonsContainer: {
     width: '100%',
@@ -129,24 +185,25 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   changeWorldBtn: {
-    backgroundColor: '#2D5A4A', // vert foncé du thème
     borderRadius: 16,
     width: '90%',
-    paddingVertical: 18,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
   },
   changeWorldText: {
-    color: '#fff',
-    fontSize: 22,
+    color: '#FFFFFF',
+    fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
     fontFamily: 'System',
     letterSpacing: 1,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   termsContainer: {
     width: '100%',
@@ -155,15 +212,18 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   termsText: {
-    color: '#2D5A4A',
+    color: '#F0F9F4',
     fontSize: 12,
     textAlign: 'center',
     marginTop: 16,
     marginBottom: 0,
     fontFamily: 'System',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   link: {
-    color: '#4CCB5F',
+    color: '#FFFFFF',
     textDecorationLine: 'underline',
     fontWeight: 'bold',
   },
@@ -198,7 +258,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   changeWorldTextIPad: {
-    fontSize: 24,
+    fontSize: 20,
   },
   termsContainerIPad: {
     marginTop: 8,

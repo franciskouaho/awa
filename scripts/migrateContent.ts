@@ -14,14 +14,43 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Données des formules de prière à migrer
+// Données des formules de prière à migrer - Prières pour les défunts
 const prayerFormulas = [
   {
-    arabic: 'اللَّهُمَّ اغْفِرْ لِـ [Name] وَارْحَمْهُ وَعَافِهِ وَاعْفُ عَنْهُ',
-    transliteration: "Allahumma ighfir li [Name] warhamhu wa 'afihi wa'fu 'anhu",
-    translation:
-      'Ô Allah, pardonne à [nom de la personne], fais-lui miséricorde, accorde-lui le salut et pardonne-lui',
+    arabic: 'اللَّهُمَّ اغْفِرْ لِـ [Name] وَارْفَعْ دَرَجَتَهُ فِي الْمَهْدِيِّينَ وَاخْلُفْهُ فِي عَقِبِهِ فِي الْغَابِرِينَ وَاغْفِرْ لَنَا وَلَهُ يَا رَبَّ الْعَالَمِينَ',
+    transliteration: "Allaahummaghfir li [Name] warfa' darajatahu fil-mahdiyyina wa akhlufhu fi 'aqibihi fil-ghabirina wa ighfir lana wa lahu ya rabba al-'alamin",
+    translation: 'Ô Allah, pardonne à [nom du défunt] et élève son statut parmi les vertueux, remplace-le par de bons descendants parmi ceux qui restent, et pardonne-nous ainsi qu\'à lui, ô Seigneur des mondes',
     order: 1,
+  },
+  {
+    arabic: 'اللَّهُمَّ اغْفِرْ لِـ [Name] وَارْحَمْهُ وَعَافِهِ وَاعْفُ عَنْهُ وَأَكْرِمْ نُزُلَهُ وَوَسِّعْ مُدْخَلَهُ',
+    transliteration: "Allahumma ighfir li [Name] warhamhu wa 'afihi wa'fu 'anhu wa akrim nuzulahu wa wassi' mudkhalahu",
+    translation: 'Ô Allah, pardonne à [nom du défunt], fais-lui miséricorde, accorde-lui le salut, pardonne-lui, honore son arrivée et élargis son entrée',
+    order: 2,
+  },
+  {
+    arabic: 'اللَّهُمَّ اجْعَلْ قَبْرَ [Name] رَوْضَةً مِنْ رِيَاضِ الْجَنَّةِ وَلَا تَجْعَلْهُ حُفْرَةً مِنْ حُفَرِ النَّارِ',
+    transliteration: "Allahumma ij'al qabra [Name] rawdatan min riyadi al-jannati wa la taj'alhu hufratan min hufari an-nar",
+    translation: 'Ô Allah, fais du tombeau de [nom du défunt] un jardin parmi les jardins du Paradis, et ne le fais pas être une fosse parmi les fosses de l\'Enfer',
+    order: 3,
+  },
+  {
+    arabic: 'اللَّهُمَّ اغْفِرْ لِـ [Name] وَارْحَمْهُ وَسَكِّنْهُ فِي الْجَنَّةِ وَاجْعَلْهُ مِنْ أَهْلِ الْجَنَّةِ',
+    transliteration: "Allahumma ighfir li [Name] warhamhu wa sakkinhu fil-jannati wa ij'alhu min ahli al-jannati",
+    translation: 'Ô Allah, pardonne à [nom du défunt], fais-lui miséricorde, installe-le dans le Paradis et fais qu\'il soit parmi les habitants du Paradis',
+    order: 4,
+  },
+  {
+    arabic: 'اللَّهُمَّ اغْفِرْ لِـ [Name] وَارْحَمْهُ وَعَافِهِ وَاعْفُ عَنْهُ وَأَنْزِلْهُ مَنْزِلًا مُبَارَكًا وَأَنْزِلْهُ مَنْزِلًا صَالِحًا',
+    transliteration: "Allahumma ighfir li [Name] warhamhu wa 'afihi wa'fu 'anhu wa anzilhu manzilan mubarakan wa anzilhu manzilan salihan",
+    translation: 'Ô Allah, pardonne à [nom du défunt], fais-lui miséricorde, accorde-lui le salut, pardonne-lui et fais-le descendre dans une demeure bénie et une demeure vertueuse',
+    order: 5,
+  },
+  {
+    arabic: 'اللَّهُمَّ اغْفِرْ لِـ [Name] وَارْحَمْهُ وَاجْعَلْهُ فِي الْجَنَّةِ مَعَ النَّبِيِّينَ وَالصِّدِّيقِينَ وَالشُّهَدَاءِ وَالصَّالِحِينَ',
+    transliteration: "Allahumma ighfir li [Name] warhamhu wa ij'alhu fil-jannati ma'a an-nabiyyina was-siddiqina wash-shuhada'i was-saliheen",
+    translation: 'Ô Allah, pardonne à [nom du défunt], fais-lui miséricorde et place-le dans le Paradis avec les prophètes, les véridiques, les martyrs et les vertueux',
+    order: 6,
   },
 ];
 

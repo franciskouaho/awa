@@ -12,6 +12,7 @@ import { useLikes } from '@/hooks/useLikes';
 import { usePrayers } from '@/hooks/usePrayers';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { authService } from '@/services/auth';
+import { DevService } from '@/services/devService';
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -22,6 +23,7 @@ import {
   TouchableOpacity,
   View /*, Linking*/,
 } from 'react-native';
+import appConfig from '../../app.json';
 
 interface SettingsDrawerContentProps {
   onClose: () => void;
@@ -113,6 +115,20 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
       case 'userPrayers':
         setUserPrayersDrawerVisible(true);
         break;
+      case 'resetOnboarding':
+        Alert.alert(
+          'Reset Onboarding (Dev)',
+          "Voulez-vous réinitialiser l'onboarding ? Cela supprimera toutes vos données d'onboarding et vous redirigera vers l'écran d'introduction.",
+          [
+            { text: 'Annuler', style: 'cancel' },
+            {
+              text: 'Reset',
+              style: 'destructive',
+              onPress: () => DevService.resetOnboarding(),
+            },
+          ]
+        );
+        break;
       case 'deleteAccount':
         handleDeleteAccountPress();
         break;
@@ -155,23 +171,18 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onClose} activeOpacity={0.7}>
-          <IconSymbol
-            name="chevron.left"
-            size={20}
-            color={Colors[colorScheme ?? 'light'].textSecondary}
-          />
-          <Text style={[styles.backText, { color: Colors[colorScheme ?? 'light'].text }]}>
-            Retour
-          </Text>
+          <IconSymbol name="chevron.left" size={20} color="rgba(255, 255, 255, 0.8)" />
+          <Text style={[styles.backText, { color: '#FFFFFF' }]}>Retour</Text>
         </TouchableOpacity>
-        <Text style={[styles.title, { color: Colors[colorScheme ?? 'light'].text }]}>AWA</Text>
+        <Text style={[styles.title, { color: '#FFFFFF' }]}>AWA</Text>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={[styles.content, { backgroundColor: 'transparent' }]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Statistics Card */}
-        <View
-          style={[styles.statsCard, { backgroundColor: Colors[colorScheme ?? 'light'].primary }]}
-        >
+        <View style={[styles.statsCard, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
           <View style={styles.statsCardBackground}>
             <View style={styles.statContainer}>
               <View style={styles.heartIconContainer}>
@@ -194,83 +205,87 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
         </View>
 
         {/* SETTINGS Section */}
-        <Text
-          style={[styles.sectionTitle, { color: Colors[colorScheme ?? 'light'].textSecondary }]}
-        >
-          PARAMÈTRES
-        </Text>
-        <View
-          style={[styles.menuSection, { backgroundColor: Colors[colorScheme ?? 'light'].surface }]}
-        >
+        <Text style={[styles.sectionTitle, { color: 'rgba(255, 255, 255, 0.8)' }]}>PARAMÈTRES</Text>
+        <View style={[styles.menuSection, { backgroundColor: 'rgba(255, 255, 255, 0.1)' }]}>
           <TouchableOpacity
             style={styles.menuItem}
             onPress={() => handleItemPress('general')}
             activeOpacity={0.7}
           >
-            <IconSymbol name="settings" size={20} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Général
-            </Text>
-            <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
-              ›
-            </Text>
+            <IconSymbol name="settings" size={20} color="#FFFFFF" />
+            <Text style={[styles.menuItemText, { color: '#FFFFFF' }]}>Général</Text>
+            <Text style={[styles.chevron, { color: 'rgba(255, 255, 255, 0.8)' }]}>›</Text>
           </TouchableOpacity>
-          <View
-            style={[styles.separator, { backgroundColor: Colors[colorScheme ?? 'light'].border }]}
-          />
+          <View style={[styles.separator, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]} />
           <TouchableOpacity
             style={styles.menuItem}
             onPress={() => handleItemPress('reminders')}
             activeOpacity={0.7}
           >
-            <IconSymbol name="bell" size={20} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Rappels
-            </Text>
-            <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
-              ›
-            </Text>
+            <IconSymbol name="bell" size={20} color="#FFFFFF" />
+            <Text style={[styles.menuItemText, { color: '#FFFFFF' }]}>Rappels</Text>
+            <Text style={[styles.chevron, { color: 'rgba(255, 255, 255, 0.8)' }]}>›</Text>
           </TouchableOpacity>
-          <View
-            style={[styles.separator, { backgroundColor: Colors[colorScheme ?? 'light'].border }]}
-          />
         </View>
 
         {/* JUST FOR YOU Section */}
-        <Text
-          style={[styles.sectionTitle, { color: Colors[colorScheme ?? 'light'].textSecondary }]}
-        >
+        <Text style={[styles.sectionTitle, { color: 'rgba(255, 255, 255, 0.8)' }]}>
           JUSTE POUR VOUS
         </Text>
-        <View
-          style={[styles.menuSection, { backgroundColor: Colors[colorScheme ?? 'light'].surface }]}
-        >
+        <View style={[styles.menuSection, { backgroundColor: 'rgba(255, 255, 255, 0.1)' }]}>
           <TouchableOpacity
             style={styles.menuItem}
             onPress={() => handleItemPress('userPrayers')}
             activeOpacity={0.7}
           >
-            <IconSymbol name="clock" size={20} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.menuItemText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Mes Prières
-            </Text>
-            <Text style={[styles.chevron, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
-              ›
-            </Text>
+            <IconSymbol name="clock" size={20} color="#FFFFFF" />
+            <Text style={[styles.menuItemText, { color: '#FFFFFF' }]}>Mes Prières</Text>
+            <Text style={[styles.chevron, { color: 'rgba(255, 255, 255, 0.8)' }]}>›</Text>
           </TouchableOpacity>
         </View>
 
+        {/* DEVELOPMENT Section - Only in dev mode */}
+        {DevService.isDevMode() && (
+          <>
+            <Text style={[styles.sectionTitle, { color: 'rgba(255, 255, 255, 0.8)' }]}>
+              DÉVELOPPEMENT
+            </Text>
+            <View
+              style={[
+                styles.menuSection,
+                {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderWidth: 1,
+                  borderColor: 'rgba(255, 193, 7, 0.3)',
+                },
+              ]}
+            >
+              <TouchableOpacity
+                style={[styles.menuItem, { backgroundColor: 'rgba(255, 193, 7, 0.05)' }]}
+                onPress={() => handleItemPress('resetOnboarding')}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.iconContainer, { backgroundColor: 'rgba(255, 193, 7, 0.2)' }]}>
+                  <IconSymbol name="arrow.clockwise" size={20} color="#FFC107" />
+                </View>
+                <Text style={[styles.menuItemText, { color: '#FFC107', fontWeight: '600' }]}>
+                  Reset Onboarding
+                </Text>
+                <Text style={[styles.chevron, { color: '#FFC107' }]}>›</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+
         {/* ACCOUNT MANAGEMENT Section */}
-        <Text
-          style={[styles.sectionTitle, { color: Colors[colorScheme ?? 'light'].textSecondary }]}
-        >
+        <Text style={[styles.sectionTitle, { color: 'rgba(255, 255, 255, 0.8)' }]}>
           GESTION DU COMPTE
         </Text>
         <View
           style={[
             styles.menuSection,
             {
-              backgroundColor: Colors[colorScheme ?? 'light'].surface,
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
               borderWidth: 1,
               borderColor: 'rgba(255, 107, 107, 0.3)',
             },
@@ -289,6 +304,13 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
             </Text>
             <Text style={[styles.chevron, { color: '#FF6B6B' }]}>›</Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Version Section */}
+        <View style={styles.versionContainer}>
+          <Text style={[styles.versionText, { color: 'rgba(255, 255, 255, 0.8)' }]}>
+            Version {appConfig.expo.version}
+          </Text>
         </View>
       </ScrollView>
 
@@ -454,5 +476,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
+  },
+  versionContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  versionText: {
+    fontSize: 12,
+    fontWeight: '400',
+    opacity: 0.7,
   },
 });

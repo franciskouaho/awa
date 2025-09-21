@@ -99,7 +99,12 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
       {/* Header avec fermeture */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-          <Ionicons name="close" size={24} color={Colors[colorScheme ?? 'light'].text} />
+          <View style={styles.closeButtonGlass}>
+            <View style={styles.closeButtonGlassInner}>
+              <View style={styles.closeButtonGlassHighlight} />
+              <Ionicons name="close" size={24} color="#FFFFFF" />
+            </View>
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -175,7 +180,7 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
                 {(() => {
                   // Remplacer les placeholders de nom dans la formule avec le nom du défunt
                   const personalizedFormula = replaceNamePlaceholders(prayerFormula, prayer.name);
-                  
+
                   return (
                     <>
                       <Text style={[styles.arabicFormula, { color: 'white' }]}>
@@ -183,12 +188,17 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
                       </Text>
 
                       <Text
-                        style={[styles.transliterationFormula, { color: 'rgba(255, 255, 255, 0.8)' }]}
+                        style={[
+                          styles.transliterationFormula,
+                          { color: 'rgba(255, 255, 255, 0.8)' },
+                        ]}
                       >
                         {personalizedFormula.transliteration}
                       </Text>
 
-                      <Text style={[styles.translationFormula, { color: 'rgba(255, 255, 255, 0.8)' }]}>
+                      <Text
+                        style={[styles.translationFormula, { color: 'rgba(255, 255, 255, 0.8)' }]}
+                      >
                         {personalizedFormula.translation}
                       </Text>
                     </>
@@ -233,21 +243,23 @@ export default function ShareDrawerContent({ prayer, onClose }: ShareDrawerConte
       <View style={styles.actionsContainer}>
         <View style={styles.actionsRow}>
           <TouchableOpacity style={styles.actionButton} onPress={handleSaveImage}>
-            <Ionicons
-              name="download-outline"
-              size={24}
-              color={Colors[colorScheme ?? 'light'].text}
-            />
-            <Text style={[styles.actionText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Sauvegarder l'image
-            </Text>
+            <View style={styles.glassBackground}>
+              <View style={styles.glassInner}>
+                <View style={styles.glassHighlight} />
+                <Ionicons name="download-outline" size={24} color="#FFFFFF" />
+                <Text style={styles.actionText}>Sauvegarder l&apos;image</Text>
+              </View>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton} onPress={handleNativeShare}>
-            <Ionicons name="share-outline" size={24} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.actionText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Partager
-            </Text>
+            <View style={styles.glassBackground}>
+              <View style={styles.glassInner}>
+                <View style={styles.glassHighlight} />
+                <Ionicons name="share-outline" size={24} color="#FFFFFF" />
+                <Text style={styles.actionText}>Partager</Text>
+              </View>
+            </View>
           </TouchableOpacity>
         </View>
       </View>
@@ -266,7 +278,39 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   closeButton: {
-    padding: 8,
+    padding: 0, // Pas de padding pour laisser place au glassmorphisme
+  },
+  // Styles glassmorphisme pour le bouton de fermeture
+  closeButtonGlass: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    shadowColor: 'rgba(255, 255, 255, 0.5)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    overflow: 'hidden',
+  },
+  closeButtonGlassInner: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    position: 'relative',
+    borderRadius: 20,
+  },
+  closeButtonGlassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '40%',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   viewShotContainer: {
     marginHorizontal: 20,
@@ -360,13 +404,45 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     alignItems: 'center',
-    padding: 16,
-    minWidth: 80,
+    padding: 0, // Pas de padding pour laisser place au glassmorphisme
+    minWidth: 120,
   },
   actionText: {
     fontSize: 12,
     marginTop: 8,
     textAlign: 'center',
     lineHeight: 16,
+    color: '#FFFFFF',
+    fontWeight: '500',
+  },
+  // Styles glassmorphisme pour les boutons d'action
+  glassBackground: {
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    shadowColor: 'rgba(255, 255, 255, 0.5)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    overflow: 'hidden',
+    minWidth: 120,
+  },
+  glassInner: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    position: 'relative',
+  },
+  glassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '40%',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
 });

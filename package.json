@@ -14,6 +14,7 @@
     "deploy-rollback": "ts-node scripts/deployMigration.ts rollback",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "ios:clean": "rm -rf ios/build .expo && expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
     "lint:fix": "expo lint --fix",

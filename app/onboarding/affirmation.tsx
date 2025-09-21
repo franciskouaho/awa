@@ -1,19 +1,15 @@
-import { Colors } from '@/constants/Colors';
-import { useAuth } from '@/contexts/AuthContext';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useDeviceType } from '@/hooks/useDeviceType';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function AffirmationScreen() {
   const [selectedAffirmation, setSelectedAffirmation] = useState<string>('');
-  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const router = useRouter();
-  const colorScheme = useColorScheme();
   const { isIPad } = useDeviceType();
-  const { signUp, completeOnboarding } = useAuth();
 
   const affirmations = [
     {
@@ -34,116 +30,102 @@ export default function AffirmationScreen() {
       return;
     }
 
-    setIsCreatingAccount(true);
+    await Haptics.selectionAsync();
+
     try {
       // Sauvegarder l'affirmation
       await AsyncStorage.setItem('userAffirmation', selectedAffirmation);
 
-      // Récupérer les données d'onboarding
-      const userEmail = await AsyncStorage.getItem('userEmail');
-      const userName = await AsyncStorage.getItem('userName');
-
-      if (!userEmail || !userName) {
-        Alert.alert('Erreur', "Informations manquantes. Veuillez recommencer l'onboarding.");
-        router.push('/onboarding/email');
-        return;
-      }
-
-      console.log('🚀 Création du compte Firebase...', { userEmail, userName });
-
-      // Créer le compte Firebase
-      await signUp(userEmail, userName);
-
-      console.log("✅ Compte créé, finalisation de l'onboarding...");
-
-      // Marquer l'onboarding comme terminé
-      await completeOnboarding({
-        affirmation: selectedAffirmation,
-      });
-
-      console.log("🎉 Onboarding terminé ! Redirection vers l'app...");
-
-      // Rediriger vers l'app
-      router.replace('/(tabs)/prayers');
+      // Aller à l'écran nom
+      router.push('/onboarding/name');
     } catch (error: any) {
-      console.error('❌ Erreur lors de la création du compte:', error);
-      Alert.alert(
-        'Erreur',
-        error.message || 'Impossible de créer votre compte. Veuillez réessayer.'
-      );
-    } finally {
-      setIsCreatingAccount(false);
+      console.error('❌ Erreur lors de la sauvegarde:', error);
+      Alert.alert('Erreur', 'Impossible de sauvegarder votre choix. Veuillez réessayer.');
     }
   };
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        isIPad && styles.containerIPad,
-        { backgroundColor: Colors[colorScheme ?? 'light'].onboarding.backgroundColor },
-      ]}
+    <LinearGradient
+      colors={['#2D5A4A', '#4A7C69', '#6BAF8A']}
+      style={[styles.container, isIPad && styles.containerIPad]}
     >
-      <View style={[styles.content, isIPad && styles.contentIPad]}>
-        <View style={[styles.contentWrapper, isIPad && styles.contentWrapperIPad]}>
-          {/* Title */}
-          <Text style={[styles.title, isIPad && styles.titleIPad]}>
-            Ravi de vous rencontrer ! Pour vous, cette application représente plutôt...
-          </Text>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={[styles.content, isIPad && styles.contentIPad]}>
+          <View style={[styles.contentWrapper, isIPad && styles.contentWrapperIPad]}>
+            {/* Title */}
+            <Text style={[styles.title, isIPad && styles.titleIPad]}>
+              Ravi de vous rencontrer ! Pour vous, cette application représente plutôt...
+            </Text>
 
-          {/* Affirmation Options */}
-          <View style={[styles.optionsContainer, isIPad && styles.optionsContainerIPad]}>
-            {affirmations.map(affirmation => (
-              <TouchableOpacity
-                key={affirmation.id}
+            {/* Affirmation Options */}
+            <View style={[styles.optionsContainer, isIPad && styles.optionsContainerIPad]}>
+              {affirmations.map(affirmation => (
+                <TouchableOpacity
+                  key={affirmation.id}
+                  style={[
+                    styles.optionButton,
+                    isIPad && styles.optionButtonIPad,
+                    selectedAffirmation === affirmation.id && styles.selectedOption,
+                  ]}
+                  onPress={() => {
+                    Haptics.selectionAsync();
+                    setSelectedAffirmation(affirmation.id);
+                  }}
+                >
+                  <LinearGradient
+                    colors={[affirmation.color, `${affirmation.color}CC`]}
+                    style={styles.optionGradient}
+                  >
+                    <Text style={[styles.optionText, isIPad && styles.optionTextIPad]}>
+                      {affirmation.text}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Continue Button */}
+            <TouchableOpacity
+              style={[
+                styles.button,
+                isIPad && styles.buttonIPad,
+                selectedAffirmation ? styles.buttonActive : styles.buttonInactive,
+              ]}
+              disabled={!selectedAffirmation}
+              onPress={handleContinue}
+            >
+              <View
                 style={[
-                  styles.optionButton,
-                  isIPad && styles.optionButtonIPad,
-                  { backgroundColor: affirmation.color },
-                  selectedAffirmation === affirmation.id && styles.selectedOption,
+                  styles.glassBackground,
+                  !selectedAffirmation && styles.glassBackgroundDisabled,
                 ]}
-                onPress={() => setSelectedAffirmation(affirmation.id)}
               >
-                <Text style={[styles.optionText, isIPad && styles.optionTextIPad]}>{affirmation.text}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Continue Button */}
-          <TouchableOpacity
-            style={[
-              styles.button,
-              isIPad && styles.buttonIPad,
-              selectedAffirmation && !isCreatingAccount ? styles.buttonActive : styles.buttonInactive
-            ]}
-            disabled={!selectedAffirmation || isCreatingAccount}
-            onPress={handleContinue}
-          >
-            {isCreatingAccount ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator color="white" size="small" />
-                <Text style={[styles.buttonTextActive, isIPad && styles.buttonTextActiveIPad]}>Création du compte...</Text>
+                <View style={styles.glassInner}>
+                  <View style={styles.glassHighlight} />
+                  <Text
+                    style={[
+                      styles.buttonText,
+                      isIPad && styles.buttonTextIPad,
+                      selectedAffirmation ? styles.buttonTextActive : styles.buttonTextInactive,
+                    ]}
+                  >
+                    Continuer
+                  </Text>
+                </View>
               </View>
-            ) : (
-              <Text
-                style={[
-                  styles.buttonText,
-                  isIPad && styles.buttonTextIPad,
-                  selectedAffirmation ? styles.buttonTextActive : styles.buttonTextInactive,
-                ]}
-              >
-                Continuer
-              </Text>
-            )}
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  safeArea: {
     flex: 1,
   },
   content: {
@@ -158,10 +140,53 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#2D3748',
+    color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 24,
     lineHeight: 28,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  optionGradient: {
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  glassBackground: {
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    shadowColor: 'rgba(255, 255, 255, 0.5)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    overflow: 'hidden',
+  },
+  glassBackgroundDisabled: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  glassInner: {
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    position: 'relative',
+  },
+  glassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '40%',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
   },
   optionsContainer: {
     width: '100%',
@@ -169,22 +194,25 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     width: '100%',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 16,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   selectedOption: {
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
+    shadowColor: '#FFFFFF',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+    elevation: 8,
   },
   optionText: {
     fontSize: 15,
@@ -192,21 +220,28 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     lineHeight: 20,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   button: {
     width: '100%',
-    height: 48,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
     marginTop: 20,
     marginBottom: 30,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   buttonActive: {
-    backgroundColor: '#2D5A4A',
+    // Gradient handled by LinearGradient
   },
   buttonInactive: {
-    backgroundColor: 'rgba(45, 90, 74, 0.3)',
+    // Gradient handled by LinearGradient
   },
   buttonText: {
     fontSize: 16,
@@ -214,9 +249,12 @@ const styles = StyleSheet.create({
   },
   buttonTextActive: {
     color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   buttonTextInactive: {
-    color: '#A0A0A0',
+    color: 'rgba(255, 255, 255, 0.5)',
   },
   loadingContainer: {
     flexDirection: 'row',

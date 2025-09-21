@@ -1,7 +1,8 @@
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors } from '@/constants/Colors';
 
 interface LanguageScreenProps {
   onBack: () => void;
@@ -48,30 +49,30 @@ export default function LanguageScreen({ onBack, initialValue, onSave }: Languag
     backIcon: {
       fontSize: 20,
       marginRight: 8,
-      color: colors.textSecondary,
+      color: 'rgba(255, 255, 255, 0.8)',
     },
     backText: {
       fontSize: 16,
       fontWeight: '500',
-      color: colors.text,
+      color: '#FFFFFF',
     },
     title: {
       fontSize: 28,
       fontWeight: 'bold',
       letterSpacing: 0.5,
-      color: colors.text,
+      color: '#FFFFFF',
       marginBottom: 8,
     },
     subtitle: {
       fontSize: 16,
-      color: colors.textSecondary,
+      color: 'rgba(255, 255, 255, 0.8)',
       marginBottom: 32,
     },
     optionsContainer: {
       paddingHorizontal: 16,
     },
     optionButton: {
-      backgroundColor: colors.surface,
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
       borderRadius: 12,
       marginBottom: 12,
       paddingHorizontal: 20,
@@ -79,11 +80,11 @@ export default function LanguageScreen({ onBack, initialValue, onSave }: Languag
       flexDirection: 'row',
       alignItems: 'center',
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: 'rgba(255, 255, 255, 0.2)',
     },
     selectedOptionButton: {
-      backgroundColor: colors.text,
-      borderColor: colors.text,
+      backgroundColor: '#FFFFFF',
+      borderColor: '#FFFFFF',
     },
     flagContainer: {
       width: 24,
@@ -98,19 +99,22 @@ export default function LanguageScreen({ onBack, initialValue, onSave }: Languag
     optionText: {
       flex: 1,
       fontSize: 18,
-      color: colors.text,
+      color: '#FFFFFF',
     },
     selectedOptionText: {
-      color: colors.background,
+      color: '#2D5A4A',
     },
     checkIcon: {
       fontSize: 20,
-      color: colors.background,
+      color: '#2D5A4A',
     },
   });
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#2D5A4A', '#4A7C69', '#6BAF8A']}
+      style={styles.container}
+    >
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onBack} activeOpacity={0.7}>
@@ -144,6 +148,6 @@ export default function LanguageScreen({ onBack, initialValue, onSave }: Languag
           );
         })}
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }

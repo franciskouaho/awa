@@ -1,6 +1,5 @@
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useDeviceType } from '@/hooks/useDeviceType';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
 import {
     Animated,
@@ -9,7 +8,7 @@ import {
     PanResponder,
     StyleSheet,
     TouchableWithoutFeedback,
-    View
+    View,
 } from 'react-native';
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -31,7 +30,6 @@ export default function BottomDrawer({
   disableSwipeToClose = false,
   disableOverlayClose = false,
 }: BottomDrawerProps) {
-  const colorScheme = useColorScheme();
   const { isIPad } = useDeviceType();
   const translateY = useRef(new Animated.Value(height)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
@@ -130,7 +128,6 @@ export default function BottomDrawer({
             styles.drawer,
             {
               height: adjustedHeight,
-              backgroundColor: Colors[colorScheme ?? 'light'].drawer.backgroundColor,
               transform: [{ translateY }],
               // Améliorer l'apparence sur iPad
               ...(isIPad && {
@@ -142,18 +139,18 @@ export default function BottomDrawer({
           ]}
           {...(disableSwipeToClose ? {} : panResponder.panHandlers)}
         >
-          {/* Handle */}
-          <View style={styles.handleContainer}>
-            <View
-              style={[
-                styles.handle,
-                { backgroundColor: Colors[colorScheme ?? 'light'].textSecondary },
-              ]}
-            />
-          </View>
+          <LinearGradient
+            colors={['#2D5A4A', '#4A7C69', '#6BAF8A']}
+            style={styles.gradientContainer}
+          >
+            {/* Handle */}
+            <View style={styles.handleContainer}>
+              <View style={[styles.handle, { backgroundColor: 'rgba(255, 255, 255, 0.5)' }]} />
+            </View>
 
-          {/* Content */}
-          <View style={styles.content}>{children}</View>
+            {/* Content */}
+            <View style={styles.content}>{children}</View>
+          </LinearGradient>
         </Animated.View>
       </View>
     </Modal>
@@ -194,5 +191,10 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
+  },
+  gradientContainer: {
+    flex: 1,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
 });

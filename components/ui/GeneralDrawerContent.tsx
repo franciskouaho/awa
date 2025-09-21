@@ -3,6 +3,7 @@ import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserSettings } from '@/hooks/useUserSettings';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -57,13 +58,13 @@ export default function GeneralDrawerContent({
     backText: {
       fontSize: 16,
       fontWeight: '500',
-      color: colors.text,
+      color: '#FFFFFF',
     },
     title: {
       fontSize: 28,
       fontWeight: 'bold',
       letterSpacing: 1,
-      color: colors.text,
+      color: '#FFFFFF',
     },
     content: {
       flex: 1,
@@ -75,13 +76,13 @@ export default function GeneralDrawerContent({
       letterSpacing: 1,
       marginBottom: 12,
       marginTop: 16,
-      color: colors.textSecondary,
+      color: 'rgba(255, 255, 255, 0.8)',
     },
     card: {
-      backgroundColor: colors.surface,
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
       borderRadius: 16,
       marginBottom: 16,
-      shadowColor: colors.shadow,
+      shadowColor: 'rgba(0, 0, 0, 0.1)',
       shadowOffset: {
         width: 0,
         height: 2,
@@ -89,6 +90,8 @@ export default function GeneralDrawerContent({
       shadowOpacity: 0.1,
       shadowRadius: 8,
       elevation: 3,
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.2)',
     },
     menuItem: {
       flexDirection: 'row',
@@ -99,7 +102,7 @@ export default function GeneralDrawerContent({
     separator: {
       height: 0.5,
       marginLeft: 56,
-      backgroundColor: colors.border,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
     },
     iconContainer: {
       width: 24,
@@ -111,16 +114,16 @@ export default function GeneralDrawerContent({
     menuItemText: {
       flex: 1,
       fontSize: 16,
-      color: colors.text,
+      color: '#FFFFFF',
     },
     menuItemValue: {
       fontSize: 16,
-      color: colors.textSecondary,
+      color: 'rgba(255, 255, 255, 0.8)',
       marginRight: 8,
     },
     chevron: {
       fontSize: 16,
-      color: colors.textSecondary,
+      color: 'rgba(255, 255, 255, 0.8)',
     },
     loadingContainer: {
       padding: 20,
@@ -130,18 +133,22 @@ export default function GeneralDrawerContent({
     loadingText: {
       fontSize: 16,
       textAlign: 'center',
+      color: 'rgba(255, 255, 255, 0.8)',
     },
   });
 
 
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#2D5A4A', '#4A7C69', '#6BAF8A']}
+      style={styles.container}
+    >
       {/* Header avec bouton Back et titre */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onClose} activeOpacity={0.7}>
-          <IconSymbol name="chevron.left" size={20} color={colors.textSecondary} />
-          <Text style={[styles.backText, { color: colors.text }]}>Retour</Text>
+          <IconSymbol name="chevron.left" size={20} color="rgba(255, 255, 255, 0.8)" />
+          <Text style={[styles.backText, { color: '#FFFFFF' }]}>Retour</Text>
         </TouchableOpacity>
 
         <Text style={styles.title}>Général</Text>
@@ -165,7 +172,7 @@ export default function GeneralDrawerContent({
                 activeOpacity={0.7}
               >
                 <View style={styles.iconContainer}>
-                  <IconSymbol name="person.fill" size={20} color={colors.text} />
+                  <IconSymbol name="person.fill" size={20} color="#FFFFFF" />
                 </View>
                 <Text style={styles.menuItemText}>Prénom</Text>
                 <Text style={styles.menuItemValue}>{firstName}</Text>
@@ -180,7 +187,7 @@ export default function GeneralDrawerContent({
                 activeOpacity={0.7}
               >
                 <View style={styles.iconContainer}>
-                  <IconSymbol name="person.2.fill" size={20} color={colors.text} />
+                  <IconSymbol name="person.2.fill" size={20} color="#FFFFFF" />
                 </View>
                 <Text style={styles.menuItemText}>Genre</Text>
                 <Text style={styles.menuItemValue}>{gender}</Text>
@@ -195,7 +202,7 @@ export default function GeneralDrawerContent({
                 activeOpacity={0.7}
               >
                 <View style={styles.iconContainer}>
-                  <IconSymbol name="textformat" size={20} color={colors.text} />
+                  <IconSymbol name="textformat" size={20} color="#FFFFFF" />
                 </View>
                 <Text style={styles.menuItemText}>Langue</Text>
                 <Text style={styles.menuItemValue}>{language}</Text>
@@ -206,6 +213,6 @@ export default function GeneralDrawerContent({
           </>
         )}
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }

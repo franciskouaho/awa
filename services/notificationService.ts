@@ -25,7 +25,7 @@ class NotificationService {
   /**
    * Envoie une notification de test pour la prière du défunt
    */
-  async sendTestDeceasedPrayerNotification(): Promise<void> {
+  async sendTestDeceasedPrayerNotification(prayerData?: any): Promise<void> {
     await this.initializeNotifications();
     const permissions = await this.getPermissions();
     if (!permissions.granted) {
@@ -33,7 +33,7 @@ class NotificationService {
     }
 
     // Obtenir du contenu enrichi pour la prière du défunt
-    const deceasedPrayerContent = await this.getDeceasedPrayerContent();
+    const deceasedPrayerContent = await this.getDeceasedPrayerContent(prayerData);
 
     await Notifications.scheduleNotificationAsync({
       content: {
@@ -52,17 +52,28 @@ class NotificationService {
   /**
    * Obtient le contenu enrichi pour les prières de défunts
    */
-  private async getDeceasedPrayerContent(): Promise<{ title: string; body: string; data: any }> {
+  private async getDeceasedPrayerContent(
+    prayerData?: any
+  ): Promise<{ title: string; body: string; data: any }> {
     try {
-      // Récupérer une formule de prière appropriée pour les défunts
-      const result = await ContentService.getRandomPrayerFormula();
-      if (result.success && result.data) {
+      // Si on a des données de prière de l'utilisateur, utiliser une vraie prière
+      if (prayerData && prayerData.length > 0) {
+        // Prendre une prière aléatoire parmi les vraies prières de l'utilisateur
+        const randomPrayer = prayerData[Math.floor(Math.random() * prayerData.length)];
+
+        // Utiliser directement le message de la prière de l'utilisateur
+        const prayerMessage =
+          randomPrayer.message || randomPrayer.prayer || 'Prière pour les défunts';
+
         return {
-          title: '🕊️ Prière pour les défunts',
-          body: `${result.data.translation}\n\n"${result.data.arabic}"\n\nQue Dieu accorde Sa miséricorde à tous les défunts.`,
+          title: `🕊️ Prière pour ${randomPrayer.name}`,
+          body: `${prayerMessage}\n\nQue Dieu accorde Sa miséricorde à ${randomPrayer.name} et à tous les défunts.`,
           data: {
             type: 'deceasedPrayer',
             hasContent: true,
+            deceasedName: randomPrayer.name,
+            prayerId: randomPrayer.id,
+            prayerMessage: prayerMessage,
           },
         };
       }
@@ -70,7 +81,7 @@ class NotificationService {
       console.error('Erreur lors de la récupération du contenu pour les défunts:', error);
     }
 
-    // Fallback
+    // Fallback si pas de prières utilisateur
     return {
       title: '🕊️ Prière pour les défunts',
       body: 'Prenez un moment pour prier pour les âmes des défunts. Que Dieu leur accorde Sa miséricorde.',
@@ -81,11 +92,24 @@ class NotificationService {
     };
   }
 
-  private isInitialized = false;
+  /**
+   * Remplace les placeholders de nom dans une formule de prière
+   */
+  private replaceNamePlaceholders(formula: any, name: string): any {
+    if (!formula) return formula;
 
-  constructor() {
-    this.initializeNotifications();
+    return {
+      ...formula,
+      translation:
+        formula.translation?.replace(/\[nom de la personne\]/g, name) || formula.translation,
+      transliteration:
+        formula.transliteration?.replace(/\[nom de la personne\]/g, name) ||
+        formula.transliteration,
+      arabic: formula.arabic?.replace(/\[nom de la personne\]/g, name) || formula.arabic,
+    };
   }
+
+  private isInitialized = false;
 
   private async initializeNotifications() {
     if (this.isInitialized) return;
@@ -111,7 +135,6 @@ class NotificationService {
         enableVibrate: true,
         showBadge: true,
       });
-
     }
 
     this.isInitialized = true;
@@ -181,7 +204,7 @@ class NotificationService {
   /**
    * Programme les notifications de rappel selon les paramètres
    */
-  async scheduleReminders(settings: NotificationSettings): Promise<void> {
+  async scheduleReminders(settings: NotificationSettings, userPrayers?: any[]): Promise<void> {
     await this.initializeNotifications();
     // Annuler toutes les notifications programmées précédemment
     await this.cancelAllReminders();
@@ -196,22 +219,25 @@ class NotificationService {
     await this.schedulePrayerReminders(settings);
     // Programmer les rappels de prière pour les défunts
     if (settings.enableDeceasedReminder) {
-      await this.scheduleDeceasedPrayerReminders(settings);
+      await this.scheduleDeceasedPrayerReminders(settings, userPrayers);
     }
     // Programmer les rappels de streak quotidien
-    await this.scheduleDailyStreakReminders(settings);
+    // await this.scheduleDailyStreakReminders(settings); // Temporairement désactivé
   }
 
   /**
    * Programme les notifications de prière pour les défunts
    */
-  private async scheduleDeceasedPrayerReminders(settings: NotificationSettings): Promise<void> {
+  private async scheduleDeceasedPrayerReminders(
+    settings: NotificationSettings,
+    userPrayers?: any[]
+  ): Promise<void> {
     const [startHourRaw, startMinuteRaw] = settings.startTime.split(':');
     const startHour = Number(startHourRaw) || 9;
     const startMinute = Number(startMinuteRaw) || 0;
 
     // Obtenir le contenu enrichi pour les prières de défunts
-    const deceasedPrayerContent = await this.getDeceasedPrayerContent();
+    const deceasedPrayerContent = await this.getDeceasedPrayerContent(userPrayers);
 
     for (const isEnabled of settings.selectedDays) {
       const dayIndex = settings.selectedDays.indexOf(isEnabled);
@@ -263,7 +289,7 @@ class NotificationService {
         if (!settings.selectedDays[dayIndex]) continue;
 
         // Convertir l'index des jours (0 = dimanche, 1 = lundi, ..., 6 = samedi)
-        // au format Expo Notifications (1 = lundi, ..., 7 = dimanche) 
+        // au format Expo Notifications (1 = lundi, ..., 7 = dimanche)
         const weekday = dayIndex === 0 ? 7 : dayIndex;
 
         // Obtenir le contenu enrichi de la prière
@@ -294,7 +320,6 @@ class NotificationService {
       }
     }
   }
-
 
   /**
    * Annule tous les rappels programmés
@@ -606,7 +631,6 @@ class NotificationService {
       },
     ]);
 
-
     await Notifications.setNotificationCategoryAsync('DECEASED_PRAYER_REMINDER', [
       {
         identifier: 'PRAY_FOR_DECEASED',
@@ -625,12 +649,12 @@ export function useNotifications() {
   return {
     requestPermissions: () => notificationService.requestPermissions(),
     getPermissions: () => notificationService.getPermissions(),
-    scheduleReminders: (settings: NotificationSettings) =>
-      notificationService.scheduleReminders(settings),
+    scheduleReminders: (settings: NotificationSettings, userPrayers?: any[]) =>
+      notificationService.scheduleReminders(settings, userPrayers),
     cancelAllReminders: () => notificationService.cancelAllReminders(),
     sendTestNotification: () => notificationService.sendTestNotification(),
-    sendTestDeceasedPrayerNotification: () =>
-      notificationService.sendTestDeceasedPrayerNotification(),
+    sendTestDeceasedPrayerNotification: (prayerData?: any) =>
+      notificationService.sendTestDeceasedPrayerNotification(prayerData),
     sendCustomPrayerNotification: (feedName: string, customMessage?: string) =>
       notificationService.sendCustomPrayerNotification(feedName, customMessage),
     getScheduledReminders: () => notificationService.getScheduledReminders(),

@@ -5,6 +5,7 @@ export default function OnboardingLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="email" />
       <Stack.Screen name="name" />
+      <Stack.Screen name="notifications" />
       <Stack.Screen name="affirmation" />
     </Stack>
   );

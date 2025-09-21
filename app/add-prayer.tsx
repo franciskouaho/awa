@@ -1,21 +1,21 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import SimpleDateDrawer from '@/components/ui/SimpleDateDrawer';
-import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { usePrayers } from '@/hooks/usePrayers';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 // Interface pour les données du formulaire
@@ -143,265 +143,228 @@ export default function AddPrayerPage() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={[
-        styles.container,
-        { backgroundColor: Colors[colorScheme ?? 'light'].drawer.backgroundColor },
-      ]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-    >
-      {/* Header avec bouton Back et titre */}
-      <View
-        style={[
-          styles.header,
-          {
-            backgroundColor: Colors[colorScheme ?? 'light'].drawer.backgroundColor,
-            borderBottomColor: Colors[colorScheme ?? 'light'].border,
-          },
-        ]}
+    <LinearGradient colors={['#2D5A4A', '#4A7C69', '#6BAF8A']} style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-        >
-          <IconSymbol
-            name="chevron.left"
-            size={20}
-            color={Colors[colorScheme ?? 'light'].textSecondary}
-          />
-          <Text style={[styles.backText, { color: Colors[colorScheme ?? 'light'].text }]}>
-            Retour
-          </Text>
-        </TouchableOpacity>
+        {/* Header avec bouton Back et titre */}
+         <View
+           style={[
+             styles.header,
+             {
+               backgroundColor: 'transparent',
+               borderBottomColor: 'rgba(255, 255, 255, 0.2)',
+             },
+           ]}
+         >
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+            activeOpacity={0.7}
+          >
+            <IconSymbol name="chevron.left" size={20} color="rgba(255, 255, 255, 0.8)" />
+            <Text style={[styles.backText, { color: '#FFFFFF' }]}>Retour</Text>
+          </TouchableOpacity>
 
-        <Text style={[styles.title, { color: Colors[colorScheme ?? 'light'].text }]}>
-          Ajouter une prière
-        </Text>
-      </View>
-
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.form}>
-          {/* Nom complet */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Nom complet *
-            </Text>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: Colors[colorScheme ?? 'light'].surface,
-                  borderColor: errors.name
-                    ? Colors[colorScheme ?? 'light'].error
-                    : Colors[colorScheme ?? 'light'].border,
-                  color: Colors[colorScheme ?? 'light'].text,
-                },
-              ]}
-              value={formData.name}
-              onChangeText={text => setFormData(prev => ({ ...prev, name: text }))}
-              placeholder="Prénom et nom de famille"
-              placeholderTextColor={Colors[colorScheme ?? 'light'].textSecondary}
-            />
-            {errors.name && (
-              <Text style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].error }]}>
-                {errors.name}
-              </Text>
-            )}
-          </View>
-
-          {/* Âge */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Âge au décès *
-            </Text>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: Colors[colorScheme ?? 'light'].surface,
-                  borderColor: errors.age
-                    ? Colors[colorScheme ?? 'light'].error
-                    : Colors[colorScheme ?? 'light'].border,
-                  color: Colors[colorScheme ?? 'light'].text,
-                },
-              ]}
-              value={formData.age}
-              onChangeText={text => setFormData(prev => ({ ...prev, age: text }))}
-              placeholder="Ex: 65"
-              placeholderTextColor={Colors[colorScheme ?? 'light'].textSecondary}
-              keyboardType="numeric"
-            />
-            {errors.age && (
-              <Text style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].error }]}>
-                {errors.age}
-              </Text>
-            )}
-          </View>
-
-          {/* Date de décès */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Date de décès
-            </Text>
-            <TouchableOpacity
-              style={[
-                styles.input,
-                {
-                  backgroundColor: Colors[colorScheme ?? 'light'].surface,
-                  borderColor: errors.deathDate
-                    ? Colors[colorScheme ?? 'light'].error
-                    : Colors[colorScheme ?? 'light'].border,
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexDirection: 'row',
-                },
-              ]}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text
-                style={[
-                  { color: Colors[colorScheme ?? 'light'].text },
-                  styles.dateText,
-                  !formData.deathDate && { color: Colors[colorScheme ?? 'light'].textSecondary },
-                ]}
-              >
-                {formData.deathDate
-                  ? formData.deathDate.toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })
-                  : 'Sélectionner une date (optionnel)'}
-              </Text>
-              <View style={styles.dateActions}>
-                {formData.deathDate && (
-                  <TouchableOpacity
-                    onPress={handleClearDate}
-                    style={styles.clearDateButton}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <IconSymbol
-                      name="xmark.circle.fill"
-                      size={18}
-                      color={Colors[colorScheme ?? 'light'].textSecondary}
-                    />
-                  </TouchableOpacity>
-                )}
-                <IconSymbol
-                  name="calendar"
-                  size={20}
-                  color={Colors[colorScheme ?? 'light'].textSecondary}
-                />
-              </View>
-            </TouchableOpacity>
-            {errors.deathDate && (
-              <Text style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].error }]}>
-                {errors.deathDate}
-              </Text>
-            )}
-          </View>
-
-          {/* Lieu */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Lieu (ville, pays) *
-            </Text>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: Colors[colorScheme ?? 'light'].surface,
-                  borderColor: errors.location
-                    ? Colors[colorScheme ?? 'light'].error
-                    : Colors[colorScheme ?? 'light'].border,
-                  color: Colors[colorScheme ?? 'light'].text,
-                },
-              ]}
-              value={formData.location}
-              onChangeText={text => setFormData(prev => ({ ...prev, location: text }))}
-              placeholder="Ex: Casablanca, Maroc"
-              placeholderTextColor={Colors[colorScheme ?? 'light'].textSecondary}
-            />
-            {errors.location && (
-              <Text style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].error }]}>
-                {errors.location}
-              </Text>
-            )}
-          </View>
-
-          {/* Message personnel */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Message personnel (optionnel)
-            </Text>
-            <TextInput
-              style={[
-                styles.textArea,
-                {
-                  backgroundColor: Colors[colorScheme ?? 'light'].surface,
-                  borderColor: Colors[colorScheme ?? 'light'].border,
-                  color: Colors[colorScheme ?? 'light'].text,
-                },
-              ]}
-              value={formData.personalMessage}
-              onChangeText={text => setFormData(prev => ({ ...prev, personalMessage: text }))}
-              placeholder="Partagez un souvenir ou un message personnel (optionnel)..."
-              placeholderTextColor={Colors[colorScheme ?? 'light'].textSecondary}
-              multiline
-              numberOfLines={3}
-              textAlignVertical="top"
-            />
-          </View>
-
-          {/* Bouton de soumission */}
-          <View style={styles.submitButtonContainer}>
-            <TouchableOpacity
-              style={[
-                styles.submitButton,
-                {
-                  backgroundColor: isLoading
-                    ? Colors[colorScheme ?? 'light'].textSecondary
-                    : Colors[colorScheme ?? 'light'].primary,
-                },
-              ]}
-              onPress={handleSubmit}
-              activeOpacity={0.8}
-              disabled={isLoading}
-            >
-              <Text
-                style={[
-                  styles.submitButtonText,
-                  { color: Colors[colorScheme ?? 'light'].textOnPrimary },
-                ]}
-              >
-                {isLoading ? 'Sauvegarde en cours...' : 'Ajouter cette personne'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={[styles.title, { color: '#FFFFFF' }]}>Ajouter une prière</Text>
         </View>
-      </ScrollView>
 
-      {/* Drawer de sélection de date */}
-      <SimpleDateDrawer
-        visible={showDatePicker}
-        onClose={() => setShowDatePicker(false)}
-        onDateSelect={handleDateChange}
-        selectedDate={formData.deathDate}
-        maximumDate={new Date()}
-      />
-    </KeyboardAvoidingView>
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.form}>
+            {/* Nom complet */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: '#FFFFFF' }]}>Nom complet *</Text>
+              <TextInput
+                 style={[
+                   styles.input,
+                   {
+                     borderColor: errors.name
+                       ? '#FF6B6B'
+                       : 'rgba(255, 255, 255, 0.4)',
+                   },
+                 ]}
+                value={formData.name}
+                onChangeText={text => setFormData(prev => ({ ...prev, name: text }))}
+                placeholder="Prénom et nom de famille"
+                placeholderTextColor="rgba(255, 255, 255, 0.7)"
+              />
+              {errors.name && (
+                 <Text style={[styles.errorText, { color: '#FF6B6B' }]}>
+                   {errors.name}
+                 </Text>
+              )}
+            </View>
+
+            {/* Âge */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: '#FFFFFF' }]}>Âge au décès *</Text>
+              <TextInput
+                 style={[
+                   styles.input,
+                   {
+                     borderColor: errors.age
+                       ? '#FF6B6B'
+                       : 'rgba(255, 255, 255, 0.4)',
+                   },
+                 ]}
+                value={formData.age}
+                onChangeText={text => setFormData(prev => ({ ...prev, age: text }))}
+                placeholder="Ex: 65"
+                placeholderTextColor="rgba(255, 255, 255, 0.7)"
+                keyboardType="numeric"
+              />
+              {errors.age && (
+                 <Text style={[styles.errorText, { color: '#FF6B6B' }]}>
+                   {errors.age}
+                 </Text>
+              )}
+            </View>
+
+            {/* Date de décès */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: '#FFFFFF' }]}>Date de décès</Text>
+              <TouchableOpacity
+                 style={[
+                   styles.input,
+                   {
+                     borderColor: errors.deathDate
+                       ? '#FF6B6B'
+                       : 'rgba(255, 255, 255, 0.4)',
+                     justifyContent: 'space-between',
+                     alignItems: 'center',
+                     flexDirection: 'row',
+                   },
+                 ]}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text
+                  style={[
+                    { color: '#FFFFFF' },
+                    styles.dateText,
+                    !formData.deathDate && { color: 'rgba(255, 255, 255, 0.8)' },
+                  ]}
+                >
+                  {formData.deathDate
+                    ? formData.deathDate.toLocaleDateString('fr-FR', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })
+                    : 'Sélectionner une date (optionnel)'}
+                </Text>
+                <View style={styles.dateActions}>
+                  {formData.deathDate && (
+                    <TouchableOpacity
+                      onPress={handleClearDate}
+                      style={styles.clearDateButton}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <IconSymbol
+                        name="xmark.circle.fill"
+                        size={18}
+                        color="rgba(255, 255, 255, 0.8)"
+                      />
+                    </TouchableOpacity>
+                  )}
+                  <IconSymbol name="calendar" size={20} color="rgba(255, 255, 255, 0.8)" />
+                </View>
+              </TouchableOpacity>
+              {errors.deathDate && (
+                 <Text style={[styles.errorText, { color: '#FF6B6B' }]}>
+                   {errors.deathDate}
+                 </Text>
+              )}
+            </View>
+
+            {/* Lieu */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: '#FFFFFF' }]}>Lieu (ville, pays) *</Text>
+              <TextInput
+                 style={[
+                   styles.input,
+                   {
+                     borderColor: errors.location
+                       ? '#FF6B6B'
+                       : 'rgba(255, 255, 255, 0.4)',
+                   },
+                 ]}
+                value={formData.location}
+                onChangeText={text => setFormData(prev => ({ ...prev, location: text }))}
+                placeholder="Ex: Casablanca, Maroc"
+                placeholderTextColor="rgba(255, 255, 255, 0.7)"
+              />
+              {errors.location && (
+                 <Text style={[styles.errorText, { color: '#FF6B6B' }]}>
+                   {errors.location}
+                 </Text>
+              )}
+            </View>
+
+            {/* Message personnel */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: '#FFFFFF' }]}>
+                Message personnel (optionnel)
+              </Text>
+              <TextInput
+                 style={styles.textArea}
+                value={formData.personalMessage}
+                onChangeText={text => setFormData(prev => ({ ...prev, personalMessage: text }))}
+                placeholder="Partagez un souvenir ou un message personnel (optionnel)..."
+                placeholderTextColor="rgba(255, 255, 255, 0.7)"
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+            </View>
+
+            {/* Bouton de soumission */}
+            <View style={styles.submitButtonContainer}>
+              <TouchableOpacity
+                 style={[
+                   styles.submitButton,
+                   {
+                     backgroundColor: isLoading
+                       ? 'rgba(255, 255, 255, 0.1)'
+                       : 'rgba(255, 255, 255, 0.25)',
+                   },
+                 ]}
+                onPress={handleSubmit}
+                activeOpacity={0.8}
+                disabled={isLoading}
+              >
+                <Text style={[styles.submitButtonText, { color: '#FFFFFF' }]}>
+                  {isLoading ? 'Sauvegarde en cours...' : 'Ajouter cette personne'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* Drawer de sélection de date */}
+        <SimpleDateDrawer
+          visible={showDatePicker}
+          onClose={() => setShowDatePicker(false)}
+          onDateSelect={handleDateChange}
+          selectedDate={formData.deathDate}
+          maximumDate={new Date()}
+        />
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  keyboardContainer: {
     flex: 1,
   },
   header: {
@@ -453,6 +416,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     fontSize: 16,
     borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    color: '#FFFFFF',
     overflow: 'hidden',
   },
   textArea: {
@@ -463,6 +429,9 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     fontSize: 16,
     borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    color: '#FFFFFF',
     overflow: 'hidden',
   },
   errorText: {
@@ -480,13 +449,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: 'rgba(255, 255, 255, 0.5)',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
   },
   submitButtonText: {

@@ -2,8 +2,10 @@ import TimeSelectionModal from '@/components/ui/TimeSelectionModal';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useNotificationPermissions } from '@/hooks/useNotificationPermissions';
+import { usePrayers } from '@/hooks/usePrayers';
 import { NotificationSettings, useNotifications } from '@/services/notificationService';
 import { userService } from '@/services/userService';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 
@@ -23,6 +25,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     sendTestDeceasedPrayerNotification,
   } = useNotifications();
   const { permissions, requestPermission } = useNotificationPermissions();
+  const { prayers } = usePrayers();
 
   const [enableReminders, setEnableReminders] = useState(true);
   const [sound, setSound] = useState(true);
@@ -61,7 +64,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
               } else {
                 Alert.alert(
                   'Permissions refusées',
-                  'Les notifications sont nécessaires pour tester cette fonctionnalité. Vous pouvez les activer dans les paramètres de l\'appareil.'
+                  "Les notifications sont nécessaires pour tester cette fonctionnalité. Vous pouvez les activer dans les paramètres de l'appareil."
                 );
               }
             },
@@ -72,7 +75,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     }
 
     try {
-      await sendTestDeceasedPrayerNotification();
+      await sendTestDeceasedPrayerNotification(prayers);
       Alert.alert(
         'Test envoyé',
         'Une notification de prière pour le défunt va apparaître dans quelques secondes.'
@@ -161,7 +164,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
                   const granted = await requestPermission();
                   if (granted) {
                     try {
-                      await scheduleReminders(settings);
+                      await scheduleReminders(settings, prayers);
                       Alert.alert('Succès', 'Vos rappels ont été programmés avec succès !', [
                         { text: 'OK', onPress: onClose },
                       ]);
@@ -169,7 +172,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
                       console.error('Erreur lors de la programmation:', scheduleError);
                       Alert.alert(
                         'Erreur de programmation',
-                        'Les paramètres ont été sauvegardés mais il y a eu une erreur lors de la programmation des rappels.',
+                        'Les paramètres ont été sauvegardés mais il y a eu une erreur lors de la programmation des rappels. Réessayez plus tard.',
                         [{ text: 'OK', onPress: onClose }]
                       );
                     }
@@ -186,10 +189,19 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
           );
         } else {
           // Permissions accordées, programmer normalement
-          await scheduleReminders(settings);
-          Alert.alert('Succès', 'Vos rappels ont été programmés avec succès !', [
-            { text: 'OK', onPress: onClose },
-          ]);
+          try {
+            await scheduleReminders(settings, prayers);
+            Alert.alert('Succès', 'Vos rappels ont été programmés avec succès !', [
+              { text: 'OK', onPress: onClose },
+            ]);
+          } catch (scheduleError) {
+            console.error('Erreur lors de la programmation:', scheduleError);
+            Alert.alert(
+              'Erreur de programmation',
+              'Les paramètres ont été sauvegardés mais il y a eu une erreur lors de la programmation des rappels. Réessayez plus tard.',
+              [{ text: 'OK', onPress: onClose }]
+            );
+          }
         }
       } else {
         await cancelAllReminders();
@@ -201,31 +213,49 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       console.log('Reminders settings saved:', settings);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      
+
       // Gestion d'erreur plus spécifique
       let errorMessage = "Une erreur s'est produite lors de la sauvegarde de vos paramètres.";
-      
+      let errorTitle = "Erreur";
+
       if (error instanceof Error) {
+        console.log('Error details:', error.message, error.stack);
+        
         if (error.message.includes('permissions')) {
-          errorMessage = "Les permissions de notification sont requises pour sauvegarder ces paramètres.";
+          errorTitle = "Permissions requises";
+          errorMessage = 'Les permissions de notification sont requises pour sauvegarder ces paramètres.';
         } else if (error.message.includes('network') || error.message.includes('connection')) {
-          errorMessage = "Vérifiez votre connexion internet et réessayez.";
+          errorTitle = "Problème de connexion";
+          errorMessage = 'Vérifiez votre connexion internet et réessayez.';
         } else if (error.message.includes('firebase') || error.message.includes('firestore')) {
-          errorMessage = "Erreur de connexion avec le serveur. Réessayez dans quelques instants.";
+          errorTitle = "Erreur serveur";
+          errorMessage = 'Erreur de connexion avec le serveur. Réessayez dans quelques instants.';
         } else if (error.message.includes('Utilisateur non connecté')) {
-          errorMessage = "Vos paramètres ont été sauvegardés localement. Ils seront synchronisés lors de votre prochaine connexion.";
+          errorTitle = "Sauvegarde locale";
+          errorMessage = 'Vos paramètres ont été sauvegardés localement. Ils seront synchronisés lors de votre prochaine connexion.';
+        } else if (error.message.includes('schedule') || error.message.includes('notification')) {
+          errorTitle = "Erreur de programmation";
+          errorMessage = 'Erreur lors de la programmation des notifications. Les paramètres ont été sauvegardés.';
+        } else {
+          // Afficher l'erreur technique pour le debug
+          errorMessage = `Erreur technique: ${error.message}`;
         }
       }
-      
+
       // Si c'est une erreur de connexion Firebase, on peut quand même considérer que c'est un succès partiel
-      if (error instanceof Error && (error.message.includes('firebase') || error.message.includes('firestore') || error.message.includes('Utilisateur non connecté'))) {
+      if (
+        error instanceof Error &&
+        (error.message.includes('firebase') ||
+          error.message.includes('firestore') ||
+          error.message.includes('Utilisateur non connecté'))
+      ) {
         Alert.alert(
-          'Paramètres sauvegardés localement', 
+          'Paramètres sauvegardés localement',
           'Vos paramètres ont été sauvegardés sur votre appareil. Ils seront synchronisés avec le serveur dès que possible.',
           [{ text: 'OK', onPress: onClose }]
         );
       } else {
-        Alert.alert('Erreur', errorMessage);
+        Alert.alert(errorTitle, errorMessage);
       }
     } finally {
       setIsSaving(false);
@@ -252,7 +282,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
               } else {
                 Alert.alert(
                   'Permissions refusées',
-                  'Les notifications sont nécessaires pour tester cette fonctionnalité. Vous pouvez les activer dans les paramètres de l\'appareil.'
+                  "Les notifications sont nécessaires pour tester cette fonctionnalité. Vous pouvez les activer dans les paramètres de l'appareil."
                 );
               }
             },
@@ -281,14 +311,14 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       alignItems: 'center',
       paddingVertical: 16,
       borderBottomWidth: 1,
-      borderBottomColor: colors.border,
+      borderBottomColor: 'rgba(255, 255, 255, 0.2)',
     },
     closeButton: {
       padding: 8,
     },
     closeText: {
       fontSize: 24,
-      color: colors.textSecondary,
+      color: '#FFFFFF',
       fontWeight: '300',
     },
     saveButton: {
@@ -296,13 +326,13 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     },
     saveText: {
       fontSize: 16,
-      color: colors.primary,
+      color: '#FFFFFF',
       fontWeight: '500',
     },
     title: {
       fontSize: 32,
       fontWeight: 'bold',
-      color: colors.text,
+      color: '#FFFFFF',
       paddingHorizontal: 20,
       paddingVertical: 24,
     },
@@ -310,11 +340,11 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       flex: 1,
     },
     card: {
-      backgroundColor: colors.surface,
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
       borderRadius: 16,
       padding: 20,
       marginBottom: 16,
-      shadowColor: colors.shadow,
+      shadowColor: 'rgba(0, 0, 0, 0.1)',
       shadowOffset: {
         width: 0,
         height: 2,
@@ -322,6 +352,8 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       shadowOpacity: 0.1,
       shadowRadius: 8,
       elevation: 3,
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.2)',
     },
     row: {
       flexDirection: 'row',
@@ -329,24 +361,24 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       alignItems: 'center',
       paddingVertical: 16,
       borderBottomWidth: 1,
-      borderBottomColor: colors.border,
+      borderBottomColor: 'rgba(255, 255, 255, 0.2)',
     },
     lastRow: {
       borderBottomWidth: 0,
     },
     label: {
       fontSize: 16,
-      color: colors.text,
+      color: '#FFFFFF',
       fontWeight: '400',
     },
     sectionTitle: {
       fontSize: 18,
-      color: colors.text,
+      color: '#FFFFFF',
       fontWeight: '600',
       marginBottom: 8,
     },
     selectionButton: {
-      backgroundColor: colors.border,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
       paddingHorizontal: 16,
       paddingVertical: 8,
       borderRadius: 8,
@@ -354,12 +386,12 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       alignItems: 'center',
     },
     selectionText: {
-      color: colors.textSecondary,
+      color: 'rgba(255, 255, 255, 0.8)',
       fontSize: 14,
       marginRight: 8,
     },
     arrow: {
-      color: colors.textSecondary,
+      color: 'rgba(255, 255, 255, 0.8)',
       fontSize: 16,
     },
     counterContainer: {
@@ -367,7 +399,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       alignItems: 'center',
     },
     counterButton: {
-      backgroundColor: colors.border,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
       width: 40,
       height: 40,
       borderRadius: 8,
@@ -376,13 +408,13 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     },
     counterButtonText: {
       fontSize: 18,
-      color: colors.textSecondary,
+      color: '#FFFFFF',
       fontWeight: '500',
     },
     counterValue: {
       fontSize: 18,
       fontWeight: '600',
-      color: colors.text,
+      color: '#FFFFFF',
       marginHorizontal: 20,
     },
     timeContainer: {
@@ -390,7 +422,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       alignItems: 'center',
     },
     timeButton: {
-      backgroundColor: colors.border,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
       paddingHorizontal: 16,
       paddingVertical: 8,
       borderRadius: 8,
@@ -398,13 +430,13 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       alignItems: 'center',
     },
     timeText: {
-      color: colors.textSecondary,
+      color: 'rgba(255, 255, 255, 0.8)',
       fontSize: 14,
       marginRight: 8,
     },
     timeSeparator: {
       fontSize: 16,
-      color: colors.textSecondary,
+      color: 'rgba(255, 255, 255, 0.8)',
       marginHorizontal: 12,
     },
     daysContainer: {
@@ -420,34 +452,36 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
       alignItems: 'center',
     },
     dayButtonActive: {
-      backgroundColor: colors.text,
+      backgroundColor: '#FFFFFF',
     },
     dayButtonInactive: {
-      backgroundColor: colors.border,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
     },
     dayText: {
       fontSize: 16,
       fontWeight: '500',
     },
     dayTextActive: {
-      color: colors.surface,
+      color: '#2D5A4A',
     },
     dayTextInactive: {
-      color: colors.textSecondary,
+      color: 'rgba(255, 255, 255, 0.8)',
     },
     switch: {
       transform: [{ scaleX: 1.1 }, { scaleY: 1.1 }],
     },
     testButton: {
-      backgroundColor: colors.primary,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
       paddingVertical: 16,
       paddingHorizontal: 20,
       borderRadius: 12,
       alignItems: 'center',
       marginTop: 12,
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.3)',
     },
     testButtonText: {
-      color: colors.surface,
+      color: '#FFFFFF',
       fontSize: 16,
       fontWeight: '600',
     },
@@ -456,25 +490,30 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
     },
     permissionText: {
       fontSize: 16,
-      color: colors.text,
+      color: '#FFFFFF',
       marginBottom: 12,
     },
     permissionButton: {
-      backgroundColor: colors.info,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
       paddingVertical: 12,
       paddingHorizontal: 16,
       borderRadius: 8,
       alignItems: 'center',
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.3)',
     },
     permissionButtonText: {
-      color: colors.surface,
+      color: '#FFFFFF',
       fontSize: 14,
       fontWeight: '500',
     },
   });
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#2D5A4A', '#4A7C69', '#6BAF8A']}
+      style={styles.container}
+    >
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -492,7 +531,6 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
         <Text style={styles.title}>Rappels</Text>
       </View>
 
-
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Main Settings Card */}
         <View style={styles.card}>
@@ -502,7 +540,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
             <Switch
               style={styles.switch}
               value={enableDeceasedReminder}
-              onValueChange={async (value) => {
+              onValueChange={async value => {
                 if (value && !permissions?.granted) {
                   // Demander les permissions si on active les rappels pour défunts
                   Alert.alert(
@@ -522,7 +560,7 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
                           } else {
                             Alert.alert(
                               'Permissions refusées',
-                              'Les notifications sont nécessaires pour les rappels des défunts. Vous pouvez les activer dans les paramètres de l\'appareil.'
+                              "Les notifications sont nécessaires pour les rappels des défunts. Vous pouvez les activer dans les paramètres de l'appareil."
                             );
                           }
                         },
@@ -614,6 +652,6 @@ export default function RemindersDrawerContent({ onClose }: RemindersDrawerConte
         timeType={timeModalType}
         disableOverlayClose={true}
       />
-    </View>
+    </LinearGradient>
   );
 }

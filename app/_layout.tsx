@@ -1,8 +1,8 @@
 import AuthNavigationHandler from '@/components/AuthNavigationHandler';
-import NotificationInitializer from '@/components/NotificationInitializer';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { CategoryProvider } from '@/contexts/CategoryContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useNotificationSetup } from '@/hooks/useNotificationSetup';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -20,6 +20,9 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
+  // Initialiser les notifications
+  useNotificationSetup();
+
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
@@ -34,7 +37,6 @@ export default function RootLayout() {
     <AuthProvider>
       <CategoryProvider>
         <AuthNavigationHandler>
-          <NotificationInitializer />
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Stack
               screenOptions={{
@@ -71,7 +73,7 @@ export default function RootLayout() {
                 }}
               />
             </Stack>
-            <StatusBar style="auto" />
+            <StatusBar style="light" />
           </ThemeProvider>
         </AuthNavigationHandler>
       </CategoryProvider>

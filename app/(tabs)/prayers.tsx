@@ -1,15 +1,15 @@
+import SuggestionModal from '@/components/SuggestionModal';
 import BottomDrawer from '@/components/ui/BottomDrawer';
 import ShareDrawerContent from '@/components/ui/ShareDrawerContent';
-import { Colors } from '@/constants/Colors';
 import { useCategories } from '@/contexts/CategoryContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useContent } from '@/hooks/useContent';
 import { useDeviceType } from '@/hooks/useDeviceType';
 import { useLikes } from '@/hooks/useLikes';
-import { useNotificationPermissions } from '@/hooks/useNotificationPermissions';
 import { usePrayers } from '@/hooks/usePrayers';
 import { useReminders } from '@/hooks/useReminders';
 import { useUserPrayers } from '@/hooks/useUserPrayers';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { PrayerFormula } from '@/services/contentService';
 import { PrayerData } from '@/services/prayerService';
@@ -49,9 +49,7 @@ const getOptimalCardWidth = (isIPad: boolean) => {
 export default function PrayersScreen() {
   const { user } = useAuth();
   const userId = user?.uid || '';
-  const { permissions, requestPermission } = useNotificationPermissions();
-  const [showPermissionRequest, setShowPermissionRequest] = useState(false);
-  const [hasRequestedPermission, setHasRequestedPermission] = useState(false);
+  const [suggestionModalVisible, setSuggestionModalVisible] = useState(false);
 
   // Utiliser le hook pour les prières utilisateur
   const {
@@ -161,16 +159,6 @@ export default function PrayersScreen() {
     }
   }, [prayers, refreshLikeCount, selectedCategories]);
 
-  // Demande de permission des notifications après 2 secondes
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!permissions?.granted && !hasRequestedPermission) {
-        setShowPermissionRequest(true);
-      }
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [permissions, hasRequestedPermission]);
-
   // Démarrer l'animation de l'icône de scroll
   useEffect(() => {
     const startScrollAnimation = () => {
@@ -279,31 +267,6 @@ export default function PrayersScreen() {
     }
   };
 
-  // Gestion des permissions de notification
-  const handleRequestPermission = async () => {
-    setHasRequestedPermission(true);
-    const granted = await requestPermission();
-    if (granted) {
-      setShowPermissionRequest(false);
-      Alert.alert(
-        'Parfait !',
-        'Les notifications sont maintenant activées. Vous recevrez des rappels de prière personnalisés.',
-        [{ text: 'Continuer', onPress: () => setShowPermissionRequest(false) }]
-      );
-    } else {
-      Alert.alert(
-        'Notifications refusées',
-        "Vous pourrez activer les notifications plus tard dans les paramètres de l'appareil.",
-        [{ text: "D'accord", onPress: () => setShowPermissionRequest(false) }]
-      );
-    }
-  };
-
-  const handleSkipPermission = () => {
-    setShowPermissionRequest(false);
-    setHasRequestedPermission(true);
-  };
-
   const handleLike = async (prayerId: string) => {
     // Vérifier si l'utilisateur est connecté avant de permettre le like
     if (!user?.uid) {
@@ -348,16 +311,12 @@ export default function PrayersScreen() {
           {/* Section rappel */}
           <View style={[styles.formulaSection]}>
             <View style={styles.formulaHeader}>
-              <Ionicons
-                name="notifications-outline"
-                size={18}
-                color={Colors[colorScheme ?? 'light'].primary}
-              />
+              <Ionicons name="notifications-outline" size={18} color="#FFFFFF" />
               <Text
                 style={[
                   styles.formulaTitle,
                   {
-                    color: Colors[colorScheme ?? 'light'].primary,
+                    color: '#FFFFFF',
                   },
                 ]}
               >
@@ -372,7 +331,7 @@ export default function PrayersScreen() {
                 style={[
                   styles.nameInFormula,
                   {
-                    color: Colors[colorScheme ?? 'light'].primary,
+                    color: '#FFFFFF',
                     fontWeight: 'bold',
                     fontSize: 24,
                     textAlign: 'center',
@@ -388,7 +347,7 @@ export default function PrayersScreen() {
                 style={[
                   styles.translationFormula,
                   {
-                    color: Colors[colorScheme ?? 'light'].text,
+                    color: '#FFFFFF',
                     fontSize: 16,
                     textAlign: 'center',
                     marginBottom: 16,
@@ -404,7 +363,7 @@ export default function PrayersScreen() {
                 style={[
                   styles.arabicFormula,
                   {
-                    color: Colors[colorScheme ?? 'light'].prayer.formulaArabic,
+                    color: '#FFFFFF',
                   },
                 ]}
               >
@@ -416,7 +375,7 @@ export default function PrayersScreen() {
                 style={[
                   styles.transliterationFormula,
                   {
-                    color: Colors[colorScheme ?? 'light'].prayer.formulaTranslation,
+                    color: 'rgba(255, 255, 255, 0.9)',
                   },
                 ]}
               >
@@ -428,7 +387,7 @@ export default function PrayersScreen() {
                 style={[
                   styles.translationFormula,
                   {
-                    color: Colors[colorScheme ?? 'light'].text,
+                    color: '#FFFFFF',
                   },
                 ]}
               >
@@ -445,11 +404,16 @@ export default function PrayersScreen() {
             onPress={() => reminder.id && handleLike(reminder.id)}
             activeOpacity={0.8}
           >
-            <Ionicons
-              name={isLiked(reminder.id || '') ? 'heart' : 'heart-outline'}
-              size={36}
-              color={isLiked(reminder.id || '') ? '#FF0000' : Colors[colorScheme ?? 'light'].text}
-            />
+            <View style={styles.actionGlassBackground}>
+              <View style={styles.actionGlassInner}>
+                <View style={styles.actionGlassHighlight} />
+                <Ionicons
+                  name={isLiked(reminder.id || '') ? 'heart' : 'heart-outline'}
+                  size={36}
+                  color={isLiked(reminder.id || '') ? '#FF0000' : '#FFFFFF'}
+                />
+              </View>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -457,7 +421,12 @@ export default function PrayersScreen() {
             onPress={() => handleShare(reminder)}
             activeOpacity={0.8}
           >
-            <Ionicons name="share-outline" size={36} color={Colors[colorScheme ?? 'light'].text} />
+            <View style={styles.actionGlassBackground}>
+              <View style={styles.actionGlassInner}>
+                <View style={styles.actionGlassHighlight} />
+                <Ionicons name="share-outline" size={36} color="#FFFFFF" />
+              </View>
+            </View>
           </TouchableOpacity>
         </View>
       </View>
@@ -476,10 +445,8 @@ export default function PrayersScreen() {
         <View key={prayer.id} style={[styles.card, { width: optimalWidth }]}>
           <View style={styles.cardContent}>
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={Colors[colorScheme ?? 'light'].primary} />
-              <Text style={[styles.loadingText, { color: Colors[colorScheme ?? 'light'].text }]}>
-                Chargement de la formule...
-              </Text>
+              <ActivityIndicator size="large" color="#FFFFFF" />
+              <Text style={styles.loadingText}>Chargement de la formule...</Text>
             </View>
           </View>
         </View>
@@ -496,16 +463,12 @@ export default function PrayersScreen() {
           {/* Formule de prière */}
           <View style={[styles.formulaSection]}>
             <View style={styles.formulaHeader}>
-              <Ionicons
-                name="heart-outline"
-                size={18}
-                color={Colors[colorScheme ?? 'light'].primary}
-              />
+              <Ionicons name="heart-outline" size={18} color="#FFFFFF" />
               <Text
                 style={[
                   styles.formulaTitle,
                   {
-                    color: Colors[colorScheme ?? 'light'].primary,
+                    color: '#FFFFFF',
                   },
                 ]}
               >
@@ -520,7 +483,7 @@ export default function PrayersScreen() {
                 style={[
                   styles.nameInFormula,
                   {
-                    color: Colors[colorScheme ?? 'light'].primary,
+                    color: '#FFFFFF',
                     fontWeight: 'bold',
                     fontSize: 24,
                     textAlign: 'center',
@@ -547,14 +510,14 @@ export default function PrayersScreen() {
                 <Ionicons
                   name="person-outline"
                   size={18}
-                  color={Colors[colorScheme ?? 'light'].prayer.dateText}
+                  color="rgba(255, 255, 255, 0.8)"
                   style={{ marginRight: 4 }}
                 />
                 <Text
                   style={[
                     styles.details,
                     {
-                      color: Colors[colorScheme ?? 'light'].prayer.dateText,
+                      color: 'rgba(255, 255, 255, 0.8)',
                       fontSize: 16,
                       flexShrink: 1,
                     },
@@ -567,7 +530,7 @@ export default function PrayersScreen() {
                 <Text
                   style={{
                     marginHorizontal: 6,
-                    color: Colors[colorScheme ?? 'light'].prayer.dateText,
+                    color: 'rgba(255, 255, 255, 0.8)',
                   }}
                 >
                   •
@@ -575,14 +538,14 @@ export default function PrayersScreen() {
                 <Ionicons
                   name="flower-outline"
                   size={18}
-                  color={Colors[colorScheme ?? 'light'].prayer.dateText}
+                  color="rgba(255, 255, 255, 0.8)"
                   style={{ marginRight: 4 }}
                 />
                 <Text
                   style={[
                     styles.details,
                     {
-                      color: Colors[colorScheme ?? 'light'].prayer.dateText,
+                      color: 'rgba(255, 255, 255, 0.8)',
                       fontSize: 16,
                       flexShrink: 1,
                     },
@@ -603,14 +566,14 @@ export default function PrayersScreen() {
                 <Ionicons
                   name="location-outline"
                   size={18}
-                  color={Colors[colorScheme ?? 'light'].prayer.dateText}
+                  color="rgba(255, 255, 255, 0.8)"
                   style={{ marginRight: 6 }}
                 />
                 <Text
                   style={[
                     styles.location,
                     {
-                      color: Colors[colorScheme ?? 'light'].prayer.dateText,
+                      color: 'rgba(255, 255, 255, 0.8)',
                       fontSize: 16,
                     },
                   ]}
@@ -624,7 +587,7 @@ export default function PrayersScreen() {
               style={[
                 styles.arabicFormula,
                 {
-                  color: Colors[colorScheme ?? 'light'].prayer.formulaArabic,
+                  color: '#FFFFFF',
                 },
               ]}
             >
@@ -635,7 +598,7 @@ export default function PrayersScreen() {
               style={[
                 styles.transliterationFormula,
                 {
-                  color: Colors[colorScheme ?? 'light'].prayer.formulaTranslation,
+                  color: 'rgba(255, 255, 255, 0.9)',
                 },
               ]}
             >
@@ -646,7 +609,7 @@ export default function PrayersScreen() {
               style={[
                 styles.translationFormula,
                 {
-                  color: Colors[colorScheme ?? 'light'].text,
+                  color: 'rgba(255, 255, 255, 0.9)',
                 },
               ]}
             >
@@ -662,11 +625,16 @@ export default function PrayersScreen() {
             onPress={() => prayer.id && handleLike(prayer.id)}
             activeOpacity={0.8}
           >
-            <Ionicons
-              name={isLiked(prayer.id || '') ? 'heart' : 'heart-outline'}
-              size={36}
-              color={isLiked(prayer.id || '') ? '#FF0000' : Colors[colorScheme ?? 'light'].text}
-            />
+            <View style={styles.actionGlassBackground}>
+              <View style={styles.actionGlassInner}>
+                <View style={styles.actionGlassHighlight} />
+                <Ionicons
+                  name={isLiked(prayer.id || '') ? 'heart' : 'heart-outline'}
+                  size={36}
+                  color={isLiked(prayer.id || '') ? '#FF0000' : '#FFFFFF'}
+                />
+              </View>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -674,7 +642,12 @@ export default function PrayersScreen() {
             onPress={() => handleShare(prayer)}
             activeOpacity={0.8}
           >
-            <Ionicons name="share-outline" size={36} color={Colors[colorScheme ?? 'light'].text} />
+            <View style={styles.actionGlassBackground}>
+              <View style={styles.actionGlassInner}>
+                <View style={styles.actionGlassHighlight} />
+                <Ionicons name="share-outline" size={36} color="#FFFFFF" />
+              </View>
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -699,10 +672,8 @@ export default function PrayersScreen() {
               },
             ]}
           >
-            <Ionicons name="chevron-down" size={24} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.scrollText, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Glissez pour voir plus
-            </Text>
+            <Ionicons name="chevron-down" size={24} color="#FFFFFF" />
+            <Text style={styles.scrollText}>Glissez pour voir plus</Text>
           </Animated.View>
         )}
       </View>
@@ -728,61 +699,41 @@ export default function PrayersScreen() {
   const hasContent = contentToDisplay.length > 0;
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: Colors[colorScheme ?? 'light'].drawer.backgroundColor },
-      ]}
-    >
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+    <LinearGradient colors={['#2D5A4A', '#4A7C69', '#6BAF8A']} style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
-      {/* Demande de permission des notifications */}
-      {showPermissionRequest && (
-        <View style={styles.permissionOverlay}>
-          <View style={styles.permissionCard}>
-            <Text style={styles.permissionTitle}>🔔 Notifications</Text>
-            <Text style={styles.permissionMessage}>
-              Activez les notifications pour recevoir des rappels de prière personnalisés et ne
-              jamais oublier vos moments spirituels.
-            </Text>
-            <View style={styles.permissionButtons}>
-              <TouchableOpacity style={styles.skipButton} onPress={handleSkipPermission}>
-                <Text style={styles.skipButtonText}>Plus tard</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.allowButton} onPress={handleRequestPermission}>
-                <Text style={styles.allowButtonText}>Autoriser</Text>
-              </TouchableOpacity>
+      {/* Bouton de suggestion */}
+      <View style={styles.suggestionButtonContainer}>
+        <TouchableOpacity
+          style={styles.suggestionButton}
+          onPress={() => setSuggestionModalVisible(true)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.glassBackground}>
+            <View style={styles.glassInner}>
+              <View style={styles.glassHighlight} />
+              <Ionicons name="bulb-outline" size={20} color="#FFFFFF" />
+              <Text style={styles.suggestionButtonText}>Suggestion</Text>
             </View>
           </View>
-        </View>
-      )}
+        </TouchableOpacity>
+      </View>
 
       {/* Fallback simple pour éviter l'écran blanc */}
       {loading && prayers.length === 0 && prayerFormulasLoading ? (
         <View style={[styles.card, styles.loadingContainer]}>
-          <ActivityIndicator size="large" color={Colors[colorScheme ?? 'light'].primary} />
-          <Text style={[styles.loadingText, { color: Colors[colorScheme ?? 'light'].text }]}>
-            Chargement des prières...
-          </Text>
-          <Text style={[styles.debugText, { color: Colors[colorScheme ?? 'light'].text }]}>
+          <ActivityIndicator size="large" color="#FFFFFF" />
+          <Text style={styles.loadingText}>Chargement des prières...</Text>
+          <Text style={styles.debugText}>
             Debug: Prayers: {prayers.length}, Formulas: {prayerFormulas.length}
           </Text>
         </View>
       ) : error || prayerFormulasError ? (
         <View style={[styles.card, styles.errorContainer]}>
-          <Ionicons
-            name="alert-circle-outline"
-            size={64}
-            color={Colors[colorScheme ?? 'light'].text}
-          />
-          <Text style={[styles.errorText, { color: Colors[colorScheme ?? 'light'].text }]}>
-            {error || prayerFormulasError}
-          </Text>
+          <Ionicons name="alert-circle-outline" size={64} color="#FFFFFF" />
+          <Text style={styles.errorText}>{error || prayerFormulasError}</Text>
           <TouchableOpacity
-            style={[
-              styles.retryButton,
-              { backgroundColor: Colors[colorScheme ?? 'light'].primary },
-            ]}
+            style={[styles.retryButton, { backgroundColor: 'rgba(255, 255, 255, 0.3)' }]}
             onPress={handleRefresh}
           >
             <Text style={styles.retryButtonText}>Réessayer</Text>
@@ -790,83 +741,48 @@ export default function PrayersScreen() {
         </View>
       ) : !hasContent ? (
         <ScrollView
+          style={{ backgroundColor: 'transparent' }}
           contentContainerStyle={{ flex: 1 }}
           refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor={Colors[colorScheme ?? 'light'].primary}
-            />
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#FFFFFF" />
           }
         >
           <View style={[styles.card, styles.emptyContainer]}>
-            <Ionicons name="heart-outline" size={64} color={Colors[colorScheme ?? 'light'].text} />
-            <Text style={[styles.emptyText, { color: Colors[colorScheme ?? 'light'].text }]}>
+            <Ionicons name="heart-outline" size={64} color="#FFFFFF" />
+            <Text style={styles.emptyText}>
               {selectedCategories.length === 0
                 ? 'Aucune catégorie sélectionnée'
                 : 'Aucun contenu disponible pour les catégories sélectionnées'}
             </Text>
-            <Text style={[styles.emptySubtext, { color: Colors[colorScheme ?? 'light'].text }]}>
-              Tirez vers le bas pour actualiser
-            </Text>
+            <Text style={styles.emptySubtext}>Tirez vers le bas pour actualiser</Text>
 
             {/* Instructions pour ajouter une prière */}
             {selectedCategories.includes('prayers') && (
               <View style={styles.instructionsContainer}>
-                <Text
-                  style={[styles.instructionsTitle, { color: Colors[colorScheme ?? 'light'].text }]}
-                >
-                  Comment ajouter une prière ?
-                </Text>
+                <Text style={styles.instructionsTitle}>Comment ajouter une prière ?</Text>
                 <View style={styles.instructionStep}>
-                  <View
-                    style={[
-                      styles.stepIcon,
-                      { backgroundColor: Colors[colorScheme ?? 'light'].primary },
-                    ]}
-                  >
+                  <View style={[styles.stepIcon, { backgroundColor: 'rgba(255, 255, 255, 0.3)' }]}>
                     <Text style={styles.stepNumber}>1</Text>
                   </View>
-                  <Text style={[styles.stepText, { color: Colors[colorScheme ?? 'light'].text }]}>
+                  <Text style={styles.stepText}>
                     Appuyez sur le bouton{' '}
-                    <Text
-                      style={[styles.boldText, { color: Colors[colorScheme ?? 'light'].primary }]}
-                    >
-                      +
-                    </Text>{' '}
-                    en bas au centre
+                    <Text style={[styles.boldText, { color: '#FFFFFF' }]}>+</Text> en bas au centre
                   </Text>
                 </View>
                 <View style={styles.instructionStep}>
-                  <View
-                    style={[
-                      styles.stepIcon,
-                      { backgroundColor: Colors[colorScheme ?? 'light'].primary },
-                    ]}
-                  >
+                  <View style={[styles.stepIcon, { backgroundColor: 'rgba(255, 255, 255, 0.3)' }]}>
                     <Text style={styles.stepNumber}>2</Text>
                   </View>
-                  <Text style={[styles.stepText, { color: Colors[colorScheme ?? 'light'].text }]}>
+                  <Text style={styles.stepText}>
                     Sélectionnez{' '}
-                    <Text
-                      style={[styles.boldText, { color: Colors[colorScheme ?? 'light'].primary }]}
-                    >
-                      Nouvelle prière
-                    </Text>
+                    <Text style={[styles.boldText, { color: '#FFFFFF' }]}>Nouvelle prière</Text>
                   </Text>
                 </View>
                 <View style={styles.instructionStep}>
-                  <View
-                    style={[
-                      styles.stepIcon,
-                      { backgroundColor: Colors[colorScheme ?? 'light'].primary },
-                    ]}
-                  >
+                  <View style={[styles.stepIcon, { backgroundColor: 'rgba(255, 255, 255, 0.3)' }]}>
                     <Text style={styles.stepNumber}>3</Text>
                   </View>
-                  <Text style={[styles.stepText, { color: Colors[colorScheme ?? 'light'].text }]}>
-                    Remplissez les informations du défunt
-                  </Text>
+                  <Text style={styles.stepText}>Remplissez les informations du défunt</Text>
                 </View>
               </View>
             )}
@@ -878,21 +794,14 @@ export default function PrayersScreen() {
           pagingEnabled
           showsVerticalScrollIndicator={false}
           onMomentumScrollEnd={handleScrollEnd}
-          style={[
-            styles.scrollView,
-            { backgroundColor: Colors[colorScheme ?? 'light'].drawer.backgroundColor },
-          ]}
+          style={[styles.scrollView, { backgroundColor: 'transparent' }]}
           contentContainerStyle={isIPad ? styles.scrollViewContentIPad : undefined}
           decelerationRate="fast"
           snapToInterval={cardHeight}
           snapToAlignment="start"
           contentInsetAdjustmentBehavior="never"
           refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor={Colors[colorScheme ?? 'light'].primary}
-            />
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#FFFFFF" />
           }
         >
           {contentToDisplay}
@@ -920,7 +829,13 @@ export default function PrayersScreen() {
           />
         )}
       </BottomDrawer>
-    </View>
+
+      {/* Modal de suggestion */}
+      <SuggestionModal
+        visible={suggestionModalVisible}
+        onClose={() => setSuggestionModalVisible(false)}
+      />
+    </LinearGradient>
   );
 }
 
@@ -960,6 +875,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
     fontWeight: '300',
+    color: '#FFFFFF', // Couleur blanche par défaut
   },
   formulaSection: {
     padding: 20,
@@ -976,6 +892,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 8,
+    color: '#FFFFFF', // Couleur blanche par défaut
   },
   arabicFormula: {
     fontSize: 22,
@@ -983,6 +900,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     fontFamily: 'System',
     lineHeight: 32,
+    color: '#FFFFFF', // Couleur blanche par défaut
   },
   transliterationFormula: {
     fontSize: 16,
@@ -990,11 +908,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     fontStyle: 'italic',
     lineHeight: 22,
+    color: 'rgba(255, 255, 255, 0.8)', // Couleur blanche semi-transparente par défaut
   },
   translationFormula: {
     fontSize: 16,
     textAlign: 'center',
     lineHeight: 22,
+    color: 'rgba(255, 255, 255, 0.8)', // Couleur blanche semi-transparente par défaut
   },
   personInfoInFormula: {
     marginBottom: 16,
@@ -1005,6 +925,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 6,
     textAlign: 'center',
+    color: '#FFFFFF', // Couleur blanche par défaut
   },
   detailsRow: {
     flexDirection: 'row',
@@ -1020,10 +941,12 @@ const styles = StyleSheet.create({
   details: {
     fontSize: 15,
     marginLeft: 6,
+    color: 'rgba(255, 255, 255, 0.8)', // Couleur blanche semi-transparente par défaut
   },
   location: {
     fontSize: 15,
     marginLeft: 6,
+    color: 'rgba(255, 255, 255, 0.8)', // Couleur blanche semi-transparente par défaut
   },
   prayerSection: {
     alignItems: 'center',
@@ -1052,6 +975,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 8,
+    color: '#FFFFFF', // Couleur blanche par défaut
   },
   countRow: {
     flexDirection: 'row',
@@ -1060,10 +984,11 @@ const styles = StyleSheet.create({
   prayCount: {
     fontSize: 16,
     marginLeft: 6,
+    color: '#FFFFFF', // Couleur blanche par défaut
   },
   sideActions: {
     position: 'absolute',
-    bottom: 140, // Position en bas au lieu d'en haut
+    bottom: 200, // Remonté pour être plus visible
     left: '50%',
     transform: [{ translateX: -56 }], // Centrer horizontalement pour 2 boutons (largeur totale des 2 boutons + espacement)
     flexDirection: 'row', // Alignement horizontal
@@ -1071,12 +996,13 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     borderRadius: 50,
-    padding: 10,
+    padding: 0, // Pas de padding pour laisser place au glassmorphisme
     marginLeft: 16, // Espacement horizontal au lieu de marginBottom
     alignItems: 'center',
     justifyContent: 'center',
     width: 56,
     height: 56,
+    backgroundColor: 'transparent', // Transparent pour laisser voir l'effet glass
     shadowColor: 'rgba(0, 0, 0, 0.3)',
     shadowOffset: {
       width: 0,
@@ -1099,23 +1025,37 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
+    margin: 16,
   },
   loadingText: {
     fontSize: 16,
     marginTop: 16,
     textAlign: 'center',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
+    margin: 16,
   },
   errorText: {
     fontSize: 16,
     textAlign: 'center',
     marginTop: 16,
     marginBottom: 24,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   retryButton: {
     paddingVertical: 12,
@@ -1123,44 +1063,178 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   retryButtonText: {
-    color: 'white',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  suggestionButtonContainer: {
+    position: 'absolute',
+    top: 60,
+    right: 20,
+    zIndex: 100,
+  },
+  suggestionButton: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  glassBackground: {
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    shadowColor: 'rgba(255, 255, 255, 0.5)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    overflow: 'hidden',
+  },
+  glassInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    position: 'relative',
+  },
+  glassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '40%',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  // Styles spécifiques pour les boutons d'actions circulaires
+  actionGlassBackground: {
+    borderRadius: 28, // 56/2 pour un bouton circulaire
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    shadowColor: 'rgba(255, 255, 255, 0.5)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    overflow: 'hidden',
+    width: 56,
+    height: 56,
+  },
+  actionGlassInner: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    position: 'relative',
+    borderRadius: 28,
+  },
+  actionGlassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '40%',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+  },
+  suggestionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 6,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
+    margin: 16,
   },
   emptyText: {
     fontSize: 18,
     textAlign: 'center',
     marginTop: 16,
     fontWeight: '500',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   emptySubtext: {
     fontSize: 14,
     textAlign: 'center',
     marginTop: 8,
     opacity: 0.7,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   debugText: {
     fontSize: 12,
     textAlign: 'center',
     marginTop: 8,
     opacity: 0.5,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   instructionsContainer: {
     marginTop: 32,
     paddingHorizontal: 16,
     marginBottom: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
+    paddingVertical: 20,
+    marginHorizontal: 16,
+  },
+  stepText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  boldText: {
+    fontWeight: 'bold',
+    color: '#FFFFFF', // Couleur blanche par défaut
+  },
+  scrollText: {
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '500',
+    opacity: 0.8,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   instructionsTitle: {
     fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: 20,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   instructionStep: {
     flexDirection: 'row',
@@ -1181,14 +1255,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  stepText: {
-    fontSize: 15,
-    lineHeight: 20,
-    flex: 1,
-  },
-  boldText: {
-    fontWeight: '700',
-  },
   scrollIndicator: {
     position: 'absolute',
     bottom: 40,
@@ -1196,82 +1262,5 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  scrollText: {
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '500',
-    opacity: 0.8,
-  },
-  permissionOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  },
-  permissionCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24,
-    marginHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  permissionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1E2D28',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  permissionMessage: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 24,
-  },
-  permissionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  skipButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    alignItems: 'center',
-  },
-  skipButtonText: {
-    fontSize: 16,
-    color: '#666',
-    fontWeight: '500',
-  },
-  allowButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    backgroundColor: '#1E2D28',
-    alignItems: 'center',
-  },
-  allowButtonText: {
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: '600',
   },
 });
