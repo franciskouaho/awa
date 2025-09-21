@@ -84,22 +84,6 @@
           }
         }
       ],
-      [
-        "@bittingz/expo-widgets",
-        {
-          "ios": {
-            "src": "./ios/AwaWidgets",
-            "devTeamId": "NAN7MFNMT7",
-            "mode": "production",
-            "moduleDependencies": [],
-            "useLiveActivities": true,
-            "frequentUpdates": true,
-            "entitlements": {
-              "com.apple.developer.usernotifications.filtering": true
-            }
-          }
-        }
-      ]
     ],
     "experiments": {
       "typedRoutes": true

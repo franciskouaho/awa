@@ -1,160 +1,167 @@
 import { NativeModules, Platform } from 'react-native';
 
-// Interface pour les données de prière du widget
-export interface PrayerWidgetData {
-  prayerId: string;
+const { PrayerWidgetModule } = NativeModules;
+
+export interface PrayerData {
   name: string;
   age: number;
-  deathDate: number; // timestamp en millisecondes
   location: string;
   personalMessage: string;
-  creatorId: string;
-}
-
-// Interface pour l'état de la Live Activity
-export interface PrayerActivityState {
-  prayerCount: number;
-  lastPrayerTime: number; // timestamp en millisecondes
-  isActive: boolean;
-}
-
-// Interface pour une activité active
-export interface ActivePrayerActivity {
-  id: string;
+  deathDate: number;
   prayerId: string;
-  name: string;
-  prayerCount: number;
-  lastPrayerTime: number;
-  isActive: boolean;
+}
+
+export interface LiveActivityStatus {
+  isEnabled: boolean;
+  canStart: boolean;
+  error?: string;
 }
 
 class PrayerWidgetService {
   private static instance: PrayerWidgetService;
-  private module: any;
+  private activeActivities: Map<string, string> = new Map(); // prayerId -> activityId
 
-  private constructor() {
-    if (Platform.OS === 'ios') {
-      this.module = NativeModules.PrayerWidgetModule;
-    }
-  }
-
-  public static getInstance(): PrayerWidgetService {
+  static getInstance(): PrayerWidgetService {
     if (!PrayerWidgetService.instance) {
       PrayerWidgetService.instance = new PrayerWidgetService();
     }
     return PrayerWidgetService.instance;
   }
 
-  // Vérifier si les Live Activities sont disponibles
-  async areActivitiesEnabled(): Promise<boolean> {
-    if (Platform.OS !== 'ios' || !this.module) {
-      return false;
+  /**
+   * Vérifie si les Live Activities sont disponibles et activées
+   */
+  async checkLiveActivityStatus(): Promise<LiveActivityStatus> {
+    if (Platform.OS !== 'ios') {
+      return {
+        isEnabled: false,
+        canStart: false,
+        error: 'Live Activities are only available on iOS',
+      };
     }
 
     try {
-      return await this.module.areActivitiesEnabled();
+      const isEnabled = await PrayerWidgetModule.areActivitiesEnabled();
+      return {
+        isEnabled,
+        canStart: isEnabled,
+        error: isEnabled ? undefined : 'Live Activities are disabled in system settings',
+      };
     } catch (error) {
-      console.error('Erreur lors de la vérification des Live Activities:', error);
-      return false;
+      console.error('Error checking Live Activity status:', error);
+      return {
+        isEnabled: false,
+        canStart: false,
+        error: `Error checking status: ${error}`,
+      };
     }
   }
 
-  // Démarrer une Live Activity pour une prière
-  async startPrayerActivity(prayerData: PrayerWidgetData): Promise<string | null> {
-    if (Platform.OS !== 'ios' || !this.module) {
-      console.warn('PrayerWidgetService: Live Activities non disponibles sur cette plateforme');
-      return null;
-    }
-
+  /**
+   * Démarre une Live Activity pour une prière
+   */
+  async startLiveActivity(prayerData: PrayerData): Promise<string> {
     try {
-      const activityId = await this.module.startPrayerActivity(
-        prayerData.prayerId,
+      // Vérifier si une activité est déjà active pour cette prière
+      if (this.activeActivities.has(prayerData.prayerId)) {
+        const existingActivityId = this.activeActivities.get(prayerData.prayerId);
+        console.log(
+          `Live Activity already active for prayer ${prayerData.prayerId}: ${existingActivityId}`
+        );
+        return existingActivityId!;
+      }
+
+      const activityId = await PrayerWidgetModule.startActivity(
         prayerData.name,
         prayerData.age,
-        prayerData.deathDate,
         prayerData.location,
         prayerData.personalMessage,
-        prayerData.creatorId
+        prayerData.deathDate,
+        prayerData.prayerId
       );
-      
-      console.log('Live Activity démarrée avec succès:', activityId);
+
+      // Stocker l'ID de l'activité
+      this.activeActivities.set(prayerData.prayerId, activityId);
+
+      console.log(`Started Live Activity for prayer ${prayerData.prayerId}: ${activityId}`);
       return activityId;
     } catch (error) {
-      console.error('Erreur lors du démarrage de la Live Activity:', error);
-      return null;
+      console.error('Error starting live activity:', error);
+      throw error;
     }
   }
 
-  // Mettre à jour une Live Activity
-  async updatePrayerActivity(
-    activityId: string, 
-    state: PrayerActivityState
-  ): Promise<boolean> {
-    if (Platform.OS !== 'ios' || !this.module) {
-      return false;
-    }
-
+  /**
+   * Met à jour le compteur de prières dans une Live Activity
+   */
+  async updateLiveActivity(prayerId: string, prayerCount: number): Promise<boolean> {
     try {
-      await this.module.updatePrayerActivity(
-        activityId,
-        state.prayerCount,
-        state.lastPrayerTime,
-        state.isActive
-      );
-      
-      console.log('Live Activity mise à jour avec succès');
-      return true;
+      const activityId = this.activeActivities.get(prayerId);
+      if (!activityId) {
+        throw new Error(`No active Live Activity found for prayer ${prayerId}`);
+      }
+
+      const success = await PrayerWidgetModule.updateActivity(activityId, prayerCount);
+      if (success) {
+        console.log(`Updated Live Activity for prayer ${prayerId} with count ${prayerCount}`);
+      }
+      return success;
     } catch (error) {
-      console.error('Erreur lors de la mise à jour de la Live Activity:', error);
-      return false;
+      console.error('Error updating live activity:', error);
+      throw error;
     }
   }
 
-  // Terminer une Live Activity
-  async endPrayerActivity(activityId: string): Promise<boolean> {
-    if (Platform.OS !== 'ios' || !this.module) {
-      return false;
-    }
-
+  /**
+   * Termine une Live Activity
+   */
+  async endLiveActivity(prayerId: string): Promise<boolean> {
     try {
-      await this.module.endPrayerActivity(activityId);
-      console.log('Live Activity terminée avec succès');
-      return true;
+      const activityId = this.activeActivities.get(prayerId);
+      if (!activityId) {
+        console.log(`No active Live Activity found for prayer ${prayerId}`);
+        return true; // Considéré comme terminé
+      }
+
+      const success = await PrayerWidgetModule.endActivity(activityId);
+      if (success) {
+        this.activeActivities.delete(prayerId);
+        console.log(`Ended Live Activity for prayer ${prayerId}`);
+      }
+      return success;
     } catch (error) {
-      console.error('Erreur lors de la fin de la Live Activity:', error);
-      return false;
+      console.error('Error ending live activity:', error);
+      throw error;
     }
   }
 
-  // Obtenir toutes les activités actives
-  async getActiveActivities(): Promise<ActivePrayerActivity[]> {
-    if (Platform.OS !== 'ios' || !this.module) {
-      return [];
-    }
+  /**
+   * Termine toutes les Live Activities actives
+   */
+  async endAllLiveActivities(): Promise<void> {
+    const promises = Array.from(this.activeActivities.keys()).map(prayerId =>
+      this.endLiveActivity(prayerId).catch(error =>
+        console.error(`Error ending Live Activity for prayer ${prayerId}:`, error)
+      )
+    );
 
-    try {
-      const activities = await this.module.getActiveActivities();
-      return activities || [];
-    } catch (error) {
-      console.error('Erreur lors de la récupération des activités actives:', error);
-      return [];
-    }
+    await Promise.all(promises);
+    this.activeActivities.clear();
   }
 
-  // Convertir les données de prière pour le widget
-  static convertPrayerDataForWidget(prayerData: any): PrayerWidgetData {
-    return {
-      prayerId: prayerData.id || '',
-      name: prayerData.name || '',
-      age: prayerData.age || 0,
-      deathDate: prayerData.deathDate instanceof Date 
-        ? prayerData.deathDate.getTime() 
-        : new Date(prayerData.deathDate).getTime(),
-      location: prayerData.location || '',
-      personalMessage: prayerData.personalMessage || '',
-      creatorId: prayerData.creatorId || ''
-    };
+  /**
+   * Obtient la liste des Live Activities actives
+   */
+  getActiveActivities(): string[] {
+    return Array.from(this.activeActivities.keys());
+  }
+
+  /**
+   * Vérifie si une prière a une Live Activity active
+   */
+  hasActiveActivity(prayerId: string): boolean {
+    return this.activeActivities.has(prayerId);
   }
 }
 
-export default PrayerWidgetService;
+export default PrayerWidgetService.getInstance();
