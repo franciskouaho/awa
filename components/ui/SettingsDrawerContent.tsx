@@ -1,4 +1,3 @@
-import PrayerWidgetTest from '@/components/PrayerWidgetTest';
 import BottomDrawer from '@/components/ui/BottomDrawer';
 import FirstNameScreen from '@/components/ui/FirstNameScreen';
 import GenderScreen from '@/components/ui/GenderScreen';
@@ -7,6 +6,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import LanguageScreen from '@/components/ui/LanguageScreen';
 import RemindersDrawerContent from '@/components/ui/RemindersDrawerContent';
 import UserPrayersDrawerContent from '@/components/ui/UserPrayersDrawerContent';
+import WidgetDrawerContent from '@/components/ui/WidgetDrawerContent';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { useLikes } from '@/hooks/useLikes';
@@ -14,6 +14,7 @@ import { usePrayers } from '@/hooks/usePrayers';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { authService } from '@/services/auth';
 import { DevService } from '@/services/devService';
+import { PrayerData } from '@/services/prayerWidgetService';
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -46,6 +47,35 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
   const [widgetDrawerVisible, setWidgetDrawerVisible] = useState(false);
   const [currentSubScreen, setCurrentSubScreen] = useState<SubScreen>(null);
   const [totalLikesCount, setTotalLikesCount] = useState(0);
+
+  // Convertir les données de prières pour le widget
+  const convertPrayersForWidget = (prayers: any[]): PrayerData[] => {
+    return prayers.map(prayer => {
+      // Gérer la date de décès
+      let deathDate = Date.now();
+      if (prayer.deathDate) {
+        if (typeof prayer.deathDate === 'string') {
+          deathDate = new Date(prayer.deathDate).getTime();
+        } else if (prayer.deathDate instanceof Date) {
+          deathDate = prayer.deathDate.getTime();
+        } else if (typeof prayer.deathDate === 'number') {
+          deathDate = prayer.deathDate;
+        }
+      }
+
+      return {
+        prayerId: prayer.id || prayer.prayerId || `prayer-${Math.random()}`,
+        name: prayer.name || prayer.deceasedName || 'Nom non disponible',
+        age: prayer.age || prayer.deceasedAge || 0,
+        location: prayer.location || prayer.deceasedLocation || 'Lieu non disponible',
+        personalMessage:
+          prayer.personalMessage || prayer.message || 'Message personnel non disponible',
+        deathDate: deathDate,
+      };
+    });
+  };
+
+  const widgetPrayers = convertPrayersForWidget(prayers);
 
   // Charger les prières
   useEffect(() => {
@@ -279,7 +309,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
           >
             <IconSymbol name="square.grid.2x2" size={20} color="#FFFFFF" />
             <Text style={[styles.menuItemText, { color: '#FFFFFF' }]}>
-              Test Widget & Live Activities
+              Configuration Widget
             </Text>
             <Text style={[styles.chevron, { color: 'rgba(255, 255, 255, 0.8)' }]}>›</Text>
           </TouchableOpacity>
@@ -408,72 +438,13 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
         <UserPrayersDrawerContent onClose={() => setUserPrayersDrawerVisible(false)} />
       </BottomDrawer>
 
-      {/* Drawer Widget Test */}
-      <BottomDrawer isVisible={widgetDrawerVisible} onClose={() => setWidgetDrawerVisible(false)}>
-        <View
-          style={[
-            styles.widgetTestContainer,
-            { backgroundColor: colorScheme === 'dark' ? '#1A1A1A' : '#F5F5F5' },
-          ]}
-        >
-          <View
-            style={[
-              styles.widgetTestHeader,
-              { backgroundColor: colorScheme === 'dark' ? '#2A2A2A' : '#FFFFFF' },
-            ]}
-          >
-            <TouchableOpacity
-              style={styles.widgetTestBackButton}
-              onPress={() => setWidgetDrawerVisible(false)}
-            >
-              <View style={styles.widgetTestBackButtonGlass}>
-                <View style={styles.widgetTestBackButtonGlassInner}>
-                  <View style={styles.widgetTestBackButtonGlassHighlight} />
-                  <IconSymbol name="chevron.left" size={20} color="#2D5A4A" />
-                </View>
-              </View>
-              <Text
-                style={[
-                  styles.widgetTestBackText,
-                  { color: colorScheme === 'dark' ? '#FFFFFF' : '#2D5A4A' },
-                ]}
-              >
-                Retour
-              </Text>
-            </TouchableOpacity>
-            <Text
-              style={[
-                styles.widgetTestTitle,
-                { color: colorScheme === 'dark' ? '#FFFFFF' : '#2D5A4A' },
-              ]}
-            >
-              Test Widget & Live Activities
-            </Text>
-          </View>
-          <ScrollView style={styles.widgetTestContent} showsVerticalScrollIndicator={false}>
-            <PrayerWidgetTest
-              prayerData={{
-                prayerId: 'test-prayer-1',
-                name: 'Marie Dubois',
-                age: 72,
-                location: 'Lyon',
-                personalMessage: 'Que Dieu ait son âme en paix',
-                deathDate: Date.now() - 86400000, // Il y a 1 jour
-              }}
-            />
-            <PrayerWidgetTest
-              prayerData={{
-                prayerId: 'test-prayer-2',
-                name: 'Jean Martin',
-                age: 65,
-                location: 'Paris',
-                personalMessage: 'Repose en paix',
-                deathDate: Date.now() - 172800000, // Il y a 2 jours
-              }}
-            />
-          </ScrollView>
-        </View>
-      </BottomDrawer>
+      {/* Drawer Configuration Widget */}
+              <BottomDrawer isVisible={widgetDrawerVisible} onClose={() => setWidgetDrawerVisible(false)}>
+                <WidgetDrawerContent
+                  onClose={() => setWidgetDrawerVisible(false)}
+                  prayers={widgetPrayers}
+                />
+              </BottomDrawer>
 
       {/* Drawer General */}
       <BottomDrawer isVisible={generalDrawerVisible} onClose={() => setGeneralDrawerVisible(false)}>
@@ -504,11 +475,12 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
         ) : (
           <GeneralDrawerContent
             onClose={() => setGeneralDrawerVisible(false)}
-            onNavigateToScreen={handleNavigateToSubScreen}
-            currentValues={currentValues}
+            onNavigateToScreen={handleNavigateToSubScreen as (screenName: string) => void}
+            currentValues={currentValues as { firstName: string; gender: string; language: string }}
           />
         )}
       </BottomDrawer>
+
     </View>
   );
 }

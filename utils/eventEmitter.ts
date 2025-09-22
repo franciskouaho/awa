@@ -11,7 +11,7 @@ class EventEmitter {
 
   off(event: string, callback: Function) {
     if (!this.events[event]) return;
-    
+
     const index = this.events[event].indexOf(callback);
     if (index > -1) {
       this.events[event].splice(index, 1);
@@ -20,7 +20,7 @@ class EventEmitter {
 
   emit(event: string, data?: any) {
     if (!this.events[event]) return;
-    
+
     this.events[event].forEach(callback => {
       callback(data);
     });
