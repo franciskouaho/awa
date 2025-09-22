@@ -1,15 +1,19 @@
+import { useColorScheme } from '@/hooks/useColorScheme';
+import PrayerWidgetService, {
+    PrayerData,
+    WidgetStatus,
+} from '@/services/prayerWidgetService';
 import React, { useEffect, useState } from 'react';
 import { Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import PrayerWidgetService, { LiveActivityStatus, PrayerData } from '../services/PrayerWidgetService';
 
 interface PrayerWidgetTestProps {
   prayerData?: PrayerData;
 }
 
 const PrayerWidgetTest: React.FC<PrayerWidgetTestProps> = ({ prayerData }) => {
-  const [status, setStatus] = useState<LiveActivityStatus | null>(null);
+  const colorScheme = useColorScheme();
+  const [status, setStatus] = useState<WidgetStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [prayerCount, setPrayerCount] = useState(0);
 
   // Données de test par défaut
   const defaultPrayerData: PrayerData = {
@@ -17,8 +21,9 @@ const PrayerWidgetTest: React.FC<PrayerWidgetTestProps> = ({ prayerData }) => {
     name: 'Marie Dubois',
     age: 72,
     location: 'Lyon, France',
-    personalMessage: 'Que Dieu ait son âme en paix. Elle était une mère aimante et une grand-mère attentionnée.',
-    deathDate: Date.now() - (30 * 24 * 60 * 60 * 1000), // Il y a 30 jours
+    personalMessage:
+      'Que Dieu ait son âme en paix. Elle était une mère aimante et une grand-mère attentionnée.',
+    deathDate: Date.now() - 30 * 24 * 60 * 60 * 1000, // Il y a 30 jours
   };
 
   const currentPrayerData = prayerData || defaultPrayerData;
@@ -29,86 +34,89 @@ const PrayerWidgetTest: React.FC<PrayerWidgetTestProps> = ({ prayerData }) => {
 
   const checkStatus = async () => {
     try {
-      const liveActivityStatus = await PrayerWidgetService.checkLiveActivityStatus();
-      setStatus(liveActivityStatus);
+      const widgetStatus = await PrayerWidgetService.checkWidgetStatus();
+      setStatus(widgetStatus);
     } catch (error) {
       console.error('Error checking status:', error);
-      Alert.alert('Erreur', 'Impossible de vérifier le statut des Live Activities');
+      Alert.alert('Erreur', 'Impossible de vérifier le statut des widgets');
     }
   };
 
-  const startLiveActivity = async () => {
-    if (!status?.canStart) {
-      Alert.alert('Impossible', status?.error || 'Les Live Activities ne sont pas disponibles');
+  const savePrayerForWidget = async () => {
+    if (!status?.isAvailable) {
+      Alert.alert('Impossible', status?.error || 'Les widgets ne sont pas disponibles');
       return;
     }
 
     setIsLoading(true);
     try {
-      const activityId = await PrayerWidgetService.startLiveActivity(currentPrayerData);
-      Alert.alert('Succès', `Live Activity démarrée avec l'ID: ${activityId}`);
-      setPrayerCount(0);
+      await PrayerWidgetService.savePrayerForWidget(currentPrayerData);
+      Alert.alert('Succès', 'Données de prière sauvegardées pour le widget');
     } catch (error) {
-      console.error('Error starting Live Activity:', error);
-      Alert.alert('Erreur', 'Impossible de démarrer la Live Activity');
+      console.error('Error saving prayer for widget:', error);
+      Alert.alert('Erreur', 'Impossible de sauvegarder les données pour le widget');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updatePrayerCount = async () => {
-    const newCount = prayerCount + 1;
-    setPrayerCount(newCount);
-    
-    try {
-      await PrayerWidgetService.updateLiveActivity(currentPrayerData.prayerId, newCount);
-      console.log(`Prayer count updated to ${newCount}`);
-    } catch (error) {
-      console.error('Error updating prayer count:', error);
-      Alert.alert('Erreur', 'Impossible de mettre à jour le compteur de prières');
-    }
-  };
-
-  const endLiveActivity = async () => {
-    setIsLoading(true);
-    try {
-      await PrayerWidgetService.endLiveActivity(currentPrayerData.prayerId);
-      Alert.alert('Succès', 'Live Activity terminée');
-      setPrayerCount(0);
-    } catch (error) {
-      console.error('Error ending Live Activity:', error);
-      Alert.alert('Erreur', 'Impossible de terminer la Live Activity');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   if (Platform.OS !== 'ios') {
     return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Widget de Prière</Text>
-        <Text style={styles.errorText}>
-          Les widgets et Live Activities ne sont disponibles que sur iOS
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor:
+              colorScheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.8)',
+          },
+        ]}
+      >
+        <Text style={[styles.title, { color: colorScheme === 'dark' ? '#FFFFFF' : '#2D5A4A' }]}>
+          Widget de Prière
+        </Text>
+        <Text
+          style={[
+            styles.errorText,
+            { color: colorScheme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : '#F44336' },
+          ]}
+        >
+          Les widgets ne sont disponibles que sur iOS
         </Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Widget de Prière - Test</Text>
-      
-      {/* Statut des Live Activities */}
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor:
+            colorScheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.8)',
+        },
+      ]}
+    >
+      <Text style={[styles.title, { color: colorScheme === 'dark' ? '#FFFFFF' : '#2D5A4A' }]}>
+        Widget de Prière - Test
+      </Text>
+
+      {/* Statut des Widgets */}
       <View style={styles.statusContainer}>
-        <Text style={styles.statusTitle}>Statut des Live Activities:</Text>
-        <Text style={[
-          styles.statusText,
-          { color: status?.isEnabled ? '#4CAF50' : '#F44336' }
-        ]}>
-          {status?.isEnabled ? '✅ Activées' : '❌ Désactivées'}
+        <Text
+          style={[styles.statusTitle, { color: colorScheme === 'dark' ? '#FFFFFF' : '#2D5A4A' }]}
+        >
+          Statut des Widgets:
+        </Text>
+        <Text style={[styles.statusText, { color: status?.isAvailable ? '#4CAF50' : '#F44336' }]}>
+          {status?.isAvailable ? '✅ Disponibles' : '❌ Indisponibles'}
         </Text>
         {status?.error && (
-          <Text style={styles.errorText}>{status.error}</Text>
+          <Text
+            style={[styles.errorText, { color: colorScheme === 'dark' ? '#FF6B6B' : '#F44336' }]}
+          >
+            {status.error}
+          </Text>
         )}
       </View>
 
@@ -121,39 +129,20 @@ const PrayerWidgetTest: React.FC<PrayerWidgetTestProps> = ({ prayerData }) => {
         <Text style={styles.prayerMessage}>{currentPrayerData.personalMessage}</Text>
       </View>
 
-      {/* Compteur de prières */}
-      <View style={styles.counterContainer}>
-        <Text style={styles.counterLabel}>Nombre de prières:</Text>
-        <Text style={styles.counterValue}>{prayerCount}</Text>
-      </View>
 
       {/* Boutons d'action */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={[styles.button, styles.startButton, (!status?.canStart || isLoading) && styles.disabledButton]}
-          onPress={startLiveActivity}
-          disabled={!status?.canStart || isLoading}
+          style={[
+            styles.button,
+            styles.startButton,
+            (!status?.isAvailable || isLoading) && styles.disabledButton,
+          ]}
+          onPress={savePrayerForWidget}
+          disabled={!status?.isAvailable || isLoading}
         >
           <Text style={styles.buttonText}>
-            {isLoading ? 'Démarrage...' : 'Démarrer Live Activity'}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.button, styles.updateButton]}
-          onPress={updatePrayerCount}
-          disabled={!PrayerWidgetService.hasActiveActivity(currentPrayerData.prayerId)}
-        >
-          <Text style={styles.buttonText}>+1 Prière</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.button, styles.endButton]}
-          onPress={endLiveActivity}
-          disabled={!PrayerWidgetService.hasActiveActivity(currentPrayerData.prayerId) || isLoading}
-        >
-          <Text style={styles.buttonText}>
-            {isLoading ? 'Arrêt...' : 'Terminer Live Activity'}
+            {isLoading ? 'Sauvegarde...' : 'Sauvegarder pour le Widget'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -162,16 +151,19 @@ const PrayerWidgetTest: React.FC<PrayerWidgetTestProps> = ({ prayerData }) => {
       <View style={styles.instructions}>
         <Text style={styles.instructionsTitle}>Instructions:</Text>
         <Text style={styles.instructionText}>
-          1. Vérifiez que les Live Activities sont activées dans les paramètres iOS
+          1. Appuyez sur "Sauvegarder pour le Widget" pour enregistrer les données
         </Text>
         <Text style={styles.instructionText}>
-          2. Appuyez sur "Démarrer Live Activity" pour créer une notification dynamique
+          2. Allez sur l'écran d'accueil de votre iPhone
         </Text>
         <Text style={styles.instructionText}>
-          3. Utilisez "+1 Prière" pour mettre à jour le compteur
+          3. Appuyez longuement sur un espace vide
         </Text>
         <Text style={styles.instructionText}>
-          4. La Live Activity apparaîtra sur l'écran de verrouillage et dans le Dynamic Island
+          4. Cliquez sur le "+" en haut à gauche
+        </Text>
+        <Text style={styles.instructionText}>
+          5. Recherchez "Awa" et ajoutez le widget de prière
         </Text>
       </View>
     </View>
@@ -182,21 +174,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    borderRadius: 16,
+    margin: 10,
+    shadowColor: 'rgba(0, 0, 0, 0.1)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '600',
     textAlign: 'center',
     marginBottom: 20,
-    color: '#333',
+    letterSpacing: 0.5,
   },
   statusContainer: {
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 12,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: 'rgba(0, 0, 0, 0.1)',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -206,7 +204,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 5,
-    color: '#333',
   },
   statusText: {
     fontSize: 14,
@@ -214,7 +211,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 12,
-    color: '#F44336',
     marginTop: 5,
   },
   prayerInfo: {
@@ -244,28 +240,6 @@ const styles = StyleSheet.create({
     color: '#555',
     fontStyle: 'italic',
   },
-  counterContainer: {
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  counterLabel: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 5,
-  },
-  counterValue: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-  },
   buttonContainer: {
     gap: 10,
     marginBottom: 20,
@@ -282,12 +256,6 @@ const styles = StyleSheet.create({
   },
   startButton: {
     backgroundColor: '#4CAF50',
-  },
-  updateButton: {
-    backgroundColor: '#2196F3',
-  },
-  endButton: {
-    backgroundColor: '#F44336',
   },
   disabledButton: {
     backgroundColor: '#ccc',

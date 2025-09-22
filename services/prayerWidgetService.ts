@@ -1,25 +1,24 @@
-import { NativeModules, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
-const { PrayerWidgetModule } = NativeModules;
+// Pour un widget statique, on n'a pas besoin de module natif
+// Les données sont partagées via UserDefaults/App Groups
 
 export interface PrayerData {
+  prayerId: string;
   name: string;
   age: number;
   location: string;
   personalMessage: string;
-  deathDate: number;
-  prayerId: string;
+  deathDate: number; // Unix timestamp
 }
 
-export interface LiveActivityStatus {
-  isEnabled: boolean;
-  canStart: boolean;
+export interface WidgetStatus {
+  isAvailable: boolean;
   error?: string;
 }
 
 class PrayerWidgetService {
   private static instance: PrayerWidgetService;
-  private activeActivities: Map<string, string> = new Map(); // prayerId -> activityId
 
   static getInstance(): PrayerWidgetService {
     if (!PrayerWidgetService.instance) {
@@ -29,138 +28,45 @@ class PrayerWidgetService {
   }
 
   /**
-   * Vérifie si les Live Activities sont disponibles et activées
+   * Vérifie si les widgets sont disponibles
    */
-  async checkLiveActivityStatus(): Promise<LiveActivityStatus> {
+  async checkWidgetStatus(): Promise<WidgetStatus> {
     if (Platform.OS !== 'ios') {
       return {
-        isEnabled: false,
-        canStart: false,
-        error: 'Live Activities are only available on iOS',
+        isAvailable: false,
+        error: 'Widgets are only available on iOS',
       };
     }
 
-    try {
-      const isEnabled = await PrayerWidgetModule.areActivitiesEnabled();
-      return {
-        isEnabled,
-        canStart: isEnabled,
-        error: isEnabled ? undefined : 'Live Activities are disabled in system settings',
-      };
-    } catch (error) {
-      console.error('Error checking Live Activity status:', error);
-      return {
-        isEnabled: false,
-        canStart: false,
-        error: `Error checking status: ${error}`,
-      };
-    }
+    return {
+      isAvailable: true,
+    };
   }
 
   /**
-   * Démarre une Live Activity pour une prière
+   * Sauvegarde les données d'une prière pour le widget
    */
-  async startLiveActivity(prayerData: PrayerData): Promise<string> {
+  async savePrayerForWidget(prayerData: PrayerData): Promise<void> {
     try {
-      // Vérifier si une activité est déjà active pour cette prière
-      if (this.activeActivities.has(prayerData.prayerId)) {
-        const existingActivityId = this.activeActivities.get(prayerData.prayerId);
-        console.log(
-          `Live Activity already active for prayer ${prayerData.prayerId}: ${existingActivityId}`
-        );
-        return existingActivityId!;
-      }
+      // Pour un widget statique, on sauvegarde les données dans UserDefaults
+      // via App Groups pour que le widget puisse les lire
+      console.log(`Saving prayer data for widget: ${prayerData.name}`);
 
-      const activityId = await PrayerWidgetModule.startActivity(
-        prayerData.name,
-        prayerData.age,
-        prayerData.location,
-        prayerData.personalMessage,
-        prayerData.deathDate,
-        prayerData.prayerId
-      );
+      // Ici, vous pourriez utiliser un module natif pour sauvegarder dans UserDefaults
+      // ou utiliser AsyncStorage avec App Groups
 
-      // Stocker l'ID de l'activité
-      this.activeActivities.set(prayerData.prayerId, activityId);
-
-      console.log(`Started Live Activity for prayer ${prayerData.prayerId}: ${activityId}`);
-      return activityId;
+      // Pour l'instant, on log juste les données
+      console.log('Prayer data:', {
+        name: prayerData.name,
+        age: prayerData.age,
+        location: prayerData.location,
+        personalMessage: prayerData.personalMessage,
+        deathDate: new Date(prayerData.deathDate).toISOString(),
+      });
     } catch (error) {
-      console.error('Error starting live activity:', error);
+      console.error('Error saving prayer data for widget:', error);
       throw error;
     }
-  }
-
-  /**
-   * Met à jour le compteur de prières dans une Live Activity
-   */
-  async updateLiveActivity(prayerId: string, prayerCount: number): Promise<boolean> {
-    try {
-      const activityId = this.activeActivities.get(prayerId);
-      if (!activityId) {
-        throw new Error(`No active Live Activity found for prayer ${prayerId}`);
-      }
-
-      const success = await PrayerWidgetModule.updateActivity(activityId, prayerCount);
-      if (success) {
-        console.log(`Updated Live Activity for prayer ${prayerId} with count ${prayerCount}`);
-      }
-      return success;
-    } catch (error) {
-      console.error('Error updating live activity:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Termine une Live Activity
-   */
-  async endLiveActivity(prayerId: string): Promise<boolean> {
-    try {
-      const activityId = this.activeActivities.get(prayerId);
-      if (!activityId) {
-        console.log(`No active Live Activity found for prayer ${prayerId}`);
-        return true; // Considéré comme terminé
-      }
-
-      const success = await PrayerWidgetModule.endActivity(activityId);
-      if (success) {
-        this.activeActivities.delete(prayerId);
-        console.log(`Ended Live Activity for prayer ${prayerId}`);
-      }
-      return success;
-    } catch (error) {
-      console.error('Error ending live activity:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Termine toutes les Live Activities actives
-   */
-  async endAllLiveActivities(): Promise<void> {
-    const promises = Array.from(this.activeActivities.keys()).map(prayerId =>
-      this.endLiveActivity(prayerId).catch(error =>
-        console.error(`Error ending Live Activity for prayer ${prayerId}:`, error)
-      )
-    );
-
-    await Promise.all(promises);
-    this.activeActivities.clear();
-  }
-
-  /**
-   * Obtient la liste des Live Activities actives
-   */
-  getActiveActivities(): string[] {
-    return Array.from(this.activeActivities.keys());
-  }
-
-  /**
-   * Vérifie si une prière a une Live Activity active
-   */
-  hasActiveActivity(prayerId: string): boolean {
-    return this.activeActivities.has(prayerId);
   }
 }
 

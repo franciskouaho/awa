@@ -1,3 +1,4 @@
+import PrayerWidgetTest from '@/components/PrayerWidgetTest';
 import BottomDrawer from '@/components/ui/BottomDrawer';
 import FirstNameScreen from '@/components/ui/FirstNameScreen';
 import GenderScreen from '@/components/ui/GenderScreen';
@@ -42,6 +43,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
   const [remindersDrawerVisible, setRemindersDrawerVisible] = useState(false);
   const [generalDrawerVisible, setGeneralDrawerVisible] = useState(false);
   const [userPrayersDrawerVisible, setUserPrayersDrawerVisible] = useState(false);
+  const [widgetDrawerVisible, setWidgetDrawerVisible] = useState(false);
   const [currentSubScreen, setCurrentSubScreen] = useState<SubScreen>(null);
   const [totalLikesCount, setTotalLikesCount] = useState(0);
 
@@ -116,6 +118,9 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
       case 'userPrayers':
         setUserPrayersDrawerVisible(true);
         break;
+      case 'widget':
+        setWidgetDrawerVisible(true);
+        break;
       case 'resetOnboarding':
         Alert.alert(
           'Reset Onboarding (Dev)',
@@ -133,7 +138,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
       case 'resetReviews':
         Alert.alert(
           'Reset Reviews (Dev)',
-          'Voulez-vous réinitialiser les données de review ? Cela permettra de redemander une évaluation de l\'app.',
+          "Voulez-vous réinitialiser les données de review ? Cela permettra de redemander une évaluation de l'app.",
           [
             { text: 'Annuler', style: 'cancel' },
             {
@@ -264,6 +269,22 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
           </TouchableOpacity>
         </View>
 
+        {/* WIDGET Section */}
+        <Text style={[styles.sectionTitle, { color: 'rgba(255, 255, 255, 0.8)' }]}>WIDGET</Text>
+        <View style={[styles.menuSection, { backgroundColor: 'rgba(255, 255, 255, 0.1)' }]}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => handleItemPress('widget')}
+            activeOpacity={0.7}
+          >
+            <IconSymbol name="square.grid.2x2" size={20} color="#FFFFFF" />
+            <Text style={[styles.menuItemText, { color: '#FFFFFF' }]}>
+              Test Widget & Live Activities
+            </Text>
+            <Text style={[styles.chevron, { color: 'rgba(255, 255, 255, 0.8)' }]}>›</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* DEVELOPMENT Section - Only in dev mode */}
         {DevService.isDevMode() && (
           <>
@@ -385,6 +406,73 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
         onClose={() => setUserPrayersDrawerVisible(false)}
       >
         <UserPrayersDrawerContent onClose={() => setUserPrayersDrawerVisible(false)} />
+      </BottomDrawer>
+
+      {/* Drawer Widget Test */}
+      <BottomDrawer isVisible={widgetDrawerVisible} onClose={() => setWidgetDrawerVisible(false)}>
+        <View
+          style={[
+            styles.widgetTestContainer,
+            { backgroundColor: colorScheme === 'dark' ? '#1A1A1A' : '#F5F5F5' },
+          ]}
+        >
+          <View
+            style={[
+              styles.widgetTestHeader,
+              { backgroundColor: colorScheme === 'dark' ? '#2A2A2A' : '#FFFFFF' },
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.widgetTestBackButton}
+              onPress={() => setWidgetDrawerVisible(false)}
+            >
+              <View style={styles.widgetTestBackButtonGlass}>
+                <View style={styles.widgetTestBackButtonGlassInner}>
+                  <View style={styles.widgetTestBackButtonGlassHighlight} />
+                  <IconSymbol name="chevron.left" size={20} color="#2D5A4A" />
+                </View>
+              </View>
+              <Text
+                style={[
+                  styles.widgetTestBackText,
+                  { color: colorScheme === 'dark' ? '#FFFFFF' : '#2D5A4A' },
+                ]}
+              >
+                Retour
+              </Text>
+            </TouchableOpacity>
+            <Text
+              style={[
+                styles.widgetTestTitle,
+                { color: colorScheme === 'dark' ? '#FFFFFF' : '#2D5A4A' },
+              ]}
+            >
+              Test Widget & Live Activities
+            </Text>
+          </View>
+          <ScrollView style={styles.widgetTestContent} showsVerticalScrollIndicator={false}>
+            <PrayerWidgetTest
+              prayerData={{
+                prayerId: 'test-prayer-1',
+                name: 'Marie Dubois',
+                age: 72,
+                location: 'Lyon',
+                personalMessage: 'Que Dieu ait son âme en paix',
+                deathDate: Date.now() - 86400000, // Il y a 1 jour
+              }}
+            />
+            <PrayerWidgetTest
+              prayerData={{
+                prayerId: 'test-prayer-2',
+                name: 'Jean Martin',
+                age: 65,
+                location: 'Paris',
+                personalMessage: 'Repose en paix',
+                deathDate: Date.now() - 172800000, // Il y a 2 jours
+              }}
+            />
+          </ScrollView>
+        </View>
       </BottomDrawer>
 
       {/* Drawer General */}
@@ -570,5 +658,64 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '400',
     opacity: 0.7,
+  },
+  widgetTestContainer: {
+    flex: 1,
+  },
+  widgetTestHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  widgetTestBackButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  widgetTestBackButtonGlass: {
+    backgroundColor: 'rgba(45, 90, 74, 0.1)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(45, 90, 74, 0.2)',
+    shadowColor: 'rgba(0, 0, 0, 0.1)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    marginRight: 12,
+  },
+  widgetTestBackButtonGlassInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  widgetTestBackButtonGlassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    backgroundColor: 'rgba(45, 90, 74, 0.1)',
+  },
+  widgetTestBackText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  widgetTestTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    flex: 1,
+  },
+  widgetTestContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
 });
