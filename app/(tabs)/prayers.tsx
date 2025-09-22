@@ -16,7 +16,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { PrayerFormula } from '@/services/contentService';
 import { PrayerData } from '@/services/prayerService';
-import { PrayerData as WidgetPrayerData } from '@/services/prayerWidgetService';
+import PrayerWidgetService, {
+  PrayerData as WidgetPrayerData,
+} from '@/services/prayerWidgetService';
 import { formatDate, replaceNamePlaceholders } from '@/utils';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -79,6 +81,35 @@ export default function PrayersScreen() {
   const [shareDrawerVisible, setShareDrawerVisible] = useState(false);
   const [selectedPrayerForShare, setSelectedPrayerForShare] = useState<PrayerData | null>(null);
   const [savedPrayers, setSavedPrayers] = useState<Set<string>>(new Set());
+
+  // Charger les bookmarks sauvegardés au démarrage
+  useEffect(() => {
+    const loadSavedPrayers = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('savedPrayers');
+        if (saved) {
+          const savedArray = JSON.parse(saved);
+          setSavedPrayers(new Set(savedArray));
+          console.log('✅ Loaded saved prayers:', savedArray);
+        }
+      } catch (error) {
+        console.error('❌ Error loading saved prayers:', error);
+      }
+    };
+
+    loadSavedPrayers();
+  }, []);
+
+  // Sauvegarder les bookmarks quand ils changent
+  const saveBookmarksToStorage = async (bookmarks: Set<string>) => {
+    try {
+      const bookmarksArray = Array.from(bookmarks);
+      await AsyncStorage.setItem('savedPrayers', JSON.stringify(bookmarksArray));
+      console.log('✅ Saved bookmarks to storage:', bookmarksArray);
+    } catch (error) {
+      console.error('❌ Error saving bookmarks:', error);
+    }
+  };
 
   // Animation pour l'icône de scroll
   const scrollIconAnimation = useRef(new Animated.Value(0)).current;
@@ -696,47 +727,64 @@ export default function PrayersScreen() {
             style={styles.actionButton}
             onPress={async () => {
               try {
-                console.log('🔖 Bookmark button pressed for prayer:', prayer.name);
-                console.log('🔍 Prayer data:', {
-                  id: prayer.id,
-                  name: prayer.name,
-                  age: prayer.age,
-                  location: prayer.location,
-                  deathDate: prayer.deathDate,
-                  personalMessage: prayer.personalMessage,
-                });
+                const isCurrentlySaved = savedPrayers.has(prayer.id || '');
+                console.log(
+                  `🔖 Bookmark button pressed for prayer: ${prayer.name} (currently saved: ${isCurrentlySaved})`
+                );
 
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-                // Convertir la prière pour le widget
-                console.log('🔄 Converting prayer for widget...');
-                let widgetPrayer;
-                try {
-                  widgetPrayer = convertPrayerForWidget(prayer);
-                  console.log('✅ Prayer converted:', widgetPrayer);
-                } catch (conversionError) {
-                  console.error('❌ Error converting prayer:', conversionError);
-                  throw conversionError;
+                if (isCurrentlySaved) {
+                  // Débookmarker la prière
+                  const newSavedPrayers = new Set(savedPrayers);
+                  newSavedPrayers.delete(prayer.id || '');
+                  setSavedPrayers(newSavedPrayers);
+                  await saveBookmarksToStorage(newSavedPrayers);
+                  console.log('✅ Prayer unbookmarked and persisted');
+                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                } else {
+                  // Bookmarker la prière
+                  console.log('🔍 Prayer data:', {
+                    id: prayer.id,
+                    name: prayer.name,
+                    age: prayer.age,
+                    location: prayer.location,
+                    deathDate: prayer.deathDate,
+                    personalMessage: prayer.personalMessage,
+                  });
+
+                  // Convertir la prière pour le widget
+                  console.log('🔄 Converting prayer for widget...');
+                  let widgetPrayer;
+                  try {
+                    widgetPrayer = convertPrayerForWidget(prayer);
+                    console.log('✅ Prayer converted:', widgetPrayer);
+                  } catch (conversionError) {
+                    console.error('❌ Error converting prayer:', conversionError);
+                    throw conversionError;
+                  }
+
+                  // Sauvegarder la prière pour le widget
+                  console.log('💾 Saving prayer for widget...');
+                  try {
+                    // Utiliser le service PrayerWidgetService qui gère App Groups
+                    await PrayerWidgetService.savePrayerForWidget(widgetPrayer);
+                    console.log('✅ Prayer saved via PrayerWidgetService successfully');
+                  } catch (saveError) {
+                    console.error('❌ Error saving prayer:', saveError);
+                    throw saveError;
+                  }
+
+                  // Marquer comme sauvegardé
+                  const newSavedPrayers = new Set([...savedPrayers, prayer.id || '']);
+                  setSavedPrayers(newSavedPrayers);
+                  await saveBookmarksToStorage(newSavedPrayers);
+                  console.log('✅ Prayer marked as saved and persisted');
+
+                  // Feedback visuel et haptique
+                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                  console.log('✅ Bookmark process completed successfully');
                 }
-
-                // Sauvegarder la prière pour le widget
-                console.log('💾 Saving prayer for widget...');
-                try {
-                  // Utiliser AsyncStorage directement pour éviter le crash
-                  await AsyncStorage.setItem('currentPrayerData', JSON.stringify(widgetPrayer));
-                  console.log('✅ Prayer saved to AsyncStorage successfully');
-                } catch (saveError) {
-                  console.error('❌ Error saving prayer:', saveError);
-                  throw saveError;
-                }
-
-                // Marquer comme sauvegardé
-                setSavedPrayers(prev => new Set([...prev, prayer.id || '']));
-                console.log('✅ Prayer marked as saved');
-
-                // Feedback visuel et haptique
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                console.log('✅ Bookmark process completed successfully');
               } catch (error) {
                 console.error('❌ Error in bookmark process:', error);
                 console.error('❌ Error details:', {

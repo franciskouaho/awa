@@ -98,6 +98,30 @@ struct Provider: TimelineProvider {
             )
         }
         
+        // Essayer de lire depuis AsyncStorage avec la clé RNCAsyncStorage
+        print("🔍 Widget: Trying RNCAsyncStorage key...")
+        if let data = UserDefaults.standard.data(forKey: "RNCAsyncStorageData"),
+           let jsonString = String(data: data, encoding: .utf8) {
+            print("🔍 Widget: Found RNCAsyncStorage data, parsing...")
+            
+            // Parser le JSON d'AsyncStorage
+            if let jsonData = jsonString.data(using: .utf8),
+               let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
+               let currentPrayerDataString = jsonObject["currentPrayerData"] as? String,
+               let prayerData = try? JSONDecoder().decode(PrayerData.self, from: currentPrayerDataString.data(using: .utf8) ?? Data()) {
+                print("✅ Widget: Found data in RNCAsyncStorage")
+                
+                return PrayerEntry(
+                    date: Date(),
+                    name: prayerData.name,
+                    age: prayerData.age,
+                    deathDate: Date(timeIntervalSince1970: prayerData.deathDate / 1000),
+                    location: prayerData.location,
+                    personalMessage: prayerData.personalMessage,
+                )
+            }
+        }
+        
         // Essayer aussi avec la clé AsyncStorage générique
         if let data = UserDefaults.standard.data(forKey: "RCTAsyncStorageData"),
            let jsonString = String(data: data, encoding: .utf8),
