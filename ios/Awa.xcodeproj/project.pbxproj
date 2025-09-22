@@ -209,13 +209,12 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
 				D39645B68A0E30F62960CBCC /* [CP] Embed Pods Frameworks */,
-				5432BC56EC9459B90C0A45E5 /* [CP-User] [RNFB] Core Configuration */,
 				1546B6EC2E813C33006DF775 /* Embed Foundation Extensions */,
+				5432BC56EC9459B90C0A45E5 /* [CP-User] [RNFB] Core Configuration */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				159585C52E81448A0093F581 /* PBXTargetDependency */,
 			);
 			name = Awa;
 			productName = Awa;
@@ -497,11 +496,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		159585C52E81448A0093F581 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 159585B42E8144890093F581 /* PrayerWidgetExtensionExtension */;
-			targetProxy = 159585C42E81448A0093F581 /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
