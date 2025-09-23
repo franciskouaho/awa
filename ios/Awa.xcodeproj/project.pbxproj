@@ -42,6 +42,8 @@
 		1546B6DB2E813C32006DF775 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		1546B6FD2E813C89006DF775 /* PrayerWidgetExtensionExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PrayerWidgetExtensionExtension.entitlements; sourceTree = "<group>"; };
 		159585B52E8144890093F581 /* PrayerWidgetExtensionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PrayerWidgetExtensionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		15D472532E82F599000933D5 /* PrayerWidgetModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PrayerWidgetModule.m; sourceTree = "<group>"; };
+		15D472542E82F599000933D5 /* PrayerWidgetModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerWidgetModule.swift; sourceTree = "<group>"; };
 		405B01A96FFD679834CEF5A0 /* Pods_Awa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Awa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D2C982FC254F14C98CF30E2 /* Pods-Awa.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Awa.debug.xcconfig"; path = "Target Support Files/Pods-Awa/Pods-Awa.debug.xcconfig"; sourceTree = "<group>"; };
 		8B083EFEE26CDE15C569746E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Awa/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -160,6 +162,8 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				00F57C1FF8A269700BA8FAE8 /* Pods */,
 				4FE0FD6573405A4DFB5FAED9 /* ExpoModulesProviders */,
+				15D472532E82F599000933D5 /* PrayerWidgetModule.m */,
+				15D472542E82F599000933D5 /* PrayerWidgetModule.swift */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
