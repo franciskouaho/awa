@@ -5,12 +5,12 @@
 //  Created by Francis KOUAHO on 22/09/2025.
 //
 
-import WidgetKit
 import SwiftUI
+import WidgetKit
 
 // Clé pour partager les données via App Groups
 private let appGroupIdentifier = "group.com.emplica.awa"
-private let prayerDataKey = "currentPrayerData"
+private let bookmarksKey = "bookmarkedPrayers"
 
 struct PrayerEntry: TimelineEntry {
     let date: Date
@@ -33,121 +33,57 @@ struct Provider: TimelineProvider {
         )
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (PrayerEntry) -> ()) {
-        let entry = loadPrayerData()
-        completion(entry)
+    func getSnapshot(in context: Context, completion: @escaping (PrayerEntry) -> Void) {
+        let entries = loadBookmarkedPrayers()
+        completion(entries.first ?? placeholder(in: context))
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<PrayerEntry>) -> ()) {
-        let entry = loadPrayerData()
-        
-        // Mettre à jour le widget toutes les heures
-        let nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: Date()) ?? Date()
-        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
+    func getTimeline(in context: Context, completion: @escaping (Timeline<PrayerEntry>) -> Void) {
+        let entries = loadBookmarkedPrayers()
+        let now = Date()
+        var timelineEntries: [PrayerEntry] = []
+
+        // Afficher une prière différente toutes les heures
+        for (index, entry) in entries.enumerated() {
+            let entryDate = Calendar.current.date(byAdding: .hour, value: index, to: now) ?? now
+            timelineEntries.append(
+                PrayerEntry(
+                    date: entryDate,
+                    name: entry.name,
+                    age: entry.age,
+                    deathDate: entry.deathDate,
+                    location: entry.location,
+                    personalMessage: entry.personalMessage
+                )
+            )
+        }
+
+        // Si aucun bookmark, afficher le placeholder
+        if timelineEntries.isEmpty {
+            timelineEntries = [placeholder(in: context)]
+        }
+
+        let timeline = Timeline(entries: timelineEntries, policy: .atEnd)
         completion(timeline)
     }
-    
-    private func loadPrayerData() -> PrayerEntry {
-        print("🔍 Widget: Loading prayer data...")
-        
-        // Charger les données depuis App Groups
+
+    private func loadBookmarkedPrayers() -> [PrayerEntry] {
         if let userDefaults = UserDefaults(suiteName: appGroupIdentifier),
-           let data = userDefaults.data(forKey: prayerDataKey),
-           let prayerData = try? JSONDecoder().decode(PrayerData.self, from: data) {
-            print("✅ Widget: Found data in App Groups")
-            
-            return PrayerEntry(
-                date: Date(),
-                name: prayerData.name,
-                age: prayerData.age,
-                deathDate: Date(timeIntervalSince1970: prayerData.deathDate / 1000),
-                location: prayerData.location,
-                personalMessage: prayerData.personalMessage,
-            )
-        }
-        
-        // Fallback: essayer de charger depuis UserDefaults standard (pour AsyncStorage)
-        print("🔍 Widget: Trying UserDefaults standard...")
-        if let data = UserDefaults.standard.data(forKey: prayerDataKey),
-           let prayerData = try? JSONDecoder().decode(PrayerData.self, from: data) {
-            print("✅ Widget: Found data in UserDefaults standard")
-            
-            return PrayerEntry(
-                date: Date(),
-                name: prayerData.name,
-                age: prayerData.age,
-                deathDate: Date(timeIntervalSince1970: prayerData.deathDate / 1000),
-                location: prayerData.location,
-                personalMessage: prayerData.personalMessage,
-            )
-        }
-        
-        // Essayer de lire depuis AsyncStorage (clé spécifique)
-        print("🔍 Widget: Trying AsyncStorage specific key...")
-        if let data = UserDefaults.standard.data(forKey: "currentPrayerData"),
-           let prayerData = try? JSONDecoder().decode(PrayerData.self, from: data) {
-            print("✅ Widget: Found data in AsyncStorage specific key")
-            
-            return PrayerEntry(
-                date: Date(),
-                name: prayerData.name,
-                age: prayerData.age,
-                deathDate: Date(timeIntervalSince1970: prayerData.deathDate / 1000),
-                location: prayerData.location,
-                personalMessage: prayerData.personalMessage,
-            )
-        }
-        
-        // Essayer de lire depuis AsyncStorage avec la clé RNCAsyncStorage
-        print("🔍 Widget: Trying RNCAsyncStorage key...")
-        if let data = UserDefaults.standard.data(forKey: "RNCAsyncStorageData"),
-           let jsonString = String(data: data, encoding: .utf8) {
-            print("🔍 Widget: Found RNCAsyncStorage data, parsing...")
-            
-            // Parser le JSON d'AsyncStorage
-            if let jsonData = jsonString.data(using: .utf8),
-               let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
-               let currentPrayerDataString = jsonObject["currentPrayerData"] as? String,
-               let prayerData = try? JSONDecoder().decode(PrayerData.self, from: currentPrayerDataString.data(using: .utf8) ?? Data()) {
-                print("✅ Widget: Found data in RNCAsyncStorage")
-                
-                return PrayerEntry(
+            let data = userDefaults.data(forKey: bookmarksKey),
+            let prayers = try? JSONDecoder().decode([PrayerData].self, from: data)
+        {
+            return prayers.map { prayer in
+                PrayerEntry(
                     date: Date(),
-                    name: prayerData.name,
-                    age: prayerData.age,
-                    deathDate: Date(timeIntervalSince1970: prayerData.deathDate / 1000),
-                    location: prayerData.location,
-                    personalMessage: prayerData.personalMessage,
+                    name: prayer.name,
+                    age: prayer.age,
+                    deathDate: Date(timeIntervalSince1970: prayer.deathDate / 1000),
+                    location: prayer.location,
+                    personalMessage: prayer.personalMessage
                 )
             }
         }
-        
-        // Essayer aussi avec la clé AsyncStorage générique
-        if let data = UserDefaults.standard.data(forKey: "RCTAsyncStorageData"),
-           let jsonString = String(data: data, encoding: .utf8),
-           let jsonData = jsonString.data(using: .utf8),
-           let prayerData = try? JSONDecoder().decode(PrayerData.self, from: jsonData) {
-            
-            return PrayerEntry(
-                date: Date(),
-                name: prayerData.name,
-                age: prayerData.age,
-                deathDate: Date(timeIntervalSince1970: prayerData.deathDate / 1000),
-                location: prayerData.location,
-                personalMessage: prayerData.personalMessage,
-            )
-        }
-        
-        // Données par défaut si aucune donnée n'est disponible
-        print("❌ Widget: No data found, using default")
-        return PrayerEntry(
-            date: Date(),
-            name: "Aucune prière",
-            age: 0,
-            deathDate: Date(),
-            location: "En attente",
-            personalMessage: "Ajoutez une prière dans l'application"
-        )
+        return []
     }
 }
 
@@ -158,12 +94,11 @@ struct PrayerData: Codable {
     let age: Int
     let location: String
     let personalMessage: String
-    let deathDate: Double // Unix timestamp en millisecondes
+    let deathDate: Double  // Unix timestamp en millisecondes
 }
 
-struct PrayerWidgetExtensionEntryView : View {
+struct PrayerWidgetExtensionEntryView: View {
     var entry: Provider.Entry
-    
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -231,12 +166,12 @@ struct PrayerWidgetExtension: Widget {
 #Preview(as: .systemSmall) {
     PrayerWidgetExtension()
 } timeline: {
-        PrayerEntry(
-            date: .now,
-            name: "Marie Dubois",
-            age: 72,
-            deathDate: .now,
-            location: "Lyon",
-            personalMessage: "Que Dieu ait son âme en paix"
-        )
+    PrayerEntry(
+        date: .now,
+        name: "Marie Dubois",
+        age: 72,
+        deathDate: .now,
+        location: "Lyon",
+        personalMessage: "Que Dieu ait son âme en paix"
+    )
 }
