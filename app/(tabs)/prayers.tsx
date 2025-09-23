@@ -16,8 +16,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { PrayerFormula } from '@/services/contentService';
 import { PrayerData } from '@/services/prayerService';
+import PrayerWidgetService, {
+  PrayerData as WidgetPrayerData,
+} from '@/services/prayerWidgetService';
 import { formatDate, replaceNamePlaceholders } from '@/utils';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -76,6 +80,36 @@ export default function PrayersScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [shareDrawerVisible, setShareDrawerVisible] = useState(false);
   const [selectedPrayerForShare, setSelectedPrayerForShare] = useState<PrayerData | null>(null);
+  const [savedPrayers, setSavedPrayers] = useState<Set<string>>(new Set());
+
+  // Charger les bookmarks sauvegardés au démarrage
+  useEffect(() => {
+    const loadSavedPrayers = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('savedPrayers');
+        if (saved) {
+          const savedArray = JSON.parse(saved);
+          setSavedPrayers(new Set(savedArray));
+          console.log('✅ Loaded saved prayers:', savedArray);
+        }
+      } catch (error) {
+        console.error('❌ Error loading saved prayers:', error);
+      }
+    };
+
+    loadSavedPrayers();
+  }, []);
+
+  // Sauvegarder les bookmarks quand ils changent
+  const saveBookmarksToStorage = async (bookmarks: Set<string>) => {
+    try {
+      const bookmarksArray = Array.from(bookmarks);
+      await AsyncStorage.setItem('savedPrayers', JSON.stringify(bookmarksArray));
+      console.log('✅ Saved bookmarks to storage:', bookmarksArray);
+    } catch (error) {
+      console.error('❌ Error saving bookmarks:', error);
+    }
+  };
 
   // Animation pour l'icône de scroll
   const scrollIconAnimation = useRef(new Animated.Value(0)).current;
@@ -113,6 +147,43 @@ export default function PrayersScreen() {
 
   // Mémoriser les formules assignées à chaque prière
   const [assignedFormulas, setAssignedFormulas] = useState<{ [key: string]: PrayerFormula }>({});
+
+  // Fonction pour convertir les données de prière pour le widget
+  const convertPrayerForWidget = (prayer: PrayerData): WidgetPrayerData => {
+    try {
+      console.log('🔄 Starting conversion for prayer:', prayer.name);
+
+      let deathDate = Date.now();
+      if (prayer.deathDate) {
+        console.log('📅 Processing death date:', prayer.deathDate, typeof prayer.deathDate);
+        if (typeof prayer.deathDate === 'string') {
+          deathDate = new Date(prayer.deathDate).getTime();
+        } else if (prayer.deathDate instanceof Date) {
+          deathDate = prayer.deathDate.getTime();
+        } else if (typeof prayer.deathDate === 'number') {
+          deathDate = prayer.deathDate;
+        }
+      }
+
+      const result = {
+        prayerId: prayer.id || `prayer-${Math.random()}`,
+        name: prayer.name || 'Nom non disponible',
+        age: prayer.age || 0,
+        location: prayer.location || 'Lieu non disponible',
+        personalMessage:
+          prayer.personalMessage && prayer.personalMessage.trim() !== ''
+            ? prayer.personalMessage
+            : 'Que Dieu ait son âme en paix',
+        deathDate: deathDate,
+      };
+
+      console.log('✅ Conversion result:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ Error in convertPrayerForWidget:', error);
+      throw error;
+    }
+  };
 
   // Charger les prières et formules au montage du composant
   useEffect(() => {
@@ -505,6 +576,7 @@ export default function PrayersScreen() {
               >
                 {prayer.name}
               </Text>
+
               {/* Âge et date de décès sur la même ligne, bien alignés */}
               <View
                 style={[
@@ -632,6 +704,7 @@ export default function PrayersScreen() {
 
         {/* Actions à droite style TikTok */}
         <View style={styles.sideActions}>
+          {/* Bouton Like */}
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => prayer.id && handleLike(prayer.id)}
@@ -649,6 +722,95 @@ export default function PrayersScreen() {
             </View>
           </TouchableOpacity>
 
+          {/* Bouton Bookmark pour le widget */}
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={async () => {
+              try {
+                const isCurrentlySaved = savedPrayers.has(prayer.id || '');
+                console.log(
+                  `🔖 Bookmark button pressed for prayer: ${prayer.name} (currently saved: ${isCurrentlySaved})`
+                );
+
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+                if (isCurrentlySaved) {
+                  // Débookmarker la prière
+                  const newSavedPrayers = new Set(savedPrayers);
+                  newSavedPrayers.delete(prayer.id || '');
+                  setSavedPrayers(newSavedPrayers);
+                  await saveBookmarksToStorage(newSavedPrayers);
+                  console.log('✅ Prayer unbookmarked and persisted');
+                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                } else {
+                  // Bookmarker la prière
+                  console.log('🔍 Prayer data:', {
+                    id: prayer.id,
+                    name: prayer.name,
+                    age: prayer.age,
+                    location: prayer.location,
+                    deathDate: prayer.deathDate,
+                    personalMessage: prayer.personalMessage,
+                  });
+
+                  // Convertir la prière pour le widget
+                  console.log('🔄 Converting prayer for widget...');
+                  let widgetPrayer;
+                  try {
+                    widgetPrayer = convertPrayerForWidget(prayer);
+                    console.log('✅ Prayer converted:', widgetPrayer);
+                  } catch (conversionError) {
+                    console.error('❌ Error converting prayer:', conversionError);
+                    throw conversionError;
+                  }
+
+                  // Sauvegarder la prière pour le widget
+                  console.log('💾 Saving prayer for widget...');
+                  try {
+                    // Utiliser le service PrayerWidgetService qui gère App Groups
+                    await PrayerWidgetService.savePrayerForWidget(widgetPrayer);
+                    console.log('✅ Prayer saved via PrayerWidgetService successfully');
+                  } catch (saveError) {
+                    console.error('❌ Error saving prayer:', saveError);
+                    throw saveError;
+                  }
+
+                  // Marquer comme sauvegardé
+                  const newSavedPrayers = new Set([...savedPrayers, prayer.id || '']);
+                  setSavedPrayers(newSavedPrayers);
+                  await saveBookmarksToStorage(newSavedPrayers);
+                  console.log('✅ Prayer marked as saved and persisted');
+
+                  // Feedback visuel et haptique
+                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                  console.log('✅ Bookmark process completed successfully');
+                }
+              } catch (error) {
+                console.error('❌ Error in bookmark process:', error);
+                console.error('❌ Error details:', {
+                  message: (error as Error).message,
+                  stack: (error as Error).stack,
+                  prayer: prayer.name,
+                  prayerId: prayer.id,
+                });
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+              }
+            }}
+            activeOpacity={0.8}
+          >
+            <View style={styles.actionGlassBackground}>
+              <View style={styles.actionGlassInner}>
+                <View style={styles.actionGlassHighlight} />
+                <Ionicons
+                  name={savedPrayers.has(prayer.id || '') ? 'bookmark' : 'bookmark-outline'}
+                  size={36}
+                  color={savedPrayers.has(prayer.id || '') ? '#FFD700' : '#FFFFFF'}
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* Bouton Share */}
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => handleShare(prayer)}
@@ -1005,9 +1167,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 200, // Remonté pour être plus visible
     left: '50%',
-    transform: [{ translateX: -56 }], // Centrer horizontalement pour 2 boutons (largeur totale des 2 boutons + espacement)
+    transform: [{ translateX: -84 }], // Centrer horizontalement pour 3 boutons (largeur totale des 3 boutons + espacement)
     flexDirection: 'row', // Alignement horizontal
     alignItems: 'center',
+    justifyContent: 'center',
   },
   actionButton: {
     borderRadius: 50,

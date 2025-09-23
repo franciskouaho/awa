@@ -1,14 +1,26 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { usePrayers } from '@/hooks/usePrayers';
+import { usePrayerWidget } from '@/hooks/usePrayerWidget';
 import { PrayerData } from '@/services/prayerService';
+import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function PrayersList() {
   const colorScheme = useColorScheme();
   const { prayers, loading, error, loadPrayers, incrementPrayerCount } = usePrayers();
+  const { 
+    isSupported, 
+    activitiesEnabled, 
+    activeActivities, 
+    startPrayerActivity, 
+    updatePrayerActivity, 
+    endPrayerActivity,
+    loading: widgetLoading 
+  } = usePrayerWidget();
   const [selectedPrayer, setSelectedPrayer] = useState<string | null>(null);
+  const [widgetActivities, setWidgetActivities] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     loadPrayers();
@@ -22,11 +34,49 @@ export default function PrayersList() {
     
     if (result.success) {
       Alert.alert('Prière comptabilisée', `Prière pour ${prayer.name} ajoutée.`);
+      
+      // Mettre à jour la Live Activity si elle existe
+      const activityId = widgetActivities.get(prayer.id);
+      if (activityId) {
+        await updatePrayerActivity(activityId, prayer.prayerCount + 1);
+      }
     } else {
       Alert.alert('Erreur', result.error || 'Impossible de comptabiliser la prière');
     }
     
     setSelectedPrayer(null);
+  };
+
+  const handleWidgetToggle = async (prayer: PrayerData) => {
+    if (!prayer.id) return;
+
+    const activityId = widgetActivities.get(prayer.id);
+    
+    if (activityId) {
+      // Arrêter la Live Activity
+      const success = await endPrayerActivity(activityId);
+      if (success) {
+        setWidgetActivities(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(prayer.id!);
+          return newMap;
+        });
+        Alert.alert('Widget arrêté', `Live Activity pour ${prayer.name} arrêtée.`);
+      }
+    } else {
+      // Démarrer la Live Activity
+      const newActivityId = await startPrayerActivity(prayer);
+      if (newActivityId) {
+        setWidgetActivities(prev => {
+          const newMap = new Map(prev);
+          newMap.set(prayer.id!, newActivityId);
+          return newMap;
+        });
+        Alert.alert('Widget démarré', `Live Activity pour ${prayer.name} démarrée.`);
+      } else {
+        Alert.alert('Erreur', 'Impossible de démarrer la Live Activity');
+      }
+    }
   };
 
   if (loading) {
@@ -73,47 +123,81 @@ export default function PrayersList() {
         Prières Firebase ({prayers.length})
       </Text>
       
-      {prayers.map((prayer) => (
-        <TouchableOpacity
-          key={prayer.id}
-          style={[
-            styles.prayerCard,
-            { 
-              backgroundColor: Colors[colorScheme ?? 'light'].surface,
-              borderColor: Colors[colorScheme ?? 'light'].border,
-            }
-          ]}
-          onPress={() => handlePrayerPress(prayer)}
-          disabled={selectedPrayer === prayer.id}
-        >
-          <View style={styles.prayerHeader}>
-            <Text style={[styles.prayerName, { color: Colors[colorScheme ?? 'light'].text }]}>
-              {prayer.name}
-            </Text>
-            <Text style={[styles.prayerCount, { color: Colors[colorScheme ?? 'light'].primary }]}>
-              {prayer.prayerCount} prières
-            </Text>
+      {prayers.map((prayer) => {
+        const hasWidget = widgetActivities.has(prayer.id!);
+        const isWidgetSupported = Platform.OS === 'ios' && isSupported && activitiesEnabled;
+        
+        return (
+          <View
+            key={prayer.id}
+            style={[
+              styles.prayerCard,
+              { 
+                backgroundColor: Colors[colorScheme ?? 'light'].surface,
+                borderColor: Colors[colorScheme ?? 'light'].border,
+              }
+            ]}
+          >
+            <TouchableOpacity
+              onPress={() => handlePrayerPress(prayer)}
+              disabled={selectedPrayer === prayer.id}
+              style={styles.prayerContent}
+            >
+              <View style={styles.prayerHeader}>
+                <Text style={[styles.prayerName, { color: Colors[colorScheme ?? 'light'].text }]}>
+                  {prayer.name}
+                </Text>
+                <Text style={[styles.prayerCount, { color: Colors[colorScheme ?? 'light'].primary }]}>
+                  {prayer.prayerCount} prières
+                </Text>
+              </View>
+              
+              <Text style={[styles.prayerDetails, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
+                {prayer.age} ans • {prayer.location}
+              </Text>
+              
+              <Text style={[styles.prayerMessage, { color: Colors[colorScheme ?? 'light'].text }]}>
+                {prayer.personalMessage}
+              </Text>
+              
+              <Text style={[styles.prayerDate, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
+                Décédé(e) le {prayer.deathDate.toLocaleDateString('fr-FR')}
+              </Text>
+              
+              {selectedPrayer === prayer.id && (
+                <Text style={[styles.loadingText, { color: Colors[colorScheme ?? 'light'].primary }]}>
+                  Ajout de la prière...
+                </Text>
+              )}
+            </TouchableOpacity>
+            
+            {/* Bouton Widget */}
+            {isWidgetSupported && (
+              <TouchableOpacity
+                style={[
+                  styles.widgetButton,
+                  {
+                    backgroundColor: hasWidget 
+                      ? Colors[colorScheme ?? 'light'].error 
+                      : Colors[colorScheme ?? 'light'].primary
+                  }
+                ]}
+                onPress={() => handleWidgetToggle(prayer)}
+                disabled={widgetLoading}
+              >
+                <Ionicons
+                  name={hasWidget ? "stop-circle" : "play-circle"}
+                  size={20}
+                  color={Colors[colorScheme ?? 'light'].textOnPrimary}
+                />
+                <Text style={[styles.widgetButtonText, { color: Colors[colorScheme ?? 'light'].textOnPrimary }]}>
+                  {hasWidget ? 'Arrêter Widget' : 'Démarrer Widget'}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
-          
-          <Text style={[styles.prayerDetails, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
-            {prayer.age} ans • {prayer.location}
-          </Text>
-          
-          <Text style={[styles.prayerMessage, { color: Colors[colorScheme ?? 'light'].text }]}>
-            {prayer.personalMessage}
-          </Text>
-          
-          <Text style={[styles.prayerDate, { color: Colors[colorScheme ?? 'light'].textSecondary }]}>
-            Décédé(e) le {prayer.deathDate.toLocaleDateString('fr-FR')}
-          </Text>
-          
-          {selectedPrayer === prayer.id && (
-            <Text style={[styles.loadingText, { color: Colors[colorScheme ?? 'light'].primary }]}>
-              Ajout de la prière...
-            </Text>
-          )}
-        </TouchableOpacity>
-      ))}
+        );
+      })}
     </View>
   );
 }
@@ -136,10 +220,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   prayerCard: {
-    padding: 16,
     marginBottom: 12,
     borderRadius: 12,
     borderWidth: 1,
+    overflow: 'hidden',
+  },
+  prayerContent: {
+    padding: 16,
   },
   prayerHeader: {
     flexDirection: 'row',
@@ -192,5 +279,17 @@ const styles = StyleSheet.create({
   retryButtonText: {
     fontSize: 16,
     fontWeight: '500',
+  },
+  widgetButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  widgetButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

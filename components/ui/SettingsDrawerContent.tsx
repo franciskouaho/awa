@@ -6,6 +6,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import LanguageScreen from '@/components/ui/LanguageScreen';
 import RemindersDrawerContent from '@/components/ui/RemindersDrawerContent';
 import UserPrayersDrawerContent from '@/components/ui/UserPrayersDrawerContent';
+import WidgetDrawerContent from '@/components/ui/WidgetDrawerContent';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useInAppReview } from '@/hooks/useInAppReview';
 import { useLikes } from '@/hooks/useLikes';
@@ -13,6 +14,7 @@ import { usePrayers } from '@/hooks/usePrayers';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { authService } from '@/services/auth';
 import { DevService } from '@/services/devService';
+import { PrayerData } from '@/services/prayerWidgetService';
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -42,8 +44,38 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
   const [remindersDrawerVisible, setRemindersDrawerVisible] = useState(false);
   const [generalDrawerVisible, setGeneralDrawerVisible] = useState(false);
   const [userPrayersDrawerVisible, setUserPrayersDrawerVisible] = useState(false);
+  const [widgetDrawerVisible, setWidgetDrawerVisible] = useState(false);
   const [currentSubScreen, setCurrentSubScreen] = useState<SubScreen>(null);
   const [totalLikesCount, setTotalLikesCount] = useState(0);
+
+  // Convertir les données de prières pour le widget
+  const convertPrayersForWidget = (prayers: any[]): PrayerData[] => {
+    return prayers.map(prayer => {
+      // Gérer la date de décès
+      let deathDate = Date.now();
+      if (prayer.deathDate) {
+        if (typeof prayer.deathDate === 'string') {
+          deathDate = new Date(prayer.deathDate).getTime();
+        } else if (prayer.deathDate instanceof Date) {
+          deathDate = prayer.deathDate.getTime();
+        } else if (typeof prayer.deathDate === 'number') {
+          deathDate = prayer.deathDate;
+        }
+      }
+
+      return {
+        prayerId: prayer.id || prayer.prayerId || `prayer-${Math.random()}`,
+        name: prayer.name || prayer.deceasedName || 'Nom non disponible',
+        age: prayer.age || prayer.deceasedAge || 0,
+        location: prayer.location || prayer.deceasedLocation || 'Lieu non disponible',
+        personalMessage:
+          prayer.personalMessage || prayer.message || 'Message personnel non disponible',
+        deathDate: deathDate,
+      };
+    });
+  };
+
+  const widgetPrayers = convertPrayersForWidget(prayers);
 
   // Charger les prières
   useEffect(() => {
@@ -116,6 +148,9 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
       case 'userPrayers':
         setUserPrayersDrawerVisible(true);
         break;
+      case 'widget':
+        setWidgetDrawerVisible(true);
+        break;
       case 'resetOnboarding':
         Alert.alert(
           'Reset Onboarding (Dev)',
@@ -133,7 +168,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
       case 'resetReviews':
         Alert.alert(
           'Reset Reviews (Dev)',
-          'Voulez-vous réinitialiser les données de review ? Cela permettra de redemander une évaluation de l\'app.',
+          "Voulez-vous réinitialiser les données de review ? Cela permettra de redemander une évaluation de l'app.",
           [
             { text: 'Annuler', style: 'cancel' },
             {
@@ -264,6 +299,22 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
           </TouchableOpacity>
         </View>
 
+        {/* WIDGET Section */}
+        <Text style={[styles.sectionTitle, { color: 'rgba(255, 255, 255, 0.8)' }]}>WIDGET</Text>
+        <View style={[styles.menuSection, { backgroundColor: 'rgba(255, 255, 255, 0.1)' }]}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => handleItemPress('widget')}
+            activeOpacity={0.7}
+          >
+            <IconSymbol name="square.grid.2x2" size={20} color="#FFFFFF" />
+            <Text style={[styles.menuItemText, { color: '#FFFFFF' }]}>
+              Configuration Widget
+            </Text>
+            <Text style={[styles.chevron, { color: 'rgba(255, 255, 255, 0.8)' }]}>›</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* DEVELOPMENT Section - Only in dev mode */}
         {DevService.isDevMode() && (
           <>
@@ -387,6 +438,14 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
         <UserPrayersDrawerContent onClose={() => setUserPrayersDrawerVisible(false)} />
       </BottomDrawer>
 
+      {/* Drawer Configuration Widget */}
+              <BottomDrawer isVisible={widgetDrawerVisible} onClose={() => setWidgetDrawerVisible(false)}>
+                <WidgetDrawerContent
+                  onClose={() => setWidgetDrawerVisible(false)}
+                  prayers={widgetPrayers}
+                />
+              </BottomDrawer>
+
       {/* Drawer General */}
       <BottomDrawer isVisible={generalDrawerVisible} onClose={() => setGeneralDrawerVisible(false)}>
         {currentSubScreen ? (
@@ -416,11 +475,12 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
         ) : (
           <GeneralDrawerContent
             onClose={() => setGeneralDrawerVisible(false)}
-            onNavigateToScreen={handleNavigateToSubScreen}
-            currentValues={currentValues}
+            onNavigateToScreen={handleNavigateToSubScreen as (screenName: string) => void}
+            currentValues={currentValues as { firstName: string; gender: string; language: string }}
           />
         )}
       </BottomDrawer>
+
     </View>
   );
 }
@@ -570,5 +630,64 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '400',
     opacity: 0.7,
+  },
+  widgetTestContainer: {
+    flex: 1,
+  },
+  widgetTestHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  widgetTestBackButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  widgetTestBackButtonGlass: {
+    backgroundColor: 'rgba(45, 90, 74, 0.1)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(45, 90, 74, 0.2)',
+    shadowColor: 'rgba(0, 0, 0, 0.1)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    marginRight: 12,
+  },
+  widgetTestBackButtonGlassInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  widgetTestBackButtonGlassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    backgroundColor: 'rgba(45, 90, 74, 0.1)',
+  },
+  widgetTestBackText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  widgetTestTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    flex: 1,
+  },
+  widgetTestContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
 });
