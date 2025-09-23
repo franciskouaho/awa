@@ -20,7 +20,8 @@
     "production": {
       "autoIncrement": true,
       "ios": {
-        "scheme": "awa"
+        "scheme": "awa",
+        "buildConfiguration": "Release"
       }
     }
   },

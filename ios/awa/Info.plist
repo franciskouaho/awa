@@ -64,8 +64,7 @@
     <string>Cette application utilise les notifications pour vous rappeler de prier et maintenir votre routine spirituelle.</string>
     <key>UIBackgroundModes</key>
     <array>
-      <string>background-fetch</string>
-      <string>background-processing</string>
+      <string>remote-notification</string>
     </array>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>

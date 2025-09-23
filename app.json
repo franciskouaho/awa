@@ -21,8 +21,7 @@
       },
       "infoPlist": {
         "UIBackgroundModes": [
-          "background-fetch",
-          "background-processing"
+          "remote-notification"
         ],
         "NSUserNotificationsUsageDescription": "Cette application utilise les notifications pour vous rappeler de prier et maintenir votre routine spirituelle."
       }
