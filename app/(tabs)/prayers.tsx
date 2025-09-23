@@ -106,6 +106,20 @@ export default function PrayersScreen() {
       const bookmarksArray = Array.from(bookmarks);
       await AsyncStorage.setItem('savedPrayers', JSON.stringify(bookmarksArray));
       console.log('✅ Saved bookmarks to storage:', bookmarksArray);
+
+      // Sauvegarder les prières complètes pour le widget
+      const bookmarkedPrayers = prayers.filter(prayer => bookmarks.has(prayer.id || ''));
+      const widgetPrayers = bookmarkedPrayers.map(prayer => ({
+        prayerId: prayer.id || '',
+        name: prayer.name || 'Nom inconnu',
+        age: prayer.age || 0,
+        deathDate: prayer.deathDate?.toDate ? prayer.deathDate.toDate().getTime() : Date.now(),
+        location: prayer.location || 'Lieu non spécifié',
+        personalMessage: prayer.personalMessage || 'Que Dieu ait son âme en paix',
+      }));
+
+      await PrayerWidgetService.saveBookmarksForWidget(widgetPrayers);
+      console.log('✅ Bookmarks saved for widget:', widgetPrayers);
     } catch (error) {
       console.error('❌ Error saving bookmarks:', error);
     }
@@ -766,15 +780,6 @@ export default function PrayersScreen() {
 
                   // Sauvegarder la prière pour le widget
                   console.log('💾 Saving prayer for widget...');
-                  try {
-                    // Utiliser le service PrayerWidgetService qui gère App Groups
-                    await PrayerWidgetService.savePrayerForWidget(widgetPrayer);
-                    console.log('✅ Prayer saved via PrayerWidgetService successfully');
-                  } catch (saveError) {
-                    console.error('❌ Error saving prayer:', saveError);
-                    throw saveError;
-                  }
-
                   // Marquer comme sauvegardé
                   const newSavedPrayers = new Set([...savedPrayers, prayer.id || '']);
                   setSavedPrayers(newSavedPrayers);

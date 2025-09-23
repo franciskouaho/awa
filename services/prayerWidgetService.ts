@@ -67,6 +67,32 @@ class PrayerWidgetService {
       throw error;
     }
   }
+
+  /**
+   * Sauvegarde la liste complète des bookmarks pour le widget (clé 'bookmarkedPrayers')
+   */
+  async saveBookmarksForWidget(bookmarks: PrayerData[]): Promise<void> {
+    try {
+      console.log('💾 Saving bookmarks for widget:', bookmarks);
+
+      if (
+        Platform.OS === 'ios' &&
+        PrayerWidgetDataManager &&
+        PrayerWidgetDataManager.saveBookmarksData
+      ) {
+        // Utiliser le module natif pour App Groups (méthode à ajouter côté natif si besoin)
+        await PrayerWidgetDataManager.saveBookmarksData(bookmarks);
+        console.log('✅ Bookmarks saved to App Groups');
+      } else {
+        // Fallback: AsyncStorage
+        await AsyncStorage.setItem('bookmarkedPrayers', JSON.stringify(bookmarks));
+        console.log('✅ Bookmarks saved to AsyncStorage');
+      }
+    } catch (error) {
+      console.error('Error saving bookmarks for widget:', error);
+      throw error;
+    }
+  }
 }
 
 export default PrayerWidgetService.getInstance();
