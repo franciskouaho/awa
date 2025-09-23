@@ -278,31 +278,14 @@ export const useNotificationsImproved = (): NotificationState & NotificationActi
     }
   }, []);
 
-  // Programmer un rappel quotidien
+  // Programmer un rappel quotidien - DÉSACTIVÉ (on garde seulement les prières)
   const scheduleReminder = useCallback(
     async (time?: string): Promise<void> => {
       try {
-        if (!state.hasPermissions) {
-          return;
-        }
-
-        const reminderTime = time || state.preferences.reminderTime;
-        const [hour, minute] = reminderTime.split(':').map(Number);
-
-        await Notifications.scheduleNotificationAsync({
-          content: {
-            title: '🙏 Temps de prière',
-            body: 'Il est temps de vous connecter avec votre spiritualité.',
-            data: { type: 'evening_reminder' },
-            sound: state.preferences.sound ? 'default' : undefined,
-          },
-          trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.DAILY,
-            hour,
-            minute,
-          },
-        });
-
+        // Désactivé : on ne programme plus de rappels génériques
+        // Seules les notifications de prières pour défunts sont programmées
+        console.log('Rappels quotidiens désactivés - seules les prières sont programmées');
+        
         // Rafraîchir la liste des notifications programmées
         await refreshScheduled();
       } catch (error) {
@@ -312,7 +295,7 @@ export const useNotificationsImproved = (): NotificationState & NotificationActi
         }));
       }
     },
-    [state.hasPermissions, state.preferences.reminderTime, state.preferences.sound, refreshScheduled],
+    [refreshScheduled],
   );
 
   // Gérer les changements d'état de l'application

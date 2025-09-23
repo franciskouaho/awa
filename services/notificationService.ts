@@ -67,7 +67,7 @@ class NotificationService {
 
         return {
           title: `🕊️ Prière pour ${randomPrayer.name}`,
-          body: `${prayerMessage}\n\nQue Dieu accorde Sa miséricorde à ${randomPrayer.name} et à tous les défunts.`,
+          body: `Prière pour ${randomPrayer.name}\n\n${prayerMessage}\n\nQue Dieu accorde Sa miséricorde à ${randomPrayer.name} et à tous les défunts.`,
           data: {
             type: 'deceasedPrayer',
             hasContent: true,
@@ -263,62 +263,15 @@ class NotificationService {
   }
 
   /**
-   * Programme les rappels de prière
+   * Programme les rappels de prière - DÉSACTIVÉ (on garde seulement les prières pour défunts)
    */
   private async schedulePrayerReminders(settings: NotificationSettings): Promise<void> {
-    const [startHourRaw, startMinuteRaw] = settings.startTime.split(':');
-    const [endHourRaw, endMinuteRaw] = settings.endTime.split(':');
-    const startHour = Number(startHourRaw) || 9;
-    const startMinute = Number(startMinuteRaw) || 0;
-    const endHour = Number(endHourRaw) || 22;
-    const endMinute = Number(endMinuteRaw) || 0;
-
-    // Calculer l'intervalle entre les notifications
-    const startTimeMinutes = startHour * 60 + startMinute;
-    const endTimeMinutes = endHour * 60 + endMinute;
-    const totalMinutes = endTimeMinutes - startTimeMinutes;
-    const intervalMinutes = Math.floor(totalMinutes / Math.max(1, Number(settings.dailyCount) - 1));
-
-    for (let i = 0; i < Number(settings.dailyCount); i++) {
-      const notificationMinutes = startTimeMinutes + i * intervalMinutes;
-      const notificationHour = Math.floor(notificationMinutes / 60);
-      const notificationMinute = notificationMinutes % 60;
-
-      // Pour chaque jour sélectionné
-      for (let dayIndex = 0; dayIndex < settings.selectedDays.length; dayIndex++) {
-        if (!settings.selectedDays[dayIndex]) continue;
-
-        // Convertir l'index des jours (0 = dimanche, 1 = lundi, ..., 6 = samedi)
-        // au format Expo Notifications (1 = lundi, ..., 7 = dimanche)
-        const weekday = dayIndex === 0 ? 7 : dayIndex;
-
-        // Obtenir le contenu enrichi de la prière
-        const prayerContent = await this.getPrayerContent(settings.selectedFeed);
-
-        await Notifications.scheduleNotificationAsync({
-          content: {
-            title: prayerContent.title,
-            body: prayerContent.body,
-            data: {
-              ...prayerContent.data,
-              reminderIndex: i + 1,
-              totalReminders: settings.dailyCount,
-              feedName: settings.selectedFeed,
-              type: 'prayer-reminder',
-            },
-            sound: settings.sound ? 'default' : undefined,
-            categoryIdentifier: 'PRAYER_REMINDER',
-          },
-          trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
-            weekday: weekday,
-            hour: notificationHour,
-            minute: notificationMinute,
-            channelId: 'prayer-reminders',
-          },
-        });
-      }
-    }
+    // Désactivé : on ne programme plus de rappels génériques
+    // Seules les notifications de prières pour défunts sont programmées
+    console.log(
+      'Rappels de prières génériques désactivés - seules les prières pour défunts sont programmées'
+    );
+    return;
   }
 
   /**

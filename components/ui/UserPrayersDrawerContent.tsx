@@ -127,11 +127,6 @@ export default function UserPrayersDrawerContent({ onClose }: UserPrayersDrawerC
                   style={{ marginRight: 8 }}
                 />
                 <Text style={styles.cardTitle}>{prayer.name}</Text>
-                {prayer.prayerCount > 10 && (
-                  <View style={styles.badgePopular}>
-                    <Text style={styles.badgeText}>Populaire</Text>
-                  </View>
-                )}
                 {prayer.createdAt &&
                   new Date().getTime() - new Date(prayer.createdAt).getTime() <
                     7 * 24 * 3600 * 1000 && (
@@ -283,15 +278,6 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: '#FFFFFF',
     fontSize: 14,
-  },
-  badgePopular: {
-    backgroundColor: 'rgba(255, 193, 7, 0.2)',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    marginLeft: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 193, 7, 0.3)',
   },
   badgeRecent: {
     backgroundColor: 'rgba(40, 167, 69, 0.2)',

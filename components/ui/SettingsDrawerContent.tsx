@@ -14,16 +14,17 @@ import { usePrayers } from '@/hooks/usePrayers';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { authService } from '@/services/auth';
 import { DevService } from '@/services/devService';
+import { notificationService } from '@/services/notificationService';
 import { PrayerData } from '@/services/prayerWidgetService';
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View /*, Linking*/,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View /*, Linking*/,
 } from 'react-native';
 import appConfig from '../../app.json';
 
@@ -136,6 +137,25 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
     );
   };
 
+  const handleTestNotification = async () => {
+    try {
+      // Tester avec les vraies prières de l'utilisateur
+      await notificationService.sendTestDeceasedPrayerNotification(prayers);
+      Alert.alert(
+        'Notification de test envoyée !',
+        'Une notification de prière pour défunts a été envoyée. Vérifiez votre écran de notifications.',
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Erreur lors du test de notification:', error);
+      Alert.alert(
+        'Erreur',
+        "Impossible d'envoyer la notification de test. Vérifiez que les permissions de notification sont accordées.",
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
   const handleItemPress = (itemId: string) => {
     console.log(`Pressed ${itemId}`);
     switch (itemId) {
@@ -181,6 +201,9 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
         break;
       case 'deleteAccount':
         handleDeleteAccountPress();
+        break;
+      case 'testNotification':
+        handleTestNotification();
         break;
       default:
         break;
@@ -308,9 +331,7 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
             activeOpacity={0.7}
           >
             <IconSymbol name="square.grid.2x2" size={20} color="#FFFFFF" />
-            <Text style={[styles.menuItemText, { color: '#FFFFFF' }]}>
-              Configuration Widget
-            </Text>
+            <Text style={[styles.menuItemText, { color: '#FFFFFF' }]}>Configuration Widget</Text>
             <Text style={[styles.chevron, { color: 'rgba(255, 255, 255, 0.8)' }]}>›</Text>
           </TouchableOpacity>
         </View>
@@ -379,6 +400,22 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
                 </Text>
                 <Text style={[styles.chevron, { color: '#FFC107' }]}>›</Text>
               </TouchableOpacity>
+
+              <View style={[styles.separator, { backgroundColor: 'rgba(255, 193, 7, 0.2)' }]} />
+
+              <TouchableOpacity
+                style={[styles.menuItem, { backgroundColor: 'rgba(255, 193, 7, 0.05)' }]}
+                onPress={() => handleItemPress('testNotification')}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.iconContainer, { backgroundColor: 'rgba(255, 193, 7, 0.2)' }]}>
+                  <IconSymbol name="bell.badge" size={20} color="#FFC107" />
+                </View>
+                <Text style={[styles.menuItemText, { color: '#FFC107', fontWeight: '600' }]}>
+                  Test Notification
+                </Text>
+                <Text style={[styles.chevron, { color: '#FFC107' }]}>›</Text>
+              </TouchableOpacity>
             </View>
           </>
         )}
@@ -439,12 +476,12 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
       </BottomDrawer>
 
       {/* Drawer Configuration Widget */}
-              <BottomDrawer isVisible={widgetDrawerVisible} onClose={() => setWidgetDrawerVisible(false)}>
-                <WidgetDrawerContent
-                  onClose={() => setWidgetDrawerVisible(false)}
-                  prayers={widgetPrayers}
-                />
-              </BottomDrawer>
+      <BottomDrawer isVisible={widgetDrawerVisible} onClose={() => setWidgetDrawerVisible(false)}>
+        <WidgetDrawerContent
+          onClose={() => setWidgetDrawerVisible(false)}
+          prayers={widgetPrayers}
+        />
+      </BottomDrawer>
 
       {/* Drawer General */}
       <BottomDrawer isVisible={generalDrawerVisible} onClose={() => setGeneralDrawerVisible(false)}>
@@ -480,7 +517,6 @@ export default function SettingsDrawerContent({ onClose }: SettingsDrawerContent
           />
         )}
       </BottomDrawer>
-
     </View>
   );
 }

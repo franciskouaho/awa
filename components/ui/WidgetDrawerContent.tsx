@@ -13,19 +13,22 @@ interface WidgetDrawerContentProps {
 export default function WidgetDrawerContent({ onClose, prayers }: WidgetDrawerContentProps) {
   return (
     <LinearGradient colors={['#2D5A4A', '#4A7C69', '#6BAF8A']} style={styles.container}>
-      {/* Header */}
+      {/* Header amélioré */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onClose}>
-          <IconSymbol name="chevron.left" size={24} color="#FFFFFF" />
-          <Text style={styles.backButtonText}>Retour</Text>
+        <TouchableOpacity style={styles.backButton} onPress={onClose} activeOpacity={0.7}>
+          <View style={styles.backButtonGlass}>
+            <View style={styles.backButtonGlassInner}>
+              <View style={styles.backButtonGlassHighlight} />
+              <IconSymbol name="chevron.left" size={20} color="#2D5A4A" />
+            </View>
+          </View>
+          <Text style={styles.backText}>Retour</Text>
         </TouchableOpacity>
+        
       </View>
 
-      {/* Content */}
       <View style={styles.content}>
-        <Text style={styles.mainTitle}>Widget de Prière</Text>
-
-        {/* Instructions */}
+        {/* Instructions simplifiées */}
         <View style={styles.instructionsCard}>
           <View style={styles.cardContent}>
             <View style={styles.cardGlassHighlight} />
@@ -35,51 +38,49 @@ export default function WidgetDrawerContent({ onClose, prayers }: WidgetDrawerCo
               <View style={styles.instructionItem}>
                 <Text style={styles.instructionNumber}>1</Text>
                 <Text style={styles.instructionText}>
-                  Cliquez sur le bookmark ⭐ d&apos;une prière pour la sélectionner
+                  Cliquez sur le bookmark ⭐ d'une prière
                 </Text>
               </View>
 
               <View style={styles.instructionItem}>
                 <Text style={styles.instructionNumber}>2</Text>
                 <Text style={styles.instructionText}>
-                  Allez sur l&apos;écran d&apos;accueil de votre iPhone
+                  Allez sur l'écran d'accueil de votre iPhone
                 </Text>
               </View>
 
               <View style={styles.instructionItem}>
                 <Text style={styles.instructionNumber}>3</Text>
-                <Text style={styles.instructionText}>Appuyez longuement sur un espace vide</Text>
+                <Text style={styles.instructionText}>
+                  Appuyez longuement sur un espace vide
+                </Text>
               </View>
 
               <View style={styles.instructionItem}>
                 <Text style={styles.instructionNumber}>4</Text>
                 <Text style={styles.instructionText}>
-                  Cliquez sur le &quot;+&quot; en haut à gauche
+                  Cliquez sur le "+" en haut à gauche
                 </Text>
               </View>
 
               <View style={styles.instructionItem}>
                 <Text style={styles.instructionNumber}>5</Text>
                 <Text style={styles.instructionText}>
-                  Recherchez &quot;Awa&quot; et ajoutez le widget de prière
+                  Recherchez "Awa" et ajoutez le widget
                 </Text>
               </View>
             </View>
           </View>
         </View>
 
-        {/* Statut */}
-        <View style={styles.statusCard}>
+        {/* Message simple */}
+        <View style={styles.messageCard}>
           <View style={styles.cardContent}>
             <View style={styles.cardGlassHighlight} />
-            <Text style={styles.cardTitle}>Statut</Text>
-            <Text style={styles.statusText}>
+            <Text style={styles.messageText}>
               {prayers.length > 0
-                ? `✅ ${prayers.length} prière(s) disponible(s)`
-                : '❌ Aucune prière disponible'}
-            </Text>
-            <Text style={styles.statusSubText}>
-              Sélectionnez une prière avec le bookmark ⭐ pour l&apos;afficher dans le widget
+                ? 'Sélectionnez une prière avec le bookmark ⭐ pour l\'afficher dans le widget'
+                : 'Créez d\'abord une prière depuis l\'écran principal'}
             </Text>
           </View>
         </View>
@@ -91,62 +92,86 @@ export default function WidgetDrawerContent({ onClose, prayers }: WidgetDrawerCo
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingTop: 20,
     paddingBottom: 20,
+    paddingHorizontal: 20,
   },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 8,
+    borderRadius: 8,
+    marginRight: 8,
   },
-  backButtonText: {
-    color: '#FFFFFF',
+  backButtonGlass: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: 'rgba(0, 0, 0, 0.1)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    marginRight: 12,
+  },
+  backButtonGlassInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  backButtonGlassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  backText: {
     fontSize: 16,
-    marginLeft: 8,
+    fontWeight: '500',
+    color: '#FFFFFF',
   },
   content: {
     flex: 1,
     paddingHorizontal: 20,
-  },
-  mainTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 30,
+    paddingTop: 20,
   },
   instructionsCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 12,
-    marginBottom: 16,
+    borderRadius: 16,
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     shadowColor: 'rgba(255, 255, 255, 0.3)',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 12,
+    elevation: 8,
     overflow: 'hidden',
   },
-  statusCard: {
+  messageCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 12,
-    marginBottom: 16,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     shadowColor: 'rgba(255, 255, 255, 0.3)',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 12,
+    elevation: 8,
     overflow: 'hidden',
   },
   cardContent: {
-    padding: 20,
+    padding: 24,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     position: 'relative',
   },
@@ -157,17 +182,23 @@ const styles = StyleSheet.create({
     right: 0,
     height: '50%',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
     color: '#FFFFFF',
-    marginBottom: 16,
+    marginBottom: 20,
+  },
+  messageText: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
+    lineHeight: 24,
+    textAlign: 'center',
   },
   instructionsList: {
-    gap: 12,
+    gap: 16,
   },
   instructionItem: {
     flexDirection: 'row',
@@ -190,16 +221,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'rgba(255, 255, 255, 0.9)',
     lineHeight: 22,
-  },
-  statusText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  statusSubText: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-    lineHeight: 20,
   },
 });
