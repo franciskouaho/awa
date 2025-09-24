@@ -67,7 +67,7 @@ class NotificationService {
 
         return {
           title: `🕊️ Prière pour ${randomPrayer.name}`,
-          body: `${prayerMessage}\n\nQue Dieu accorde Sa miséricorde à ${randomPrayer.name} et à tous les défunts.`,
+          body: `Prière pour ${randomPrayer.name}\n\n${prayerMessage}\n\nQue Dieu accorde Sa miséricorde à ${randomPrayer.name} et à tous les défunts.`,
           data: {
             type: 'deceasedPrayer',
             hasContent: true,
@@ -136,6 +136,9 @@ class NotificationService {
         showBadge: true,
       });
     }
+
+    // Configuration des catégories de notifications
+    await this.setupNotificationCategories();
 
     this.isInitialized = true;
   }
@@ -263,62 +266,15 @@ class NotificationService {
   }
 
   /**
-   * Programme les rappels de prière
+   * Programme les rappels de prière - DÉSACTIVÉ (on garde seulement les prières pour défunts)
    */
   private async schedulePrayerReminders(settings: NotificationSettings): Promise<void> {
-    const [startHourRaw, startMinuteRaw] = settings.startTime.split(':');
-    const [endHourRaw, endMinuteRaw] = settings.endTime.split(':');
-    const startHour = Number(startHourRaw) || 9;
-    const startMinute = Number(startMinuteRaw) || 0;
-    const endHour = Number(endHourRaw) || 22;
-    const endMinute = Number(endMinuteRaw) || 0;
-
-    // Calculer l'intervalle entre les notifications
-    const startTimeMinutes = startHour * 60 + startMinute;
-    const endTimeMinutes = endHour * 60 + endMinute;
-    const totalMinutes = endTimeMinutes - startTimeMinutes;
-    const intervalMinutes = Math.floor(totalMinutes / Math.max(1, Number(settings.dailyCount) - 1));
-
-    for (let i = 0; i < Number(settings.dailyCount); i++) {
-      const notificationMinutes = startTimeMinutes + i * intervalMinutes;
-      const notificationHour = Math.floor(notificationMinutes / 60);
-      const notificationMinute = notificationMinutes % 60;
-
-      // Pour chaque jour sélectionné
-      for (let dayIndex = 0; dayIndex < settings.selectedDays.length; dayIndex++) {
-        if (!settings.selectedDays[dayIndex]) continue;
-
-        // Convertir l'index des jours (0 = dimanche, 1 = lundi, ..., 6 = samedi)
-        // au format Expo Notifications (1 = lundi, ..., 7 = dimanche)
-        const weekday = dayIndex === 0 ? 7 : dayIndex;
-
-        // Obtenir le contenu enrichi de la prière
-        const prayerContent = await this.getPrayerContent(settings.selectedFeed);
-
-        await Notifications.scheduleNotificationAsync({
-          content: {
-            title: prayerContent.title,
-            body: prayerContent.body,
-            data: {
-              ...prayerContent.data,
-              reminderIndex: i + 1,
-              totalReminders: settings.dailyCount,
-              feedName: settings.selectedFeed,
-              type: 'prayer-reminder',
-            },
-            sound: settings.sound ? 'default' : undefined,
-            categoryIdentifier: 'PRAYER_REMINDER',
-          },
-          trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
-            weekday: weekday,
-            hour: notificationHour,
-            minute: notificationMinute,
-            channelId: 'prayer-reminders',
-          },
-        });
-      }
-    }
+    // Désactivé : on ne programme plus de rappels génériques
+    // Seules les notifications de prières pour défunts sont programmées
+    console.log(
+      'Rappels de prières génériques désactivés - seules les prières pour défunts sont programmées'
+    );
+    return;
   }
 
   /**
@@ -353,24 +309,25 @@ class NotificationService {
       throw new Error('Notification permissions not granted');
     }
 
-    // Obtenir du contenu enrichi pour le test
-    const prayerContent = await this.getPrayerContent('Feed actuel');
-
+    // Notification de test simple et directe
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: prayerContent.title,
-        body: prayerContent.body,
+        title: '🧪 Test de notification',
+        body: 'Si vous voyez ce message, les notifications fonctionnent correctement !',
         data: {
-          ...prayerContent.data,
           type: 'test',
+          timestamp: Date.now(),
         },
         sound: 'default',
+        categoryIdentifier: 'PRAYER_REMINDER',
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds: 1,
       },
     });
+
+    console.log('✅ Notification de test programmée avec succès');
   }
 
   /**
@@ -439,7 +396,7 @@ class NotificationService {
       };
 
       const contentGetter = feedContentMap[feedName] || feedContentMap['Feed actuel'];
-      return await contentGetter();
+      return contentGetter ? await contentGetter() : null;
     } catch (error) {
       console.error('Erreur lors de la récupération du contenu pour le feed:', error);
       return null;
@@ -502,7 +459,7 @@ class NotificationService {
     ];
 
     const randomType = contentTypes[Math.floor(Math.random() * contentTypes.length)];
-    return await randomType();
+    return randomType ? await randomType() : null;
   }
 
   /**
@@ -639,6 +596,38 @@ class NotificationService {
       },
     ]);
   }
+
+  /**
+   * Diagnostic complet du système de notifications
+   */
+  async diagnosticNotifications(): Promise<{
+    permissions: NotificationPermissions;
+    isDevice: boolean;
+    scheduledCount: number;
+    canSchedule: boolean;
+    error?: string;
+  }> {
+    try {
+      const permissions = await this.getPermissions();
+      const isDevice = Device.isDevice;
+      const scheduled = await this.getScheduledReminders();
+
+      return {
+        permissions,
+        isDevice,
+        scheduledCount: scheduled.length,
+        canSchedule: permissions.granted && isDevice,
+      };
+    } catch (error) {
+      return {
+        permissions: { granted: false, canAskAgain: false, status: 'unknown' },
+        isDevice: false,
+        scheduledCount: 0,
+        canSchedule: false,
+        error: error instanceof Error ? error.message : 'Erreur inconnue',
+      };
+    }
+  }
 }
 
 // Instance singleton
@@ -660,5 +649,6 @@ export function useNotifications() {
     getScheduledReminders: () => notificationService.getScheduledReminders(),
     getExpoPushToken: () => notificationService.getExpoPushToken(),
     setupNotificationCategories: () => notificationService.setupNotificationCategories(),
+    diagnosticNotifications: () => notificationService.diagnosticNotifications(),
   };
 }

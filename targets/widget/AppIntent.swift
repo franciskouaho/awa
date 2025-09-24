@@ -1,10 +1,3 @@
-//
-//  AppIntent.swift
-//  PrayerWidgetExtension
-//
-//  Created by Francis KOUAHO on 22/09/2025.
-//
-
 import WidgetKit
 import AppIntents
 

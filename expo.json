@@ -15,7 +15,7 @@
       "appleTeamId": "NAN7MFNMT7",
       "scheme": "awa",
       "infoPlist": {
-        "UIBackgroundModes": ["background-fetch", "background-processing"],
+        "UIBackgroundModes": ["remote-notification"],
         "NSUserNotificationsUsageDescription": "Cette application utilise les notifications pour vous rappeler de prier et maintenir votre routine spirituelle."
       }
     },

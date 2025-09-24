@@ -19,7 +19,7 @@
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.4.0</string>
+    <string>1.0.0</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleURLTypes</key>
@@ -64,8 +64,7 @@
     <string>Cette application utilise les notifications pour vous rappeler de prier et maintenir votre routine spirituelle.</string>
     <key>UIBackgroundModes</key>
     <array>
-      <string>background-fetch</string>
-      <string>background-processing</string>
+      <string>remote-notification</string>
     </array>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>

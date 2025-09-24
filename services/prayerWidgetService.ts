@@ -1,8 +1,8 @@
+import { ExtensionStorage } from '@bacons/apple-targets';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NativeModules, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
 // Module natif pour sauvegarder les données dans App Groups
-const { PrayerWidgetModule, PrayerWidgetDataManager } = NativeModules;
 
 export interface PrayerData {
   prayerId: string;
@@ -20,6 +20,8 @@ export interface WidgetStatus {
 
 class PrayerWidgetService {
   private static instance: PrayerWidgetService;
+  private appGroupIdentifier = 'group.com.emplica.awa';
+  private widgetStorage = new ExtensionStorage(this.appGroupIdentifier);
 
   static getInstance(): PrayerWidgetService {
     if (!PrayerWidgetService.instance) {
@@ -51,20 +53,89 @@ class PrayerWidgetService {
     try {
       console.log(`💾 Saving prayer data for widget: ${prayerData.name}`);
 
-      if (Platform.OS === 'ios' && PrayerWidgetDataManager) {
-        // Utiliser le module natif pour App Groups
-        console.log('📱 Using PrayerWidgetDataManager for App Groups');
-        await PrayerWidgetDataManager.savePrayerData(prayerData);
-        console.log('✅ Prayer data saved to App Groups');
-      } else {
-        // Fallback: AsyncStorage
-        console.log('📱 Using AsyncStorage fallback');
-        await AsyncStorage.setItem('currentPrayerData', JSON.stringify(prayerData));
-        console.log('✅ Prayer data saved to AsyncStorage');
-      }
+      // Fallback: AsyncStorage
+      console.log('📱 Using AsyncStorage fallback');
+      await AsyncStorage.setItem('currentPrayerData', JSON.stringify(prayerData));
+      console.log('✅ Prayer data saved to AsyncStorage');
     } catch (error) {
       console.error('Error saving prayer data for widget:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Sauvegarde la liste complète des bookmarks pour le widget (clé 'bookmarkedPrayers')
+   */
+  async saveBookmarksForWidget(bookmarks: PrayerData[]): Promise<void> {
+    try {
+      console.log('💾 Saving bookmarks for widget:', bookmarks);
+      console.log(
+        '📊 Bookmark details:',
+        bookmarks.map(b => ({
+          name: b.name,
+          age: b.age,
+          location: b.location,
+          deathDate: new Date(b.deathDate).toISOString(),
+        }))
+      );
+
+      const appGroupIdentifier = 'group.com.emplica.awa';
+      const bookmarksKey = 'bookmarkedPrayers';
+
+      if (Platform.OS === 'ios') {
+        console.log('📱 Using ExtensionStorage for App Groups');
+        // Convertir les données au format attendu par ExtensionStorage
+        const formattedBookmarks = bookmarks.map(bookmark => ({
+          prayerId: bookmark.prayerId,
+          name: bookmark.name,
+          age: bookmark.age,
+          location: bookmark.location,
+          personalMessage: bookmark.personalMessage,
+          deathDate: bookmark.deathDate,
+        }));
+        await this.widgetStorage.set('bookmarkedPrayers', formattedBookmarks);
+        console.log('✅ Bookmarks saved to App Groups via ExtensionStorage');
+      } else {
+        console.log('📱 Using AsyncStorage fallback');
+        // Fallback: AsyncStorage
+        await AsyncStorage.setItem('bookmarkedPrayers', JSON.stringify(bookmarks));
+        console.log('✅ Bookmarks saved to AsyncStorage');
+      }
+    } catch (error) {
+      console.error('❌ Error saving bookmarks for widget:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère les bookmarks depuis App Groups (pour debug)
+   */
+  async getBookmarksFromWidget(): Promise<PrayerData[]> {
+    try {
+      if (Platform.OS === 'ios') {
+        console.log('📱 Reading bookmarks from App Groups via ExtensionStorage');
+        const bookmarks = await this.widgetStorage.get('bookmarkedPrayers');
+        console.log('✅ Bookmarks retrieved from ExtensionStorage:', bookmarks);
+        // Convertir les données au format PrayerData
+        if (Array.isArray(bookmarks)) {
+          return bookmarks.map((bookmark: any) => ({
+            prayerId: bookmark.prayerId || '',
+            name: bookmark.name || '',
+            age: bookmark.age || 0,
+            location: bookmark.location || '',
+            personalMessage: bookmark.personalMessage || '',
+            deathDate: bookmark.deathDate || Date.now(),
+          }));
+        }
+        return [];
+      } else {
+        console.log('📱 Reading bookmarks from AsyncStorage');
+        const bookmarks = await AsyncStorage.getItem('bookmarkedPrayers');
+        return bookmarks ? JSON.parse(bookmarks) : [];
+      }
+    } catch (error) {
+      console.error('❌ Error reading bookmarks from widget:', error);
+      return [];
     }
   }
 }

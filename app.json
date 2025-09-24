@@ -2,7 +2,7 @@
   "expo": {
     "name": "Awa",
     "slug": "awa",
-    "version": "0.4.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "awa",
@@ -14,10 +14,14 @@
       "bundleIdentifier": "com.emplica.awa",
       "appleTeamId": "NAN7MFNMT7",
       "scheme": "awa",
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.com.emplica.awa"
+        ]
+      },
       "infoPlist": {
         "UIBackgroundModes": [
-          "background-fetch",
-          "background-processing"
+          "remote-notification"
         ],
         "NSUserNotificationsUsageDescription": "Cette application utilise les notifications pour vous rappeler de prier et maintenir votre routine spirituelle."
       }
@@ -49,6 +53,7 @@
     },
     "plugins": [
       "expo-router",
+      "@bacons/apple-targets",
       "@react-native-firebase/app",
       "@react-native-firebase/auth",
       [

@@ -17,7 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { PrayerFormula } from '@/services/contentService';
 import { PrayerData } from '@/services/prayerService';
 import PrayerWidgetService, {
-  PrayerData as WidgetPrayerData,
+    PrayerData as WidgetPrayerData,
 } from '@/services/prayerWidgetService';
 import { formatDate, replaceNamePlaceholders } from '@/utils';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,18 +25,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Dimensions,
-  Platform,
-  RefreshControl,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Animated,
+    Dimensions,
+    Platform,
+    RefreshControl,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -80,34 +80,77 @@ export default function PrayersScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [shareDrawerVisible, setShareDrawerVisible] = useState(false);
   const [selectedPrayerForShare, setSelectedPrayerForShare] = useState<PrayerData | null>(null);
-  const [savedPrayers, setSavedPrayers] = useState<Set<string>>(new Set());
+  const [savedPrayer, setSavedPrayer] = useState<string | null>(null);
 
-  // Charger les bookmarks sauvegardés au démarrage
+  // Charger le bookmark sauvegardé au démarrage
   useEffect(() => {
-    const loadSavedPrayers = async () => {
+    const loadSavedPrayer = async () => {
       try {
-        const saved = await AsyncStorage.getItem('savedPrayers');
+        const saved = await AsyncStorage.getItem('savedPrayer');
         if (saved) {
-          const savedArray = JSON.parse(saved);
-          setSavedPrayers(new Set(savedArray));
-          console.log('✅ Loaded saved prayers:', savedArray);
+          setSavedPrayer(saved);
+          console.log('✅ Loaded saved prayer:', saved);
         }
       } catch (error) {
-        console.error('❌ Error loading saved prayers:', error);
+        console.error('❌ Error loading saved prayer:', error);
       }
     };
 
-    loadSavedPrayers();
+    loadSavedPrayer();
   }, []);
 
-  // Sauvegarder les bookmarks quand ils changent
-  const saveBookmarksToStorage = async (bookmarks: Set<string>) => {
+  // Sauvegarder le bookmark quand il change
+  const saveBookmarkToStorage = async (prayerId: string | null) => {
     try {
-      const bookmarksArray = Array.from(bookmarks);
-      await AsyncStorage.setItem('savedPrayers', JSON.stringify(bookmarksArray));
-      console.log('✅ Saved bookmarks to storage:', bookmarksArray);
+      if (prayerId) {
+        await AsyncStorage.setItem('savedPrayer', prayerId);
+        console.log('✅ Saved prayer to storage:', prayerId);
+
+        // Sauvegarder la prière complète pour le widget
+        const bookmarkedPrayer = prayers.find(prayer => prayer.id === prayerId);
+        if (bookmarkedPrayer) {
+          // Gérer la date de décès correctement
+          let deathDate = Date.now();
+          if (bookmarkedPrayer.deathDate) {
+            if (bookmarkedPrayer.deathDate instanceof Date) {
+              deathDate = bookmarkedPrayer.deathDate.getTime();
+            } else if (typeof bookmarkedPrayer.deathDate === 'string') {
+              deathDate = new Date(bookmarkedPrayer.deathDate).getTime();
+            } else if (typeof bookmarkedPrayer.deathDate === 'number') {
+              deathDate = bookmarkedPrayer.deathDate;
+            }
+          }
+          
+          const widgetPrayer = {
+            prayerId: bookmarkedPrayer.id || '',
+            name: bookmarkedPrayer.name || 'Nom inconnu',
+            age: bookmarkedPrayer.age || 0,
+            deathDate: deathDate,
+            location: bookmarkedPrayer.location || 'Lieu non spécifié',
+            personalMessage: bookmarkedPrayer.personalMessage || 'Que Dieu ait son âme en paix',
+          };
+
+          console.log('📊 Widget prayer to save:', {
+            name: widgetPrayer.name,
+            age: widgetPrayer.age,
+            location: widgetPrayer.location,
+            deathDate: new Date(widgetPrayer.deathDate).toISOString()
+          });
+          
+          await PrayerWidgetService.saveBookmarksForWidget([widgetPrayer]);
+          console.log('✅ Prayer saved for widget:', widgetPrayer);
+          
+          // Test: Vérifier que les données sont bien sauvegardées
+          const savedBookmarks = await PrayerWidgetService.getBookmarksFromWidget();
+          console.log('🧪 Test: Retrieved bookmarks from widget:', savedBookmarks);
+        }
+      } else {
+        await AsyncStorage.removeItem('savedPrayer');
+        await PrayerWidgetService.saveBookmarksForWidget([]);
+        console.log('✅ Removed saved prayer');
+      }
     } catch (error) {
-      console.error('❌ Error saving bookmarks:', error);
+      console.error('❌ Error saving prayer:', error);
     }
   };
 
@@ -722,12 +765,12 @@ export default function PrayersScreen() {
             </View>
           </TouchableOpacity>
 
-          {/* Bouton Bookmark pour le widget */}
+          {/* Bouton Bookmark pour le widget - UN SEUL à la fois */}
           <TouchableOpacity
             style={styles.actionButton}
             onPress={async () => {
               try {
-                const isCurrentlySaved = savedPrayers.has(prayer.id || '');
+                const isCurrentlySaved = savedPrayer === prayer.id;
                 console.log(
                   `🔖 Bookmark button pressed for prayer: ${prayer.name} (currently saved: ${isCurrentlySaved})`
                 );
@@ -736,54 +779,30 @@ export default function PrayersScreen() {
 
                 if (isCurrentlySaved) {
                   // Débookmarker la prière
-                  const newSavedPrayers = new Set(savedPrayers);
-                  newSavedPrayers.delete(prayer.id || '');
-                  setSavedPrayers(newSavedPrayers);
-                  await saveBookmarksToStorage(newSavedPrayers);
+                  setSavedPrayer(null);
+                  await saveBookmarkToStorage(null);
                   console.log('✅ Prayer unbookmarked and persisted');
                   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                  
+                  // Message informatif
+                  Alert.alert(
+                    'Widget mis à jour',
+                    'Cette prière a été retirée du widget.',
+                    [{ text: 'OK' }]
+                  );
                 } else {
-                  // Bookmarker la prière
-                  console.log('🔍 Prayer data:', {
-                    id: prayer.id,
-                    name: prayer.name,
-                    age: prayer.age,
-                    location: prayer.location,
-                    deathDate: prayer.deathDate,
-                    personalMessage: prayer.personalMessage,
-                  });
-
-                  // Convertir la prière pour le widget
-                  console.log('🔄 Converting prayer for widget...');
-                  let widgetPrayer;
-                  try {
-                    widgetPrayer = convertPrayerForWidget(prayer);
-                    console.log('✅ Prayer converted:', widgetPrayer);
-                  } catch (conversionError) {
-                    console.error('❌ Error converting prayer:', conversionError);
-                    throw conversionError;
-                  }
-
-                  // Sauvegarder la prière pour le widget
-                  console.log('💾 Saving prayer for widget...');
-                  try {
-                    // Utiliser le service PrayerWidgetService qui gère App Groups
-                    await PrayerWidgetService.savePrayerForWidget(widgetPrayer);
-                    console.log('✅ Prayer saved via PrayerWidgetService successfully');
-                  } catch (saveError) {
-                    console.error('❌ Error saving prayer:', saveError);
-                    throw saveError;
-                  }
-
-                  // Marquer comme sauvegardé
-                  const newSavedPrayers = new Set([...savedPrayers, prayer.id || '']);
-                  setSavedPrayers(newSavedPrayers);
-                  await saveBookmarksToStorage(newSavedPrayers);
-                  console.log('✅ Prayer marked as saved and persisted');
-
-                  // Feedback visuel et haptique
+                  // Bookmarker cette prière (remplace l'ancienne si elle existe)
+                  setSavedPrayer(prayer.id || '');
+                  await saveBookmarkToStorage(prayer.id || '');
+                  console.log('✅ Prayer bookmarked and persisted');
                   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                  console.log('✅ Bookmark process completed successfully');
+                  
+                  // Message informatif
+                  Alert.alert(
+                    'Ajouté au widget !',
+                    'Cette prière sera maintenant affichée dans le widget iOS. Vous pouvez la voir sur l\'écran d\'accueil.',
+                    [{ text: 'Parfait !' }]
+                  );
                 }
               } catch (error) {
                 console.error('❌ Error in bookmark process:', error);
@@ -794,6 +813,12 @@ export default function PrayersScreen() {
                   prayerId: prayer.id,
                 });
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+                
+                Alert.alert(
+                  'Erreur',
+                  'Impossible de mettre à jour le widget. Veuillez réessayer.',
+                  [{ text: 'OK' }]
+                );
               }
             }}
             activeOpacity={0.8}
@@ -802,9 +827,9 @@ export default function PrayersScreen() {
               <View style={styles.actionGlassInner}>
                 <View style={styles.actionGlassHighlight} />
                 <Ionicons
-                  name={savedPrayers.has(prayer.id || '') ? 'bookmark' : 'bookmark-outline'}
+                  name={savedPrayer === prayer.id ? 'bookmark' : 'bookmark-outline'}
                   size={36}
-                  color={savedPrayers.has(prayer.id || '') ? '#FFD700' : '#FFFFFF'}
+                  color={savedPrayer === prayer.id ? '#FFD700' : '#FFFFFF'}
                 />
               </View>
             </View>

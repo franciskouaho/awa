@@ -28,6 +28,7 @@ const MAPPING = {
   'person.fill': 'person',
   // Icônes pour les paramètres
   'bell.fill': 'notifications',
+  'bell.badge': 'notifications-active',
   'lock.fill': 'lock',
   'info.circle.fill': 'info',
   // Icônes simples sans couleurs pour le drawer
@@ -41,6 +42,10 @@ const MAPPING = {
   checkmark: 'check',
   trash: 'delete',
   'exclamationmark.triangle': 'warning',
+  // Icônes pour le développement
+  'arrow.clockwise': 'refresh',
+  'info.circle': 'info',
+  'star': 'star',
 } as IconMapping;
 
 /**
