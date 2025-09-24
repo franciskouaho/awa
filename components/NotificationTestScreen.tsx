@@ -7,10 +7,11 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 
 export default function NotificationTestScreen() {
   const { permissions, requestPermission, isLoading } = useNotificationPermissions();
-  const { sendTestNotification, getScheduledReminders, cancelAllReminders } = useNotifications();
+  const { sendTestNotification, sendTestDeceasedPrayerNotification, getScheduledReminders, cancelAllReminders, diagnosticNotifications } = useNotifications();
   const { hasProcessedOnboarding, isProcessing, resetOnboardingNotifications } = useOnboardingNotifications();
   
   const [scheduledCount, setScheduledCount] = useState<number>(0);
+  const [diagnostic, setDiagnostic] = useState<any>(null);
 
   const handleGetScheduled = async () => {
     try {
@@ -38,9 +39,51 @@ export default function NotificationTestScreen() {
   const handleTestNotification = async () => {
     try {
       await sendTestNotification();
-      Alert.alert('Test envoyé', 'Une notification de test va apparaître');
+      Alert.alert('Test envoyé', 'Une notification de test va apparaître dans 1 seconde');
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible d\'envoyer la notification de test');
+      Alert.alert('Erreur', `Impossible d'envoyer la notification de test: ${error}`);
+    }
+  };
+
+  const handleTestDeceasedPrayer = async () => {
+    try {
+      // Simuler des prières de défunts pour le test
+      const mockPrayerData = [
+        {
+          id: '1',
+          name: 'Papa',
+          message: 'Que Dieu accorde Sa miséricorde à Papa et lui accorde le paradis.',
+          prayer: 'Que Dieu accorde Sa miséricorde à Papa et lui accorde le paradis.'
+        },
+        {
+          id: '2', 
+          name: 'Maman',
+          message: 'Prière pour Maman, que Dieu lui accorde Sa miséricorde infinie.',
+          prayer: 'Prière pour Maman, que Dieu lui accorde Sa miséricorde infinie.'
+        }
+      ];
+      
+      await sendTestDeceasedPrayerNotification(mockPrayerData);
+      Alert.alert('Test envoyé', 'Une notification pour les défunts va apparaître dans 1 seconde');
+    } catch (error) {
+      Alert.alert('Erreur', `Impossible d'envoyer la notification pour les défunts: ${error}`);
+    }
+  };
+
+  const handleDiagnostic = async () => {
+    try {
+      const result = await diagnosticNotifications();
+      setDiagnostic(result);
+      Alert.alert(
+        'Diagnostic des notifications',
+        `Permissions: ${result.permissions.granted ? '✅' : '❌'}\n` +
+        `Appareil physique: ${result.isDevice ? '✅' : '❌'}\n` +
+        `Notifications programmées: ${result.scheduledCount}\n` +
+        `Peut programmer: ${result.canSchedule ? '✅' : '❌'}\n` +
+        (result.error ? `Erreur: ${result.error}` : '')
+      );
+    } catch (error) {
+      Alert.alert('Erreur', 'Impossible de faire le diagnostic');
     }
   };
 
@@ -155,10 +198,25 @@ export default function NotificationTestScreen() {
         
         <TouchableOpacity 
           style={styles.button} 
+          onPress={handleDiagnostic}
+        >
+          <Text style={styles.buttonText}>🔍 Diagnostic complet</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.button} 
           onPress={handleTestNotification}
           disabled={!permissions?.granted}
         >
-          <Text style={styles.buttonText}>Envoyer une notification de test</Text>
+          <Text style={styles.buttonText}>🧪 Envoyer une notification de test</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={handleTestDeceasedPrayer}
+          disabled={!permissions?.granted}
+        >
+          <Text style={styles.buttonText}>🕊️ Test notification défunts (avec noms)</Text>
         </TouchableOpacity>
       </View>
 

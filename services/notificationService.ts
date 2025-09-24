@@ -137,6 +137,9 @@ class NotificationService {
       });
     }
 
+    // Configuration des catégories de notifications
+    await this.setupNotificationCategories();
+
     this.isInitialized = true;
   }
 
@@ -306,24 +309,25 @@ class NotificationService {
       throw new Error('Notification permissions not granted');
     }
 
-    // Obtenir du contenu enrichi pour le test
-    const prayerContent = await this.getPrayerContent('Feed actuel');
-
+    // Notification de test simple et directe
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: prayerContent.title,
-        body: prayerContent.body,
+        title: '🧪 Test de notification',
+        body: 'Si vous voyez ce message, les notifications fonctionnent correctement !',
         data: {
-          ...prayerContent.data,
           type: 'test',
+          timestamp: Date.now(),
         },
         sound: 'default',
+        categoryIdentifier: 'PRAYER_REMINDER',
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds: 1,
       },
     });
+
+    console.log('✅ Notification de test programmée avec succès');
   }
 
   /**
@@ -392,7 +396,7 @@ class NotificationService {
       };
 
       const contentGetter = feedContentMap[feedName] || feedContentMap['Feed actuel'];
-      return await contentGetter();
+      return contentGetter ? await contentGetter() : null;
     } catch (error) {
       console.error('Erreur lors de la récupération du contenu pour le feed:', error);
       return null;
@@ -455,7 +459,7 @@ class NotificationService {
     ];
 
     const randomType = contentTypes[Math.floor(Math.random() * contentTypes.length)];
-    return await randomType();
+    return randomType ? await randomType() : null;
   }
 
   /**
@@ -592,6 +596,38 @@ class NotificationService {
       },
     ]);
   }
+
+  /**
+   * Diagnostic complet du système de notifications
+   */
+  async diagnosticNotifications(): Promise<{
+    permissions: NotificationPermissions;
+    isDevice: boolean;
+    scheduledCount: number;
+    canSchedule: boolean;
+    error?: string;
+  }> {
+    try {
+      const permissions = await this.getPermissions();
+      const isDevice = Device.isDevice;
+      const scheduled = await this.getScheduledReminders();
+
+      return {
+        permissions,
+        isDevice,
+        scheduledCount: scheduled.length,
+        canSchedule: permissions.granted && isDevice,
+      };
+    } catch (error) {
+      return {
+        permissions: { granted: false, canAskAgain: false, status: 'unknown' },
+        isDevice: false,
+        scheduledCount: 0,
+        canSchedule: false,
+        error: error instanceof Error ? error.message : 'Erreur inconnue',
+      };
+    }
+  }
 }
 
 // Instance singleton
@@ -613,5 +649,6 @@ export function useNotifications() {
     getScheduledReminders: () => notificationService.getScheduledReminders(),
     getExpoPushToken: () => notificationService.getExpoPushToken(),
     setupNotificationCategories: () => notificationService.setupNotificationCategories(),
+    diagnosticNotifications: () => notificationService.diagnosticNotifications(),
   };
 }
